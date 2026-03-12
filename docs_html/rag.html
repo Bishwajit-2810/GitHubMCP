@@ -1,0 +1,1857 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RAG — AI Ecosystem Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      aside {
+        width: 240px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 72px;
+        align-self: flex-start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+      aside ul {
+        list-style: none;
+      }
+      aside li a {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.87rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 4px 4px 0;
+      }
+      aside li a:hover,
+      aside li a.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+      }
+      aside .group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.8rem 0.8rem 0.3rem;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding-left: 3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 2.5rem 0 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.6rem;
+        color: var(--primary);
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1.2rem 0 0.4rem;
+        color: var(--orange);
+      }
+      p {
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.84rem;
+        margin: 1rem 0;
+      }
+      code:not(pre code) {
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: var(--orange);
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      .callout {
+        border-left: 4px solid var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+        padding: 1rem 1.2rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+      .callout.green {
+        border-left-color: var(--green);
+        background: rgba(63, 185, 80, 0.07);
+      }
+      .callout.yellow {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.07);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+      th {
+        background: var(--surface2);
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td code {
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.82em;
+      }
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .section-anchor {
+        scroll-margin-top: 80px;
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 2rem;
+        height: 2rem;
+        background: var(--yellow);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+      /* Vector visualization */
+      .vector-viz {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: var(--surface2);
+        border-radius: 8px;
+        margin: 1rem 0;
+        overflow-x: auto;
+      }
+      .sentence {
+        font-size: 0.85rem;
+        color: var(--text);
+        min-width: 220px;
+      }
+      .arrow {
+        color: var(--muted);
+        font-size: 1.2rem;
+      }
+      .vector {
+        display: flex;
+        gap: 3px;
+        align-items: flex-end;
+      }
+      .vec-bar {
+        width: 14px;
+        border-radius: 2px 2px 0 0;
+        transition: height 0.3s;
+      }
+      /* Similarity matrix */
+      .matrix {
+        display: inline-block;
+        font-family: monospace;
+        font-size: 0.82rem;
+        background: var(--surface2);
+        border-radius: 8px;
+        padding: 1rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+      }
+      .matrix table {
+        border: none;
+      }
+      .matrix th,
+      .matrix td {
+        border: none;
+        padding: 0.25rem 0.5rem;
+        text-align: center;
+      }
+      .high {
+        color: var(--green);
+      }
+      .mid {
+        color: var(--yellow);
+      }
+      .low {
+        color: var(--muted);
+      }
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav .logo {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding-left: 0;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          height: 56px;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+          overflow-x: visible;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .layout {
+          padding: 1rem;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html">LangChain</a>
+        <a href="langgraph.html">LangGraph</a>
+        <a href="mcp.html">MCP</a>
+        <a href="fastmcp.html">FastMCP</a>
+        <a href="rag.html" class="active">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="group-label">Concepts</div>
+        <ul>
+          <li><a href="#overview">What is RAG?</a></li>
+          <li><a href="#non-technical">Plain-English Explanation</a></li>
+          <li><a href="#real-world">Real-World Example</a></li>
+          <li><a href="#why-rag">Why RAG Exists</a></li>
+          <li><a href="#pipeline">The RAG Pipeline</a></li>
+          <li><a href="#pipeline-stages">Pipeline Stage Breakdown</a></li>
+        </ul>
+        <div class="group-label">Embeddings</div>
+        <ul>
+          <li><a href="#embeddings">What are Embeddings?</a></li>
+          <li><a href="#huggingface">HuggingFace Embeddings</a></li>
+          <li><a href="#cosine">Cosine Similarity</a></li>
+        </ul>
+        <div class="group-label">Vector Stores</div>
+        <ul>
+          <li><a href="#chromadb">ChromaDB</a></li>
+          <li><a href="#pgvector">PGVector</a></li>
+          <li><a href="#comparison">Comparison</a></li>
+        </ul>
+        <div class="group-label">Full RAG</div>
+        <ul>
+          <li><a href="#retrieval">Retrieval</a></li>
+          <li><a href="#generation">Generation</a></li>
+          <li><a href="#full-pipeline">Complete Pipeline</a></li>
+        </ul>
+        <div class="group-label">Tasks</div>
+        <ul>
+          <li><a href="#task1">Task 1 — Embeddings</a></li>
+          <li><a href="#task2">Task 2 — ChromaDB</a></li>
+          <li><a href="#task3">Task 3 — Full RAG Chain</a></li>
+          <li><a href="#summary">Summary</a></li>
+        </ul>
+      </aside>
+
+      <main>
+        <h1>📚 RAG — Retrieval Augmented Generation</h1>
+        <p class="lead">
+          RAG grounds LLM responses in real documents. Instead of relying on the
+          model's training data alone, RAG first retrieves relevant context from
+          a knowledge base and then feeds it to the LLM for a more accurate,
+          up-to-date answer.
+        </p>
+
+        <div class="callout yellow">
+          <strong>✅ Learning Objectives</strong>
+          After completing this page you will be able to:
+          <ul
+            style="margin-top: 0.4rem; padding-left: 1.2rem; font-size: 0.9rem"
+          >
+            <li>Explain what RAG is and why it was invented</li>
+            <li>
+              Describe LLM hallucinations, stale knowledge, and context-window
+              constraints
+            </li>
+            <li>
+              Trace data through the full Ingestion → Retrieval → Generation
+              pipeline
+            </li>
+            <li>Understand embeddings and cosine similarity</li>
+            <li>Build a ChromaDB and PGVector-backed RAG chain from scratch</li>
+            <li>
+              Compose the full RAG pipeline with LangChain LCEL and ChatGroq
+            </li>
+          </ul>
+        </div>
+
+        <!-- What is RAG -->
+        <h2 id="overview" class="section-anchor">What is RAG?</h2>
+        <p>
+          <strong>Retrieval-Augmented Generation (RAG)</strong> is an AI
+          architecture pattern that enhances a language model's output by first
+          retrieving relevant information from an external knowledge source and
+          then injecting that information into the model's prompt before
+          generation.
+        </p>
+        <p>
+          RAG has two stages: <strong>Retrieval</strong> (find the most relevant
+          documents for a query) and <strong>Generation</strong> (have the LLM
+          answer using those documents as context).
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_0"></div>
+        </div>
+
+        <!-- Non-Technical Explanation -->
+        <h2 id="non-technical" class="section-anchor">
+          Plain-English Explanation
+        </h2>
+
+        <div
+          class="callout"
+          style="
+            border-left-color: var(--purple);
+            background: rgba(188, 140, 255, 0.07);
+          "
+        >
+          <strong>🧠 Analogy: The Open-Book Exam</strong>
+          <p style="margin-top: 0.5rem; margin-bottom: 0">
+            Imagine you must answer questions about a 10,000-page technical
+            manual. A <em>closed-book</em> LLM tries to answer from memory — it
+            may be wrong, outdated, or confidently invent an answer that sounds
+            plausible (hallucination).
+          </p>
+          <p style="margin-top: 0.5rem; margin-bottom: 0">
+            <strong>RAG turns it into an open-book exam.</strong> Before
+            answering, the system flips to the most relevant pages of the
+            manual, reads them, then gives you a grounded, evidence-backed
+            answer.
+          </p>
+        </div>
+
+        <p>
+          Without RAG, a user asking <em>"What's our refund policy?"</em> might
+          get an invented, generic answer. With RAG, the system finds your
+          actual policy document, reads it, and quotes the exact rules —
+          attributable, accurate, and fresh.
+        </p>
+
+        <!-- Real-World Example -->
+        <h2 id="real-world" class="section-anchor">Real-World Example</h2>
+
+        <article
+          style="
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+          "
+        >
+          <h3 style="margin-top: 0; color: var(--orange)">
+            🏢 Customer Support Bot at a SaaS Company
+          </h3>
+          <p>
+            <strong>Scenario:</strong> A software company has 500 help-centre
+            articles, a changelog, and internal runbooks. They want an AI bot
+            that answers user questions.
+          </p>
+
+          <div class="step">
+            <div class="step-num">1</div>
+            <div>
+              <strong>Without RAG:</strong> The LLM knows nothing about your
+              product. It guesses:
+              <em>"You can reset your password in settings."</em> — but your
+              product calls it <em>Account Security</em>, not <em>Settings</em>.
+              Users are confused. The bot hallucinates step numbers that don't
+              exist.
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">2</div>
+            <div>
+              <strong>With RAG:</strong>
+              <ol
+                style="
+                  margin-top: 0.4rem;
+                  padding-left: 1.2rem;
+                  font-size: 0.9rem;
+                "
+              >
+                <li>
+                  All 500 help articles are <em>ingested</em> — split into
+                  chunks, embedded, stored in ChromaDB.
+                </li>
+                <li>User asks: <em>"How do I reset my 2FA?"</em></li>
+                <li>
+                  The question is embedded; the 3 most similar chunks are
+                  retrieved instantly.
+                </li>
+                <li>
+                  Those chunks are injected into the LLM prompt alongside the
+                  question.
+                </li>
+                <li>
+                  The LLM reads the actual documentation and produces a precise,
+                  step-by-step answer.
+                </li>
+              </ol>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div>
+              <strong>Result:</strong> Answers are grounded in your real docs.
+              When you update a policy, you just re-ingest the article — no
+              re-training needed.
+            </div>
+          </div>
+        </article>
+
+        <!-- Why RAG Exists -->
+        <h2 id="why-rag" class="section-anchor">
+          Why RAG Exists — LLM Limitations
+        </h2>
+        <p>
+          RAG was invented to solve three fundamental problems with large
+          language models:
+        </p>
+
+        <h3>Problem 1 — Hallucinations</h3>
+        <p>
+          LLMs are trained to produce <em>plausible-sounding</em> text — but
+          plausible is not the same as <em>true</em>. When a model doesn't know
+          an answer, it often generates a confident-sounding but fabricated
+          response. This is called a <strong>hallucination</strong>.
+        </p>
+        <div
+          class="callout"
+          style="
+            border-left-color: var(--red);
+            background: rgba(248, 81, 73, 0.07);
+          "
+        >
+          <strong>❌ Hallucination Example</strong>
+          <p style="margin: 0.4rem 0 0">
+            User:
+            <em
+              >"Who wrote the internal API spec for project Orion at Acme
+              Corp?"</em
+            ><br />
+            LLM (without RAG):
+            <em
+              >"The API spec for project Orion was authored by Sarah Chen,
+              updated in Q3 2023."</em
+            >
+            — Sarah Chen doesn't exist. The LLM invented a confident-sounding
+            but completely false answer.
+          </p>
+        </div>
+        <p>
+          RAG prevents hallucinations by forcing the LLM to base its answer only
+          on the retrieved context: if the answer isn't in the documents, the
+          model is instructed to say so rather than invent one.
+        </p>
+
+        <h3>Problem 2 — Stale Knowledge (Training Cutoff)</h3>
+        <p>
+          Every LLM has a <strong>knowledge cutoff</strong> — a date after which
+          it has no awareness of events, product updates, regulations, or new
+          research. A model trained with data up to early 2024 knows nothing
+          about what happened in late 2024 or 2025.
+        </p>
+        <div class="callout yellow">
+          <strong>⚠️ Stale Knowledge Example</strong>
+          <p style="margin: 0.4rem 0 0">
+            A model asked about the latest LangChain release notes, a new
+            government regulation, or your company's Q4 2025 pricing will either
+            hallucinate or refuse to answer — because none of that existed in
+            its training data.
+          </p>
+        </div>
+        <p>
+          RAG solves stale knowledge cheaply: you just re-index your updated
+          documents. No fine-tuning, no retraining, no GPU budget required.
+        </p>
+
+        <h3>Problem 3 — Context Window Limitations</h3>
+        <p>
+          Even the most capable LLMs have a
+          <strong>context window limit</strong> — a maximum number of tokens
+          (roughly words) they can process in a single call. Even with
+          128K-token windows, you cannot fit an entire knowledge base into every
+          prompt. Attempting to do so is also slow and expensive.
+        </p>
+        <div
+          class="callout"
+          style="
+            border-left-color: var(--primary);
+            background: rgba(88, 166, 255, 0.07);
+          "
+        >
+          <strong>📏 Context Window Math</strong>
+          <p style="margin: 0.4rem 0 0; font-size: 0.9rem">
+            500 help articles × avg 800 words = 400,000 words ≈ 500,000
+            tokens.<br />
+            At $0.001 per 1K tokens × 1,000 queries/day =
+            <strong>$500/day</strong> just in input tokens.<br />
+            RAG retrieves only the relevant 3–5 chunks (~1,500 tokens) per query
+            — <em>a 300× cost reduction</em>.
+          </p>
+        </div>
+        <p>
+          RAG selectively injects only the most relevant few chunks, keeping
+          prompts short, fast, and cost-effective.
+        </p>
+
+        <h3>Summary: RAG vs No RAG</h3>
+        <table>
+          <tr>
+            <th>Problem</th>
+            <th>Without RAG</th>
+            <th>With RAG</th>
+          </tr>
+          <tr>
+            <td><strong>Hallucinations</strong></td>
+            <td>LLM invents confident but false answers</td>
+            <td>Answers grounded in retrieved evidence</td>
+          </tr>
+          <tr>
+            <td><strong>Knowledge cutoff</strong></td>
+            <td>LLM only knows training-time data</td>
+            <td>Retrieves current, fresh documents</td>
+          </tr>
+          <tr>
+            <td><strong>Private / internal data</strong></td>
+            <td>LLM has no access whatsoever</td>
+            <td>Your documents are indexed locally</td>
+          </tr>
+          <tr>
+            <td><strong>Context window limits</strong></td>
+            <td>Can't fit large knowledge base in prompt</td>
+            <td>Only injects the relevant top-K chunks</td>
+          </tr>
+          <tr>
+            <td><strong>Update cost</strong></td>
+            <td>Fine-tuning = expensive GPU training</td>
+            <td>Re-index new docs = cheap &amp; instant</td>
+          </tr>
+        </table>
+
+        <!-- Pipeline -->
+        <h2 id="pipeline" class="section-anchor">The RAG Pipeline</h2>
+        <p>
+          The RAG pipeline has two major phases:
+          <strong>Ingestion</strong> (done once, offline) and
+          <strong>Retrieval + Generation</strong> (done live, on every query).
+          Here is the canonical end-to-end flow:
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_1"></div>
+        </div>
+
+        <div class="diagram-wrap" style="margin-top: 1rem">
+          <div id="merChart_2"></div>
+        </div>
+
+        <!-- Pipeline Stage Breakdown -->
+        <h2 id="pipeline-stages" class="section-anchor">
+          Pipeline Stage Breakdown
+        </h2>
+        <p>
+          Each stage of the pipeline has a specific responsibility.
+          Understanding each one will help you debug issues and tune
+          performance.
+        </p>
+
+        <section style="margin: 1.5rem 0">
+          <div class="step">
+            <div class="step-num" style="background: var(--orange)">1</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem; color: var(--orange)">
+                Documents — Raw Knowledge Source
+              </h4>
+              <p style="margin: 0 0 0.4rem">
+                Your source material: PDF files, Markdown pages, HTML docs,
+                database rows, API responses — anything with text. LangChain
+                provides loaders for all common formats
+                (<code>PyPDFLoader</code>, <code>TextLoader</code>,
+                <code>WebBaseLoader</code>, etc.).
+              </p>
+              <p style="margin: 0; color: var(--muted); font-size: 0.88rem">
+                <strong>Key concern:</strong> Document quality directly
+                determines answer quality. Garbage in = garbage out.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num" style="background: var(--orange)">2</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem; color: var(--orange)">
+                Chunking — Splitting Documents
+              </h4>
+              <p style="margin: 0 0 0.4rem">
+                Documents are too large to embed as a whole — the embedding
+                model has a token limit, and large chunks lose precision.
+                Chunking splits documents into overlapping segments. LangChain's
+                <code>RecursiveCharacterTextSplitter</code>
+                is the standard choice.
+              </p>
+              <pre
+                style="font-size: 0.82rem; margin: 0.5rem 0"
+              ><code class="language-python">from langchain.text_splitter import RecursiveCharacterTextSplitter
+
+splitter = RecursiveCharacterTextSplitter(
+    chunk_size=500,        # max characters per chunk
+    chunk_overlap=50,      # characters shared between adjacent chunks
+    separators=["\n\n", "\n", ".", " "],  # try these splits in order
+)
+chunks = splitter.split_documents(documents)</code></pre>
+              <p style="margin: 0; color: var(--muted); font-size: 0.88rem">
+                <strong>Key concern:</strong> Chunks too large → imprecise
+                retrieval. Chunks too small → missing context. 300–800 tokens is
+                typical.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num" style="background: var(--orange)">3</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem; color: var(--orange)">
+                Embeddings — Converting Text to Vectors
+              </h4>
+              <p style="margin: 0 0 0.4rem">
+                Each chunk of text is passed through an embedding model, which
+                converts it into a dense numerical vector (e.g. 384 numbers).
+                Semantically similar texts produce vectors that are
+                mathematically close in that high-dimensional space.
+              </p>
+              <p style="margin: 0; color: var(--muted); font-size: 0.88rem">
+                <strong>Key concern:</strong> The embedding model must be
+                consistent — you must use the <em>same model</em> to embed both
+                documents and queries. Mixing models produces nonsensical
+                similarity scores.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num" style="background: var(--purple)">4</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem; color: var(--purple)">
+                Vector Database — Indexed Storage
+              </h4>
+              <p style="margin: 0 0 0.4rem">
+                All chunk vectors are stored in a vector database (ChromaDB,
+                PGVector, Pinecone, etc.) along with the original text as
+                metadata. The database builds a specialised index (HNSW,
+                IVFFlat) that enables
+                <em>approximate nearest-neighbour</em> search over millions of
+                vectors in milliseconds.
+              </p>
+              <p style="margin: 0; color: var(--muted); font-size: 0.88rem">
+                <strong>Key concern:</strong> For local dev use ChromaDB. For
+                production with concurrent access, use PGVector or a managed
+                service.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num" style="background: var(--primary)">5</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem">
+                Retriever — Finding Relevant Chunks
+              </h4>
+              <p style="margin: 0 0 0.4rem">
+                At query time, the user's question is embedded using the
+                <em>same</em> model. The retriever performs a similarity search
+                against all stored chunk vectors, returning the top-K most
+                similar chunks. LangChain's
+                <code>vectorstore.as_retriever(search_kwargs={"k": 3})</code>
+                creates a retriever in one line.
+              </p>
+              <p style="margin: 0; color: var(--muted); font-size: 0.88rem">
+                <strong>Key concern:</strong> Choosing <code>k</code> is a
+                trade-off: larger k = more context but longer prompt and higher
+                cost.
+              </p>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num" style="background: var(--primary)">6</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem">LLM Prompt — Injecting Context</h4>
+              <p style="margin: 0 0 0.4rem">
+                The retrieved chunks are concatenated into a context string and
+                injected into the LLM prompt template alongside the original
+                question. The system message explicitly instructs the model to
+                answer <em>only</em> from the provided context, preventing
+                hallucinations.
+              </p>
+              <pre
+                style="font-size: 0.82rem; margin: 0.5rem 0"
+              ><code class="language-python">rag_prompt = ChatPromptTemplate.from_messages([
+    ("system", """Answer using ONLY the context below.
+If the answer isn't there, say "I don't know."
+
+Context:
+{context}"""),
+    ("human", "{question}"),
+])</code></pre>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step-num" style="background: var(--green)">7</div>
+            <div>
+              <h4 style="margin: 0 0 0.3rem; color: var(--green)">
+                Answer — Grounded Generation
+              </h4>
+              <p style="margin: 0">
+                The LLM reads the injected context and generates a response that
+                is grounded in your actual documents. Because the model is told
+                to rely only on the context, the answer is traceable: you know
+                exactly which chunks backed it up. This is the "Generation" in
+                Retrieval-<strong>Augmented</strong> Generation.
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Embeddings -->
+        <h2 id="embeddings" class="section-anchor">What are Embeddings?</h2>
+        <p>
+          An embedding is a dense numerical vector that represents the
+          <em>semantic meaning</em> of text. Texts with similar meanings produce
+          vectors that are close together in high-dimensional space.
+        </p>
+
+        <div class="vector-viz">
+          <div class="sentence">"The cat is sleeping on the sofa"</div>
+          <div class="arrow">→</div>
+          <div class="vector">
+            <div
+              class="vec-bar"
+              style="height: 30px; background: #58a6ff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 50px; background: #bc8cff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 20px; background: #3fb950"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 40px; background: #e3b341"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 55px; background: #58a6ff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 15px; background: #bc8cff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 35px; background: #3fb950"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 45px; background: #e3b341"
+            ></div>
+          </div>
+          <div style="color: var(--muted); font-size: 0.85rem">
+            [0.12, -0.34, 0.89, ..., 0.22]<br /><span style="font-size: 0.8rem"
+              >384 dimensions</span
+            >
+          </div>
+        </div>
+        <div class="vector-viz">
+          <div class="sentence">"The kitten is resting on the couch"</div>
+          <div class="arrow">→</div>
+          <div class="vector">
+            <div
+              class="vec-bar"
+              style="height: 28px; background: #58a6ff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 52px; background: #bc8cff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 22px; background: #3fb950"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 38px; background: #e3b341"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 53px; background: #58a6ff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 17px; background: #bc8cff"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 33px; background: #3fb950"
+            ></div>
+            <div
+              class="vec-bar"
+              style="height: 43px; background: #e3b341"
+            ></div>
+          </div>
+          <div style="color: var(--muted); font-size: 0.85rem">
+            [0.11, -0.33, 0.87, ..., 0.20]<br /><span style="font-size: 0.8rem"
+              >Very similar! → cosine similarity ≈ 0.97</span
+            >
+          </div>
+        </div>
+
+        <p>
+          Notice the two cat/kitten sentences produce almost identical vectors —
+          that's semantic similarity at work.
+        </p>
+
+        <!-- HuggingFace Embeddings -->
+        <h2 id="huggingface" class="section-anchor">HuggingFace Embeddings</h2>
+        <p>
+          <code>HuggingFaceEmbeddings</code> runs an open-source embedding model
+          locally, with no API cost. We use <code>all-MiniLM-L6-v2</code> which
+          produces 384-dimensional vectors.
+        </p>
+
+        <pre><code class="language-python">from langchain_huggingface import HuggingFaceEmbeddings
+
+# Load the model (downloads ~90MB on first use)
+embeddings = HuggingFaceEmbeddings(
+    model_name="sentence-transformers/all-MiniLM-L6-v2",
+    # Optional: run on GPU for speed
+    model_kwargs={"device": "cpu"},   # "cuda" for GPU
+    encode_kwargs={"normalize_embeddings": True},  # for cosine similarity
+)
+
+# Embed a single query
+query_vector = embeddings.embed_query("What is AI?")
+print(f"Vector dimensions: {len(query_vector)}")  # 384
+
+# Embed multiple documents at once (more efficient)
+docs = [
+    "Artificial intelligence is transforming industries",
+    "Machine learning is part of AI",
+    "Dogs are loyal pets",
+]
+doc_vectors = embeddings.embed_documents(docs)
+print(f"Shape: {len(doc_vectors)} docs × {len(doc_vectors[0])} dims")</code></pre>
+
+        <h3>HuggingFaceEmbeddings Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>model_name</code></td>
+            <td>str</td>
+            <td>required</td>
+            <td>
+              HuggingFace model identifier, e.g.
+              <code>"sentence-transformers/all-MiniLM-L6-v2"</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>model_kwargs</code></td>
+            <td>dict</td>
+            <td>{}</td>
+            <td>
+              Passed to the model constructor. Use
+              <code>{"device": "cuda"}</code> for GPU
+            </td>
+          </tr>
+          <tr>
+            <td><code>encode_kwargs</code></td>
+            <td>dict</td>
+            <td>{}</td>
+            <td>
+              Passed to <code>encode()</code>. Set
+              <code>{"normalize_embeddings": True}</code> to get unit vectors
+              for cosine similarity
+            </td>
+          </tr>
+          <tr>
+            <td><code>cache_folder</code></td>
+            <td>str</td>
+            <td>~/.cache/huggingface</td>
+            <td>Where to cache downloaded model weights</td>
+          </tr>
+        </table>
+
+        <!-- Cosine Similarity -->
+        <h2 id="cosine" class="section-anchor">Cosine Similarity</h2>
+        <p>
+          Cosine similarity measures the angle between two vectors. A value of
+          <strong>1.0</strong> means identical meaning,
+          <strong>0.0</strong> means unrelated, and <strong>-1.0</strong> means
+          opposite.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_3"></div>
+        </div>
+
+        <pre><code class="language-python">from langchain_huggingface import HuggingFaceEmbeddings
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+sentences = [
+    "The cat is sleeping on the sofa",          # 0
+    "A dog is playing in the park",              # 1
+    "The kitten is resting on the couch",        # 2
+    "Artificial intelligence is transforming technology",  # 3
+    "Machine learning is a branch of AI",        # 4
+]
+
+vectors = np.array(embeddings.embed_documents(sentences))
+similarity_matrix = cosine_similarity(vectors)
+
+print("\nCosine Similarity Matrix:")
+print("         cat    dog   kitten    AI      ML")
+labels = ["cat  ", "dog  ", "kitten", "AI   ", "ML   "]
+for i, label in enumerate(labels):
+    row = "  ".join(f"{similarity_matrix[i][j]:.3f}" for j in range(len(sentences)))
+    print(f"{label}: {row}")
+
+# Expected: cat vs kitten ≈ 0.97 | AI vs ML ≈ 0.93 | cat vs AI ≈ 0.05</code></pre>
+
+        <!-- ChromaDB -->
+        <h2 id="chromadb" class="section-anchor">
+          ChromaDB — Local Vector Store
+        </h2>
+        <p>
+          ChromaDB stores embeddings locally on disk. No server required —
+          perfect for development and single-machine RAG.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_4"></div>
+        </div>
+
+        <pre><code class="language-python">from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.documents import Document
+
+# 1. Set up embeddings
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+# 2. Create documents (can have page_content + metadata)
+docs = [
+    Document(page_content="Cats are small domesticated animals",
+             metadata={"category": "animals", "source": "wiki"}),
+    Document(page_content="Artificial intelligence is transforming industries",
+             metadata={"category": "tech", "source": "wiki"}),
+    Document(page_content="Machine learning is part of AI",
+             metadata={"category": "tech", "source": "wiki"}),
+    Document(page_content="ChromaDB is popular for local RAG systems",
+             metadata={"category": "databases", "source": "docs"}),
+    Document(page_content="LangChain simplifies LLM applications",
+             metadata={"category": "tech", "source": "docs"}),
+]
+
+# 3. Create or load the vector store (persists to disk)
+vectorstore = Chroma.from_documents(
+    documents=docs,
+    embedding=embeddings,
+    persist_directory="./chroma_db",  # saved here
+    collection_name="my_docs",        # group name inside ChromaDB
+)
+
+# 4. Similarity search
+results = vectorstore.similarity_search("What is AI?", k=3)
+for doc in results:
+    print(f"• {doc.page_content}")
+    print(f"  source: {doc.metadata.get('source')}")</code></pre>
+
+        <h3>Chroma.from_documents() Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>documents</code></td>
+            <td>list[Document]</td>
+            <td>The documents to embed and store</td>
+          </tr>
+          <tr>
+            <td><code>embedding</code></td>
+            <td>Embeddings</td>
+            <td>The embedding model to use</td>
+          </tr>
+          <tr>
+            <td><code>persist_directory</code></td>
+            <td>str</td>
+            <td>Path where ChromaDB saves its data files</td>
+          </tr>
+          <tr>
+            <td><code>collection_name</code></td>
+            <td>str</td>
+            <td>Named collection within the ChromaDB database</td>
+          </tr>
+          <tr>
+            <td><code>ids</code></td>
+            <td>list[str]</td>
+            <td>Optional: explicit document IDs</td>
+          </tr>
+        </table>
+
+        <h3>Loading an existing ChromaDB</h3>
+        <pre><code class="language-python"># Load a previously created ChromaDB (no re-embedding needed)
+vectorstore = Chroma(
+    persist_directory="./chroma_db",
+    embedding_function=embeddings,
+    collection_name="my_docs",
+)
+
+# similarity_search_with_score returns (doc, score) pairs
+results_with_scores = vectorstore.similarity_search_with_score("What is AI?", k=3)
+for doc, score in results_with_scores:
+    print(f"Score: {score:.4f} | {doc.page_content}")</code></pre>
+
+        <!-- PGVector -->
+        <h2 id="pgvector" class="section-anchor">
+          PGVector — PostgreSQL Vector Store
+        </h2>
+        <p>
+          PGVector stores embeddings in PostgreSQL. Great for production where
+          you need the reliability of Postgres, multi-user access, and advanced
+          filtering.
+        </p>
+
+        <div class="callout">
+          <strong>📋 Prerequisites: PostgreSQL with pgvector extension</strong>
+          <pre
+            style="margin: 0.5rem 0 0; font-size: 0.83rem"
+          ><code class="language-bash"> # Using Docker
+docker run -d \
+  -e POSTGRES_USER=postgres \
+  -e POSTGRES_PASSWORD=postgres \
+  -e POSTGRES_DB=postgres \
+  -p 5432:5432 \
+  pgvector/pgvector:pg16
+
+# Or install the extension in existing Postgres:
+# CREATE EXTENSION vector;</code></pre>
+        </div>
+
+        <pre><code class="language-python">from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_postgres import PGVector
+from langchain_core.documents import Document
+
+# Connection string (SQLAlchemy format)
+connection = "postgresql+psycopg://postgres:postgres@localhost:5432/postgres"
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+docs = [
+    Document(page_content="PostgreSQL is a relational database"),
+    Document(page_content="Vector databases enable semantic search"),
+    Document(page_content="LangChain simplifies LLM applications"),
+    Document(page_content="Deep learning uses neural networks"),
+    Document(page_content="Embeddings convert text to vectors"),
+]
+
+# Create and populate the vector store
+vectorstore = PGVector.from_documents(
+    documents=docs,
+    embedding=embeddings,
+    connection=connection,
+    collection_name="documents",         # stored as a separate table
+    use_jsonb=True,                       # metadata stored as JSONB
+    pre_delete_collection=False,         # set True to wipe and re-create
+)
+
+# Query
+results = vectorstore.similarity_search("What is AI?", k=3)
+for r in results:
+    print(r.page_content)</code></pre>
+
+        <h3>PGVector.from_documents() Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>documents</code></td>
+            <td>list[Document]</td>
+            <td>Documents to embed and store</td>
+          </tr>
+          <tr>
+            <td><code>embedding</code></td>
+            <td>Embeddings</td>
+            <td>Embedding model to use</td>
+          </tr>
+          <tr>
+            <td><code>connection</code></td>
+            <td>str</td>
+            <td>SQLAlchemy connection string</td>
+          </tr>
+          <tr>
+            <td><code>collection_name</code></td>
+            <td>str</td>
+            <td>Table name in PostgreSQL for this collection</td>
+          </tr>
+          <tr>
+            <td><code>use_jsonb</code></td>
+            <td>bool</td>
+            <td>Store metadata as JSONB (enables metadata filtering)</td>
+          </tr>
+          <tr>
+            <td><code>pre_delete_collection</code></td>
+            <td>bool</td>
+            <td>Delete existing data before inserting (use carefully)</td>
+          </tr>
+        </table>
+
+        <!-- Comparison -->
+        <h2 id="comparison" class="section-anchor">ChromaDB vs PGVector</h2>
+        <table>
+          <tr>
+            <th>Feature</th>
+            <th>ChromaDB</th>
+            <th>PGVector</th>
+          </tr>
+          <tr>
+            <td>Setup complexity</td>
+            <td>Zero — just a folder</td>
+            <td>Requires PostgreSQL</td>
+          </tr>
+          <tr>
+            <td>Persistence</td>
+            <td>File-based (SQLite)</td>
+            <td>Full PostgreSQL ACID</td>
+          </tr>
+          <tr>
+            <td>Scalability</td>
+            <td>Good for prototypes (&lt;1M docs)</td>
+            <td>Production-scale</td>
+          </tr>
+          <tr>
+            <td>Multi-user access</td>
+            <td>Single-process only</td>
+            <td>Full concurrent access</td>
+          </tr>
+          <tr>
+            <td>Metadata filtering</td>
+            <td>Basic filtering</td>
+            <td>Full SQL WHERE clauses</td>
+          </tr>
+          <tr>
+            <td>Index type</td>
+            <td>HNSW (in-memory)</td>
+            <td>IVFFlat or HNSW</td>
+          </tr>
+          <tr>
+            <td>Best for</td>
+            <td>Local development, prototypes</td>
+            <td>Production, team environments</td>
+          </tr>
+        </table>
+
+        <!-- Retrieval -->
+        <h2 id="retrieval" class="section-anchor">Retrieval Methods</h2>
+        <pre><code class="language-python"># Method 1: Simple similarity search
+results = vectorstore.similarity_search(
+    query="What is machine learning?",
+    k=3,  # return top 3 most similar documents
+)
+
+# Method 2: Similarity search with scores
+results_with_scores = vectorstore.similarity_search_with_score(
+    query="What is machine learning?",
+    k=3,
+)
+for doc, score in results_with_scores:
+    print(f"Score: {score:.4f} — {doc.page_content[:60]}")
+
+# Method 3: MMR — Maximal Marginal Relevance (reduces redundancy)
+results_mmr = vectorstore.max_marginal_relevance_search(
+    query="What is AI?",
+    k=3,               # number of results
+    fetch_k=10,        # fetch more candidates then diversify
+    lambda_mult=0.5,   # 0 = max diversity, 1 = max relevance
+)
+
+# Method 4: Metadata filtering (PGVector / Chroma)
+results_filtered = vectorstore.similarity_search(
+    query="AI",
+    k=3,
+    filter={"category": "tech"},  # only return tech documents
+)</code></pre>
+
+        <!-- Generation -->
+        <h2 id="generation" class="section-anchor">
+          Generation — Using Docs in LLM
+        </h2>
+        <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+
+def format_docs(docs):
+    """Combine retrieved documents into a single context string."""
+    return "\n\n".join(doc.page_content for doc in docs)
+
+# RAG prompt template
+rag_prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a helpful assistant. Answer the question using ONLY the provided context.
+If the context doesn't contain the answer, say "I don't have that information."
+
+Context:
+{context}"""),
+    ("human", "{question}"),
+])
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+
+# Build the RAG chain
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | rag_prompt
+    | llm
+    | StrOutputParser()
+)
+
+# Run it
+answer = rag_chain.invoke("What is AI?")
+print(answer)</code></pre>
+
+        <!-- Full Pipeline -->
+        <h2 id="full-pipeline" class="section-anchor">Complete RAG Pipeline</h2>
+        <pre><code class="language-python">"""Complete RAG pipeline: index documents, then query with LLM grounding."""
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# ── 1. Load / create knowledge base ─────────────────────────────
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+
+docs = [
+    Document(page_content="LangChain is a framework for building LLM applications"),
+    Document(page_content="LangGraph is used to build stateful agents and multi-agent systems"),
+    Document(page_content="FastMCP is a Python framework for building MCP servers quickly"),
+    Document(page_content="ChromaDB stores embeddings locally and supports similarity search"),
+    Document(page_content="Groq provides ultra-low-latency LLM inference via API"),
+    Document(page_content="RAG stands for Retrieval Augmented Generation"),
+]
+
+vectorstore = Chroma.from_documents(docs, embeddings, persist_directory="./chroma_db")
+
+# ── 2. Create retriever ──────────────────────────────────────────
+retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+
+# ── 3. Build RAG prompt ──────────────────────────────────────────
+prompt = ChatPromptTemplate.from_messages([
+    ("system", """Answer using ONLY the context below.
+If the answer is not in the context, say "I don't know".
+
+Context:
+{context}"""),
+    ("human", "{question}"),
+])
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+
+def format_docs(docs):
+    return "\n\n".join(d.page_content for d in docs)
+
+# ── 4. Compose the full chain ────────────────────────────────────
+rag_chain = (
+    {"context": retriever | format_docs, "question": RunnablePassthrough()}
+    | prompt
+    | llm
+    | StrOutputParser()
+)
+
+# ── 5. Query ─────────────────────────────────────────────────────
+questions = [
+    "What is FastMCP?",
+    "How does RAG work?",
+    "What is the difference between LangChain and LangGraph?",
+]
+
+for q in questions:
+    print(f"\nQ: {q}")
+    print(f"A: {rag_chain.invoke(q)}")</code></pre>
+
+        <!-- Tasks -->
+        <h2 id="task1" class="section-anchor">
+          📕 Task 1 — Build Embeddings and Compute Similarity
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Embed five sentences and compute their cosine
+          similarity matrix.
+        </div>
+        <pre><code class="language-bash">pip install langchain-huggingface sentence-transformers scikit-learn numpy
+python rag_embedding.py</code></pre>
+        <p>
+          Look for the high similarity scores between <em>"cat on sofa"</em> and
+          <em>"kitten on couch"</em> (~0.97), and between AI/ML sentences.
+        </p>
+
+        <h2 id="task2" class="section-anchor">
+          📕 Task 2 — Store and Search with ChromaDB
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Index 10 documents in ChromaDB and run
+          similarity searches.
+        </div>
+        <pre><code class="language-bash">pip install langchain-chroma chromadb
+python rag_chroma_db.py</code></pre>
+        <p>
+          Inspect the <code>./chroma_db</code> folder — you'll see a SQLite file
+          and a UUID folder with the HNSW index.
+        </p>
+
+        <h2 id="task3" class="section-anchor">
+          📕 Task 3 — Build the Full RAG Chain
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Combine ChromaDB retrieval with ChatGroq to
+          build a question-answering system.
+        </div>
+        <pre><code class="language-python"># Save as rag_full.py and run with: python rag_full.py
+
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_chroma import Chroma
+from langchain_core.documents import Document
+from langchain_core.prompts import ChatPromptTemplate
+from langchain_core.output_parsers import StrOutputParser
+from langchain_core.runnables import RunnablePassthrough
+from langchain_groq import ChatGroq
+from dotenv import load_dotenv
+
+load_dotenv()
+
+embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
+docs = [
+    Document(page_content="The Eiffel Tower is in Paris, France"),
+    Document(page_content="The Great Wall of China is over 13,000 miles long"),
+    Document(page_content="Python was created by Guido van Rossum"),
+    Document(page_content="LangChain makes it easy to build LLM applications"),
+]
+vs = Chroma.from_documents(docs, embeddings)
+retriever = vs.as_retriever(search_kwargs={"k": 2})
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "Answer based on context only:\n\n{context}"),
+    ("human", "{question}"),
+])
+
+chain = (
+    {"context": retriever | (lambda docs: "\n".join(d.page_content for d in docs)),
+     "question": RunnablePassthrough()}
+    | prompt | ChatGroq(model="openai/gpt-oss-120b", temperature=0) | StrOutputParser()
+)
+
+print(chain.invoke("Where is the Eiffel Tower?"))
+print(chain.invoke("Who created Python?"))</code></pre>
+
+        <!-- Summary -->
+        <h2 id="summary" class="section-anchor">📝 Summary</h2>
+
+        <div class="callout green">
+          <strong>What we covered in this page</strong>
+        </div>
+
+        <table>
+          <tr>
+            <th>Concept</th>
+            <th>One-line Summary</th>
+          </tr>
+          <tr>
+            <td><strong>RAG</strong></td>
+            <td>
+              Retrieves relevant document chunks and injects them into the LLM
+              prompt before generation
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Hallucinations</strong></td>
+            <td>
+              LLMs invent plausible-sounding but false answers; RAG grounds
+              responses in real evidence
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Stale Knowledge</strong></td>
+            <td>
+              LLMs have a training cutoff; re-indexing documents keeps your RAG
+              system current
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Context Window</strong></td>
+            <td>
+              Fitting an entire knowledge base in every prompt is impractical;
+              RAG selects only relevant chunks
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Ingestion Pipeline</strong></td>
+            <td>
+              Documents → Chunking → Embeddings → Vector Database (done once)
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Query Pipeline</strong></td>
+            <td>
+              Query → Embed → Retrieve Top-K → LLM Prompt → Answer (done on
+              every request)
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Embeddings</strong></td>
+            <td>
+              Dense numerical vectors encoding semantic meaning; similar text →
+              similar vectors
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Cosine Similarity</strong></td>
+            <td>
+              Measures angle between vectors; 1.0 = identical meaning, 0 =
+              unrelated
+            </td>
+          </tr>
+          <tr>
+            <td><strong>ChromaDB</strong></td>
+            <td>
+              Zero-setup local vector store; ideal for development and
+              single-machine RAG
+            </td>
+          </tr>
+          <tr>
+            <td><strong>PGVector</strong></td>
+            <td>
+              PostgreSQL-backed vector store; production-grade with concurrent
+              access and ACID guarantees
+            </td>
+          </tr>
+          <tr>
+            <td><strong>LCEL RAG Chain</strong></td>
+            <td>
+              <code>retriever | format_docs</code> → <code>prompt</code> →
+              <code>llm</code> → <code>StrOutputParser</code>
+            </td>
+          </tr>
+        </table>
+
+        <div class="callout" style="margin-top: 1.5rem">
+          <strong>🚀 Next Steps</strong>
+          <ul
+            style="margin-top: 0.4rem; padding-left: 1.2rem; font-size: 0.9rem"
+          >
+            <li>
+              <a href="rag_concept_docs.html" style="color: var(--primary)"
+                >RAG Concepts Deep Dive</a
+              >
+              — chunking strategies, advanced retrieval, evaluation
+            </li>
+            <li>
+              <a href="langchain.html" style="color: var(--primary)"
+                >LangChain LCEL</a
+              >
+              — master the chain composition primitives used in the RAG chain
+            </li>
+            <li>
+              <a href="langgraph.html" style="color: var(--primary)"
+                >LangGraph</a
+              >
+              — embed RAG into a stateful multi-step agent graph
+            </li>
+            <li>
+              <a href="multi_agent.html" style="color: var(--primary)"
+                >Multi-Agent Systems</a
+              >
+              — compose research + retrieval + generation agents
+            </li>
+          </ul>
+        </div>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        RAG Documentation ·
+        <a href="index.html" style="color: var(--primary)">← Back to Home</a>
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+      const links = document.querySelectorAll("aside a");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `aside a[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -75% 0px" },
+      );
+      document
+        .querySelectorAll(".section-anchor")
+        .forEach((el) => obs.observe(el));
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `flowchart TB
+  subgraph Indexing["📥 Indexing (one-time setup)"]
+    direction LR
+    D["📄 Documents\n(text chunks)"] --> E["Embedding\nModel"] --> V["Vector Store\n(ChromaDB / PGVector)"]
+  end
+  subgraph Querying["🔍 Query Time (every request)"]
+    direction LR
+    Q["❓ User Question"] --> QE["Embed\nQuestion"] --> S["Similarity\nSearch"]
+    S -->|"Top-K docs"| P["Build Prompt\nwith context"]
+    P --> L["🤖 LLM\n(ChatGroq)"]
+    L --> A["✅ Answer\n(grounded in docs)"]
+  end
+  V --> S
+  style Indexing fill:#1c2128,stroke:#e3b341
+  style Querying fill:#1c2128,stroke:#58a6ff`,
+      merChart_1: `graph LR
+  A[Documents] --> B[Chunking] --> C[Embeddings] --> D[Vector Database] --> E[Retriever] --> F[LLM Prompt] --> G[Answer]
+  style A fill:#21262d,stroke:#e3b341,color:#e6edf3
+  style B fill:#21262d,stroke:#e3b341,color:#e6edf3
+  style C fill:#21262d,stroke:#e3b341,color:#e6edf3
+  style D fill:#21262d,stroke:#bc8cff,color:#e6edf3
+  style E fill:#21262d,stroke:#58a6ff,color:#e6edf3
+  style F fill:#21262d,stroke:#58a6ff,color:#e6edf3
+  style G fill:#21262d,stroke:#3fb950,color:#e6edf3`,
+      merChart_2: `flowchart LR
+  A["1️⃣ Load\nDocuments"] --> B["2️⃣ Split into\nChunks"]
+  B --> C["3️⃣ Embed\nEach Chunk"]
+  C --> D["4️⃣ Store in\nVector DB"]
+  D --> E["5️⃣ Embed\nUser Query"]
+  E --> F["6️⃣ Similarity\nSearch"]
+  F --> G["7️⃣ Inject into\nPrompt"]
+  G --> H["8️⃣ LLM\nGenerates Answer"]
+  style A fill:#21262d,stroke:#e3b341
+  style B fill:#21262d,stroke:#e3b341
+  style C fill:#21262d,stroke:#e3b341
+  style D fill:#21262d,stroke:#e3b341
+  style E fill:#21262d,stroke:#58a6ff
+  style F fill:#21262d,stroke:#58a6ff
+  style G fill:#21262d,stroke:#58a6ff
+  style H fill:#21262d,stroke:#3fb950`,
+      merChart_3: `graph LR
+  A["Vector A - cat on sofa"] -->|"cos=0.97 very similar"| B["Vector B - kitten on couch"]
+  A -->|"cos=0.12 unrelated"| C["Vector C - AI transforms tech"]
+  B -->|"cos=0.14 unrelated"| C
+  style A fill:#21262d,stroke:#58a6ff
+  style B fill:#21262d,stroke:#3fb950
+  style C fill:#21262d,stroke:#e3b341`,
+      merChart_4: `flowchart LR
+  D["📄 Documents"] --> E["HuggingFace\nEmbeddings"] --> C
+  subgraph C["💾 ChromaDB (./chroma_db)"]
+    direction TB
+    I["Index\n(HNSW)"]
+    M["Metadata\n(SQLite)"]
+  end
+  Q["❓ Query"] --> QE["Embed\nQuery"] --> SS["Similarity\nSearch"] --> R["Top-K\nResults"]
+  C --> SS
+  style C fill:#1c2128,stroke:#e3b341`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

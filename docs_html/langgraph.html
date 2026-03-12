@@ -1,0 +1,1118 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LangGraph & Agents — AI Ecosystem Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      aside {
+        width: 240px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 72px;
+        align-self: flex-start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+      aside ul {
+        list-style: none;
+      }
+      aside li a {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.87rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 4px 4px 0;
+      }
+      aside li a:hover,
+      aside li a.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+      }
+      aside .group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.8rem 0.8rem 0.3rem;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding-left: 3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 2.5rem 0 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.6rem;
+        color: var(--primary);
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1.2rem 0 0.4rem;
+        color: var(--orange);
+      }
+      p {
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.84rem;
+        margin: 1rem 0;
+      }
+      code:not(pre code) {
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: var(--orange);
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      .callout {
+        border-left: 4px solid var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+        padding: 1rem 1.2rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+      .callout.green {
+        border-left-color: var(--green);
+        background: rgba(63, 185, 80, 0.07);
+      }
+      .callout.yellow {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.07);
+      }
+      .callout.purple {
+        border-left-color: var(--purple);
+        background: rgba(188, 140, 255, 0.07);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+      th {
+        background: var(--surface2);
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td code {
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.82em;
+      }
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 2rem;
+        height: 2rem;
+        background: var(--purple);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+      .section-anchor {
+        scroll-margin-top: 80px;
+      }
+      /* State box */
+      .state-box {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem 1.2rem;
+        margin: 1rem 0;
+        font-family: monospace;
+        font-size: 0.9rem;
+      }
+      .state-box .key {
+        color: var(--primary);
+      }
+      .state-box .val {
+        color: var(--green);
+      }
+      .state-box .comment {
+        color: var(--muted);
+      }
+      /* Flow cards */
+      .flow-row {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        flex-wrap: wrap;
+        margin: 1rem 0;
+      }
+      .flow-node {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 0.5rem 1rem;
+        font-weight: 600;
+        font-size: 0.9rem;
+      }
+      .flow-edge {
+        color: var(--muted);
+        font-size: 1.2rem;
+      }
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav .logo {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding-left: 0;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          height: 56px;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+          overflow-x: visible;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .layout {
+          padding: 1rem;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html">LangChain</a>
+        <a href="langgraph.html" class="active">LangGraph</a>
+        <a href="mcp.html">MCP</a>
+        <a href="fastmcp.html">FastMCP</a>
+        <a href="rag.html">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="group-label">Concepts</div>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#why-langgraph">Why LangGraph?</a></li>
+          <li><a href="#state">State</a></li>
+          <li><a href="#nodes">Nodes</a></li>
+          <li><a href="#edges">Edges</a></li>
+        </ul>
+        <div class="group-label">Agents</div>
+        <ul>
+          <li><a href="#tools">Defining Tools</a></li>
+          <li><a href="#create-agent">create_agent</a></li>
+          <li><a href="#react">ReAct Pattern</a></li>
+          <li><a href="#memory">Agent Memory</a></li>
+        </ul>
+        <div class="group-label">Advanced</div>
+        <ul>
+          <li><a href="#conditional">Conditional Edges</a></li>
+          <li><a href="#checkpointing">Checkpointing</a></li>
+          <li><a href="#multi">Multi-Agent Graph</a></li>
+        </ul>
+        <div class="group-label">Tasks</div>
+        <ul>
+          <li><a href="#task1">Task 1 — Basic Agent</a></li>
+          <li><a href="#task2">Task 2 — Multi-Tool Agent</a></li>
+          <li><a href="#task3">Task 3 — LangGraph Graph</a></li>
+        </ul>
+      </aside>
+
+      <main>
+        <h1>🕸️ LangGraph &amp; Agents</h1>
+        <p class="lead">
+          LangGraph extends LangChain with stateful, graph-based agent
+          execution. Instead of linear chains, you model agent behaviour as a
+          directed graph — with nodes that do work, edges that route between
+          them, and a shared State that persists across steps.
+        </p>
+
+        <div class="callout purple">
+          <strong>✅ What you'll learn</strong>
+          How to define tools with <code>@tool</code>, create agents with
+          <code>create_agent</code>, understand the ReAct pattern, build a
+          LangGraph state machine, add conditional routing, and compose
+          multi-agent pipelines.
+        </div>
+
+        <!-- Overview -->
+        <h2 id="overview" class="section-anchor">Overview</h2>
+        <p>
+          An <strong>agent</strong> is a system that uses an LLM to decide which
+          actions to take. Unlike chains (which always follow the same steps),
+          agents reason about <em>what to do next</em> based on the current
+          state.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_0"></div>
+        </div>
+
+        <!-- Why LangGraph -->
+        <h2 id="why-langgraph" class="section-anchor">Why LangGraph?</h2>
+        <table>
+          <tr>
+            <th>Feature</th>
+            <th>LangChain Chains</th>
+            <th>LangGraph Agents</th>
+          </tr>
+          <tr>
+            <td>Execution flow</td>
+            <td>Fixed, linear</td>
+            <td>Dynamic, graph-based</td>
+          </tr>
+          <tr>
+            <td>Decision making</td>
+            <td>Deterministic</td>
+            <td>LLM-driven at each step</td>
+          </tr>
+          <tr>
+            <td>Loops / retries</td>
+            <td>Not supported</td>
+            <td>Native via cycle detection</td>
+          </tr>
+          <tr>
+            <td>Shared state</td>
+            <td>Input/output only</td>
+            <td>Typed state persists across all nodes</td>
+          </tr>
+          <tr>
+            <td>Multi-agent</td>
+            <td>Manual composition</td>
+            <td>First-class support</td>
+          </tr>
+        </table>
+
+        <!-- State -->
+        <h2 id="state" class="section-anchor">State</h2>
+        <p>
+          State is the shared data structure that every node in the graph reads
+          from and writes to. It's typically a <code>TypedDict</code> where
+          <code>messages</code> is a list that gets appended.
+        </p>
+
+        <pre><code class="language-python">from typing import TypedDict, Annotated
+from langchain_core.messages import BaseMessage
+from langgraph.graph.message import add_messages
+
+# State definition — every node receives and returns this
+class AgentState(TypedDict):
+    # add_messages is a "reducer" — it appends new messages instead of overwriting
+    messages: Annotated[list[BaseMessage], add_messages]</code></pre>
+
+        <div class="state-box">
+          <span class="comment"># State after user sends "What is 25+7?"</span
+          ><br />
+          {<br />
+          &nbsp;&nbsp;<span class="key">"messages"</span>: [<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;HumanMessage(content=<span class="val"
+            >"What is 25+7?"</span
+          >), <span class="comment"># user input</span><br />
+          &nbsp;&nbsp;&nbsp;&nbsp;AIMessage(content=<span class="val">""</span>,
+          tool_calls=[{<span class="val">"name"</span>:
+          <span class="val">"calculator"</span>,
+          <span class="val">"args"</span>: {<span class="val">"query"</span>:
+          <span class="val">"25+7"</span>}}]),<br />
+          &nbsp;&nbsp;&nbsp;&nbsp;ToolMessage(content=<span class="val"
+            >"32"</span
+          >), <span class="comment"># tool result</span><br />
+          &nbsp;&nbsp;&nbsp;&nbsp;AIMessage(content=<span class="val"
+            >"25 + 7 = 32"</span
+          >) <span class="comment"># final answer</span><br />
+          &nbsp;&nbsp;]<br />
+          }
+        </div>
+
+        <!-- Nodes -->
+        <h2 id="nodes" class="section-anchor">Nodes</h2>
+        <p>
+          A node is a Python function that receives the current
+          <code>State</code> and returns an update to apply to it. Nodes are
+          where the actual work happens.
+        </p>
+
+        <pre><code class="language-python">from langgraph.graph import StateGraph, END
+from langchain_groq import ChatGroq
+
+llm = ChatGroq(model="openai/gpt-oss-120b")
+tools = [calculator]  # list of @tool functions
+
+# Bind tools to the LLM so it knows they exist
+llm_with_tools = llm.bind_tools(tools)
+
+# Node 1: The LLM decides what to do
+def call_model(state: AgentState):
+    response = llm_with_tools.invoke(state["messages"])
+    return {"messages": [response]}  # add the response to state
+
+# Node 2: Execute whatever tool the LLM called
+from langgraph.prebuilt import ToolNode
+tool_node = ToolNode(tools)  # automatically handles tool dispatch</code></pre>
+
+        <!-- Edges -->
+        <h2 id="edges" class="section-anchor">Edges</h2>
+        <p>
+          Edges define the flow between nodes. A
+          <strong>normal edge</strong> always goes from A to B. A
+          <strong>conditional edge</strong> calls a function to decide the next
+          node.
+        </p>
+
+        <pre><code class="language-python">from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import tools_condition
+
+# Build graph
+graph = StateGraph(AgentState)
+graph.add_node("agent", call_model)
+graph.add_node("tools", tool_node)
+
+graph.set_entry_point("agent")  # where execution starts
+
+# Conditional: if LLM wants to call a tool → go to "tools", else → END
+graph.add_conditional_edges(
+    "agent",
+    tools_condition,   # returns "tools" or "__end__"
+)
+
+# After tools run, always go back to the agent
+graph.add_edge("tools", "agent")
+
+app = graph.compile()</code></pre>
+
+        <div class="diagram-wrap">
+          <div id="merChart_1"></div>
+        </div>
+
+        <!-- Tools -->
+        <h2 id="tools" class="section-anchor">Defining Tools with @tool</h2>
+        <p>
+          The <code>@tool</code> decorator converts a regular Python function
+          into a LangChain Tool. The <strong>docstring</strong> becomes the tool
+          description that the LLM reads to decide when to use it. Type
+          annotations define the schema.
+        </p>
+
+        <pre><code class="language-python">from langchain_core.tools import tool
+
+@tool
+def calculator(query: str) -> str:
+    """Useful for solving math expressions. Input should be a valid Python math expression."""
+    try:
+        result = eval(query)   # safely evaluate math expressions
+        return str(result)
+    except Exception:
+        return "Invalid expression."
+
+# The tool has an auto-generated schema:
+print(calculator.name)         # "calculator"
+print(calculator.description)  # the docstring text
+print(calculator.args)         # {"query": {"type": "string", "description": "..."}}</code></pre>
+
+        <div class="callout yellow">
+          <strong>⚠️ Security note on eval()</strong>
+          Using <code>eval()</code> on untrusted input is dangerous. In
+          production, use a library like <code>numexpr</code> or
+          <code>simpleeval</code> to safely evaluate math expressions without
+          executing arbitrary code.
+        </div>
+
+        <h3>Tool Parameters</h3>
+        <table>
+          <tr>
+            <th>Attribute</th>
+            <th>Set By</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>.name</code></td>
+            <td>Function name</td>
+            <td>The name LLM uses to call this tool</td>
+          </tr>
+          <tr>
+            <td><code>.description</code></td>
+            <td>Docstring</td>
+            <td>When and how to use this tool — LLM reads this</td>
+          </tr>
+          <tr>
+            <td><code>.args</code></td>
+            <td>Type annotations</td>
+            <td>JSON schema of expected arguments</td>
+          </tr>
+          <tr>
+            <td><code>.return_direct</code></td>
+            <td>Decorator kwarg</td>
+            <td>
+              If True, return tool output directly without re-querying LLM
+            </td>
+          </tr>
+        </table>
+
+        <!-- create_agent -->
+        <h2 id="create-agent" class="section-anchor">create_agent</h2>
+        <p>
+          <code>create_agent</code> is a convenience function from
+          <code>langchain.agents</code> that builds a fully configured ReAct
+          agent graph. Under the hood it creates a <code>StateGraph</code> with
+          the correct nodes, edges, and tool routing.
+        </p>
+
+        <pre><code class="language-python">from langchain.agents import create_agent
+from langchain_groq import ChatGroq
+from langchain_core.tools import tool
+
+@tool
+def calculator(query: str) -> str:
+    """Useful for solving math expressions."""
+    try:
+        return str(eval(query))
+    except Exception:
+        return "Invalid expression."
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+
+agent = create_agent(
+    llm,                    # the language model
+    tools=[calculator],     # list of available tools
+    system_prompt="You are a helpful assistant with access to a calculator tool. Use it for math.",
+)
+
+response = agent.invoke({
+    "messages": [{"role": "user", "content": "What is 25 + 7?"}]
+})
+
+# Extract the final AI message
+final = response["messages"][-1]
+print(final.content)  # "25 + 7 = 32"</code></pre>
+
+        <h3>create_agent Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>llm</code></td>
+            <td>BaseChatModel</td>
+            <td>The LLM to use for reasoning decisions</td>
+          </tr>
+          <tr>
+            <td><code>tools</code></td>
+            <td>list[BaseTool]</td>
+            <td>All tools the agent can use</td>
+          </tr>
+          <tr>
+            <td><code>system_prompt</code></td>
+            <td>str</td>
+            <td>Initial system instruction for the agent</td>
+          </tr>
+          <tr>
+            <td><code>checkpointer</code></td>
+            <td>BaseCheckpointSaver</td>
+            <td>Optional: persist agent memory across runs</td>
+          </tr>
+        </table>
+
+        <!-- ReAct Pattern -->
+        <h2 id="react" class="section-anchor">ReAct Pattern</h2>
+        <p>
+          ReAct (Reason + Act) is the dominant pattern for LLM agents. The LLM
+          alternates between <em>thinking</em> about what to do and
+          <em>acting</em> (calling a tool). The result of each action is fed
+          back to the LLM for further reasoning.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_2"></div>
+        </div>
+
+        <!-- Agent Memory -->
+        <h2 id="memory" class="section-anchor">Agent Memory</h2>
+        <p>
+          By default, agents are stateless — each <code>.invoke()</code> call is
+          independent. Use a <strong>checkpointer</strong> to persist
+          conversation history across calls.
+        </p>
+
+        <pre><code class="language-python">from langgraph.checkpoint.memory import MemorySaver
+from langchain.agents import create_agent
+
+checkpointer = MemorySaver()  # in-memory (for testing; use SqliteSaver for persistence)
+
+agent = create_agent(llm, tools=tools, system_prompt="...", checkpointer=checkpointer)
+
+# Thread ID groups a conversation
+config = {"configurable": {"thread_id": "user-123"}}
+
+# First turn
+agent.invoke({"messages": [{"role": "user", "content": "Hi, I'm Alice."}]}, config=config)
+
+# Second turn — the agent REMEMBERS Alice from the first turn
+response = agent.invoke({"messages": [{"role": "user", "content": "What's my name?"}]}, config=config)
+print(response["messages"][-1].content)  # "Your name is Alice!"</code></pre>
+
+        <!-- Conditional Edges -->
+        <h2 id="conditional" class="section-anchor">Conditional Edges</h2>
+        <p>
+          Conditional edges use a routing function to decide the next node. The
+          function receives the current State and returns a node name (or
+          <code>END</code>).
+        </p>
+
+        <pre><code class="language-python">from langgraph.graph import END
+
+def should_continue(state: AgentState) -> str:
+    """Route to tools if the last message has tool calls, otherwise end."""
+    last = state["messages"][-1]
+    if hasattr(last, "tool_calls") and last.tool_calls:
+        return "tools"   # there's a tool call → execute it
+    return END           # no tool call → we're done
+
+graph.add_conditional_edges(
+    "agent",          # source node
+    should_continue,  # routing function
+    {
+        "tools": "tools",   # if function returns "tools", go to tools node
+        END: END,           # if function returns END, finish
+    }
+)</code></pre>
+
+        <!-- Checkpointing -->
+        <h2 id="checkpointing" class="section-anchor">Checkpointing</h2>
+        <table>
+          <tr>
+            <th>Saver</th>
+            <th>Storage</th>
+            <th>Best For</th>
+          </tr>
+          <tr>
+            <td><code>MemorySaver()</code></td>
+            <td>In-process dict</td>
+            <td>Testing and development</td>
+          </tr>
+          <tr>
+            <td><code>SqliteSaver.from_conn_string("...")</code></td>
+            <td>SQLite file</td>
+            <td>Single-machine persistence</td>
+          </tr>
+          <tr>
+            <td><code>PostgresSaver(...)</code></td>
+            <td>PostgreSQL</td>
+            <td>Production, multi-instance</td>
+          </tr>
+        </table>
+
+        <!-- Multi-Agent -->
+        <h2 id="multi" class="section-anchor">Multi-Agent Graph</h2>
+        <p>
+          In a multi-agent setup, a <strong>supervisor</strong> agent routes
+          tasks to specialised <strong>worker</strong> agents. Each worker is
+          itself a LangGraph sub-graph.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_3"></div>
+        </div>
+
+        <!-- TASK 1 -->
+        <h2 id="task1" class="section-anchor">
+          📙 Task 1 — Basic Agent with Calculator
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Create a basic agent using
+          <code>create_agent</code> with a calculator tool.
+        </div>
+        <pre><code class="language-python">import os
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain_core.tools import tool
+from langchain_core.messages import AIMessage
+from langchain.agents import create_agent
+
+load_dotenv()
+
+@tool
+def calculator(query: str) -> str:
+    """Useful for solving math expressions."""
+    try:
+        return str(eval(query))
+    except Exception:
+        return "Invalid expression."
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+
+agent = create_agent(
+    llm,
+    tools=[calculator],
+    system_prompt="You are a helpful assistant with access to a calculator tool. Use it for math questions.",
+)
+
+response = agent.invoke({
+    "messages": [{"role": "user", "content": "What is 25 + 7?"}]
+})
+
+final_message = response["messages"][-1]
+if isinstance(final_message, AIMessage):
+    print(final_message.content)
+else:
+    print(final_message)</code></pre>
+
+        <h2 id="task2" class="section-anchor">📙 Task 2 — Multi-Tool Agent</h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Build an agent with both weather and search
+          tools and an interactive loop.
+        </div>
+        <pre><code class="language-python">import os, requests
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain_core.tools import tool
+from langchain_core.messages import AIMessage
+from langchain.agents import create_agent
+
+load_dotenv()
+
+@tool
+def weather_api(city: str) -> str:
+    """Get current weather for a given city."""
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    if not api_key:
+        return "OpenWeather API key not found."
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {"q": city, "appid": api_key, "units": "metric"}
+    resp = requests.get(url, params=params, timeout=10).json()
+    if "main" not in resp:
+        return f"Error: {resp.get('message', 'Unknown')}"
+    return f"Weather in {city}: {resp['main']['temp']}°C, {resp['weather'][0]['description']}"
+
+@tool
+def google_search_api(query: str) -> str:
+    """Search Google for current information. Returns top 3 results."""
+    api_key = os.getenv("SERPER_API_KEY")
+    if not api_key:
+        return "Serper API key not found."
+    headers = {"X-API-KEY": api_key, "Content-Type": "application/json"}
+    data = requests.post("https://google.serper.dev/search", headers=headers, json={"q": query}, timeout=10).json()
+    if "organic" not in data:
+        return "No results found."
+    return "\n".join([f"{r['title']} - {r['snippet']}" for r in data["organic"][:3]])
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+agent = create_agent(llm, tools=[weather_api, google_search_api],
+    system_prompt="You are a research assistant. Use tools for real-time data.")
+
+print("Agent ready! Type 'exit' to quit.")
+while True:
+    user_input = input("\nYou: ").strip()
+    if user_input.lower() in ["exit", "quit"]:
+        break
+    response = agent.invoke({"messages": [{"role": "user", "content": user_input}]})
+    messages = response["messages"]
+    for msg in reversed(messages):
+        if hasattr(msg, "content") and msg.content:
+            print(f"\nAgent: {msg.content}")
+            break</code></pre>
+
+        <h2 id="task3" class="section-anchor">
+          📙 Task 3 — Build a LangGraph from Scratch
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Manually construct a
+          <code>StateGraph</code> without using <code>create_agent</code>, to
+          understand the internals.
+        </div>
+        <pre><code class="language-python">from typing import TypedDict, Annotated
+from langchain_core.messages import BaseMessage
+from langchain_core.tools import tool
+from langchain_groq import ChatGroq
+from langgraph.graph import StateGraph, END
+from langgraph.graph.message import add_messages
+from langgraph.prebuilt import ToolNode, tools_condition
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# 1. Define state
+class AgentState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+
+# 2. Define tools
+@tool
+def calculator(query: str) -> str:
+    """Solve math expressions."""
+    try:
+        return str(eval(query))
+    except Exception:
+        return "Invalid."
+
+tools = [calculator]
+
+# 3. Define model node
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+llm_with_tools = llm.bind_tools(tools)
+
+def call_model(state: AgentState):
+    return {"messages": [llm_with_tools.invoke(state["messages"])]}
+
+# 4. Build graph
+graph = StateGraph(AgentState)
+graph.add_node("agent", call_model)
+graph.add_node("tools", ToolNode(tools))
+graph.set_entry_point("agent")
+graph.add_conditional_edges("agent", tools_condition)
+graph.add_edge("tools", "agent")
+app = graph.compile()
+
+# 5. Run it
+result = app.invoke({"messages": [{"role": "user", "content": "What is 144 / 12?"}]})
+print(result["messages"][-1].content)</code></pre>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        LangGraph Documentation ·
+        <a href="index.html" style="color: var(--primary)">← Back to Home</a>
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+      const links = document.querySelectorAll("aside a");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `aside a[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -75% 0px" },
+      );
+      document
+        .querySelectorAll(".section-anchor")
+        .forEach((el) => obs.observe(el));
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `flowchart TB
+  User["👤 User Input"] --> Agent
+  subgraph Agent["🤖 LangGraph Agent"]
+    direction TB
+    LLM["LLM\n(decides action)"] -->|"tool call"| Tools["🔧 Tools\n(execute action)"]
+    Tools -->|"tool result"| LLM
+    LLM -->|"final answer"| Done["✅ Final Response"]
+  end
+  Agent --> Response["📤 Response to User"]
+  style Agent fill:#1c2128,stroke:#bc8cff
+  style LLM fill:#21262d,stroke:#58a6ff
+  style Tools fill:#21262d,stroke:#3fb950`,
+      merChart_1: `stateDiagram-v2
+  [*] --> agent : User input
+  agent --> tools : LLM calls a tool
+  tools --> agent : Tool result returned
+  agent --> [*] : LLM produces final answer
+  note right of agent
+    calls LLM with current state
+  end note
+  note right of tools
+    executes the requested tool and appends result to state
+  end note`,
+      merChart_2: `sequenceDiagram
+  participant U as User
+  participant A as Agent
+  participant T as Tools
+  U->>A: What is the weather in Paris?
+  Note over A: Thought - I need weather data, I will call weather_api.
+  A->>T: weather_api(city=Paris)
+  T-->>A: Weather in Paris - 22 degrees C and sunny
+  Note over A: Thought - I have the data, I can answer now.
+  A-->>U: The weather in Paris is 22 degrees C and sunny.`,
+      merChart_3: `flowchart TB
+  User["👤 User"] --> Supervisor
+  subgraph Supervisor["🎯 Supervisor Agent"]
+    direction LR
+    SLLM["LLM decides\nwhich agent to call"]
+  end
+  Supervisor -->|"weather task"| WA["🏤️ Weather Agent\n+ weather_api tool"]
+  Supervisor -->|"search task"| SA["🔍 Search Agent\n+ google_search_api tool"]
+  WA & SA -->|"result"| Supervisor
+  Supervisor --> Out["📤 Final Answer"]
+  style Supervisor fill:#1c2128,stroke:#bc8cff
+  style WA fill:#1c2128,stroke:#3fb950
+  style SA fill:#1c2128,stroke:#58a6ff`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

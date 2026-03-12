@@ -1,0 +1,3098 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PostgreSQL + pgvector — Complete Reference</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0c10;
+        --bg2: #0f1218;
+        --bg3: #161b24;
+        --bg4: #1c2330;
+        --border: #1e2a3a;
+        --border2: #253040;
+        --pg-blue: #336791;
+        --pg-blue-bright: #4a9fd4;
+        --pg-blue-glow: rgba(74, 159, 212, 0.15);
+        --vec-green: #00d4a0;
+        --vec-green-glow: rgba(0, 212, 160, 0.12);
+        --accent-orange: #f5a623;
+        --accent-pink: #e05cad;
+        --text: #c8d8e8;
+        --text-dim: #667a8a;
+        --text-bright: #e8f4ff;
+        --keyword: #4a9fd4;
+        --string: #a8d8a8;
+        --type: #f5a623;
+        --comment: #4a5a6a;
+        --func: #e05cad;
+        --number: #79d4c8;
+        --topnav-h: 44px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Syne", sans-serif;
+        overflow-x: hidden;
+      }
+
+      /* ── NOISE TEXTURE ── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      /* ── TOP NAV ── */
+      .topnav {
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        width: 100%;
+        height: var(--topnav-h);
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 0 1.5rem;
+        overflow-x: auto;
+      }
+      .topnav::-webkit-scrollbar {
+        height: 0;
+      }
+      .topnav .tl {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--pg-blue-bright);
+        text-decoration: none;
+        white-space: nowrap;
+        font-family: "Syne", sans-serif;
+      }
+      .topnav a {
+        color: var(--text-dim);
+        text-decoration: none;
+        font-size: 0.82rem;
+        white-space: nowrap;
+        transition: color 0.2s;
+        font-family: "Syne", sans-serif;
+      }
+      .topnav a:hover,
+      .topnav a.active {
+        color: var(--pg-blue-bright);
+      }
+
+      /* ── SIDEBAR NAV ── */
+      .sidebar {
+        position: fixed;
+        left: 0;
+        top: var(--topnav-h);
+        width: 230px;
+        height: calc(100vh - var(--topnav-h));
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        overflow-y: auto;
+        z-index: 100;
+        padding: 24px 0;
+      }
+
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sidebar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+
+      .sidebar-logo {
+        padding: 0 20px 20px;
+        border-bottom: 1px solid var(--border);
+        margin-bottom: 16px;
+      }
+
+      .sidebar-logo .logo-pg {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--pg-blue-bright);
+        letter-spacing: -0.5px;
+      }
+
+      .sidebar-logo .logo-vec {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--vec-green);
+        letter-spacing: -0.5px;
+      }
+
+      .sidebar-logo .logo-sub {
+        font-size: 10px;
+        color: var(--text-dim);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-top: 3px;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .nav-section {
+        padding: 6px 20px;
+        font-size: 9px;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: var(--text-dim);
+        font-weight: 600;
+        margin-top: 8px;
+      }
+
+      .nav-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 20px;
+        color: var(--text-dim);
+        text-decoration: none;
+        font-size: 12.5px;
+        font-weight: 500;
+        transition: all 0.15s;
+        border-left: 2px solid transparent;
+      }
+
+      .nav-link:hover {
+        color: var(--text-bright);
+        background: var(--pg-blue-glow);
+        border-left-color: var(--pg-blue-bright);
+      }
+
+      .nav-link.vec:hover {
+        background: var(--vec-green-glow);
+        border-left-color: var(--vec-green);
+      }
+
+      .nav-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--pg-blue-bright);
+        flex-shrink: 0;
+      }
+
+      .nav-dot.vec {
+        background: var(--vec-green);
+      }
+
+      /* ── MAIN CONTENT ── */
+      .main {
+        margin-left: 230px;
+        min-height: 100vh;
+        position: relative;
+        z-index: 1;
+      }
+
+      /* ── HERO ── */
+      .hero {
+        padding: 64px 60px 48px;
+        background: linear-gradient(135deg, var(--bg2) 0%, var(--bg) 60%);
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero::after {
+        content: "PG";
+        position: absolute;
+        right: -20px;
+        top: -30px;
+        font-size: 240px;
+        font-weight: 800;
+        color: rgba(74, 159, 212, 0.04);
+        font-family: "Syne", sans-serif;
+        user-select: none;
+        pointer-events: none;
+      }
+
+      .hero-badges {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .badge {
+        padding: 4px 12px;
+        border-radius: 3px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .badge-pg {
+        background: rgba(51, 103, 145, 0.3);
+        color: var(--pg-blue-bright);
+        border: 1px solid var(--pg-blue);
+      }
+      .badge-vec {
+        background: rgba(0, 212, 160, 0.1);
+        color: var(--vec-green);
+        border: 1px solid rgba(0, 212, 160, 0.3);
+      }
+
+      .hero h1 {
+        font-size: 48px;
+        font-weight: 800;
+        line-height: 1.05;
+        letter-spacing: -1.5px;
+        margin-bottom: 14px;
+      }
+
+      .hero h1 span.blue {
+        color: var(--pg-blue-bright);
+      }
+      .hero h1 span.green {
+        color: var(--vec-green);
+      }
+
+      .hero-sub {
+        font-size: 14px;
+        color: var(--text-dim);
+        font-family: "JetBrains Mono", monospace;
+        letter-spacing: 0.3px;
+      }
+
+      /* ── CONTENT GRID ── */
+      .content {
+        padding: 40px 60px 80px;
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+      }
+
+      /* ── SECTION ── */
+      .section {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        overflow: hidden;
+      }
+
+      .section.vec-section {
+        border-color: rgba(0, 212, 160, 0.2);
+        background: linear-gradient(135deg, #0a100d 0%, var(--bg2) 100%);
+      }
+
+      .section-header {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 24px;
+        background: var(--bg3);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section.vec-section .section-header {
+        background: rgba(0, 212, 160, 0.05);
+        border-bottom-color: rgba(0, 212, 160, 0.15);
+      }
+
+      .section-num {
+        font-size: 10px;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text-dim);
+        background: var(--bg4);
+        padding: 2px 7px;
+        border-radius: 3px;
+        border: 1px solid var(--border2);
+      }
+
+      .section-title {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--text-bright);
+        letter-spacing: 0.3px;
+      }
+
+      .section-icon {
+        margin-left: auto;
+        font-size: 16px;
+        opacity: 0.5;
+      }
+
+      .section-body {
+        padding: 24px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      /* ── 2-COL GRID ── */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+
+      .grid-3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+      }
+
+      /* ── SUBSECTION ── */
+      .sub {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .sub-title {
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        color: var(--pg-blue-bright);
+        font-family: "JetBrains Mono", monospace;
+        padding-bottom: 6px;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .vec-section .sub-title {
+        color: var(--vec-green);
+      }
+
+      /* ── CODE BLOCKS ── */
+      pre {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 14px 16px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        line-height: 1.7;
+        overflow-x: auto;
+        position: relative;
+      }
+
+      pre::-webkit-scrollbar {
+        height: 3px;
+      }
+      pre::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      pre::-webkit-scrollbar-thumb {
+        background: var(--border2);
+      }
+
+      code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+      }
+
+      .kw {
+        color: var(--keyword);
+        font-weight: 500;
+      }
+      .str {
+        color: var(--string);
+      }
+      .tp {
+        color: var(--type);
+      }
+      .cm {
+        color: var(--comment);
+        font-style: italic;
+      }
+      .fn {
+        color: var(--func);
+      }
+      .nm {
+        color: var(--number);
+      }
+      .op {
+        color: #667a8a;
+      }
+
+      /* ── INLINE CODE ── */
+      .ic {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        padding: 1px 6px;
+        border-radius: 3px;
+        color: var(--pg-blue-bright);
+      }
+
+      /* ── TABLE ── */
+      .tbl {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 12.5px;
+      }
+
+      .tbl th {
+        text-align: left;
+        padding: 8px 12px;
+        background: var(--bg3);
+        color: var(--text-dim);
+        font-size: 10px;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        font-family: "JetBrains Mono", monospace;
+        border-bottom: 1px solid var(--border2);
+      }
+
+      .tbl td {
+        padding: 8px 12px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+        font-size: 12.5px;
+        line-height: 1.5;
+      }
+
+      .tbl tr:last-child td {
+        border-bottom: none;
+      }
+      .tbl tr:hover td {
+        background: var(--bg3);
+      }
+
+      .tbl td:first-child {
+        font-family: "JetBrains Mono", monospace;
+        color: var(--pg-blue-bright);
+        font-size: 12px;
+      }
+
+      /* ── CALLOUT ── */
+      .callout {
+        background: rgba(74, 159, 212, 0.07);
+        border-left: 3px solid var(--pg-blue-bright);
+        padding: 12px 16px;
+        border-radius: 0 4px 4px 0;
+        font-size: 12.5px;
+        line-height: 1.6;
+        color: var(--text);
+      }
+
+      .callout.green {
+        background: rgba(0, 212, 160, 0.07);
+        border-left-color: var(--vec-green);
+      }
+
+      .callout.orange {
+        background: rgba(245, 166, 35, 0.07);
+        border-left-color: var(--accent-orange);
+      }
+
+      /* ── PILL TAGS ── */
+      .tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .tag {
+        padding: 3px 10px;
+        border-radius: 3px;
+        font-size: 11px;
+        font-family: "JetBrains Mono", monospace;
+        font-weight: 500;
+        background: var(--bg3);
+        border: 1px solid var(--border2);
+        color: var(--text-dim);
+      }
+
+      .tag.blue {
+        color: var(--pg-blue-bright);
+        border-color: rgba(74, 159, 212, 0.3);
+        background: rgba(74, 159, 212, 0.05);
+      }
+      .tag.green {
+        color: var(--vec-green);
+        border-color: rgba(0, 212, 160, 0.3);
+        background: rgba(0, 212, 160, 0.05);
+      }
+      .tag.orange {
+        color: var(--accent-orange);
+        border-color: rgba(245, 166, 35, 0.3);
+        background: rgba(245, 166, 35, 0.05);
+      }
+      .tag.pink {
+        color: var(--accent-pink);
+        border-color: rgba(224, 92, 173, 0.3);
+        background: rgba(224, 92, 173, 0.05);
+      }
+
+      /* ── LIST ── */
+      .list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+
+      .list li {
+        list-style: none;
+        font-size: 12.5px;
+        padding: 4px 0;
+        padding-left: 16px;
+        position: relative;
+        color: var(--text);
+        line-height: 1.5;
+      }
+
+      .list li::before {
+        content: "›";
+        position: absolute;
+        left: 0;
+        color: var(--pg-blue-bright);
+        font-size: 14px;
+        font-weight: 600;
+      }
+
+      .vec-section .list li::before {
+        color: var(--vec-green);
+      }
+
+      /* ── COMPARISON ── */
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0;
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        overflow: hidden;
+      }
+
+      .compare-header {
+        padding: 10px 16px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        text-align: center;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .compare-header.mysql {
+        background: rgba(245, 166, 35, 0.1);
+        color: var(--accent-orange);
+        border-bottom: 1px solid var(--border);
+      }
+      .compare-header.pg {
+        background: rgba(74, 159, 212, 0.1);
+        color: var(--pg-blue-bright);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .compare-body {
+        padding: 14px 16px;
+      }
+
+      .compare-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        font-size: 12px;
+        font-family: "JetBrains Mono", monospace;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .compare-row:last-child {
+        border-bottom: none;
+      }
+      .compare-row > div {
+        padding: 7px 12px;
+      }
+      .compare-row > div:first-child {
+        color: var(--accent-orange);
+        border-right: 1px solid var(--border);
+      }
+      .compare-row > div:last-child {
+        color: var(--pg-blue-bright);
+      }
+
+      /* ── VECTOR VISUAL ── */
+      .vec-diagram {
+        background: var(--bg);
+        border: 1px solid rgba(0, 212, 160, 0.15);
+        border-radius: 4px;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .vec-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11.5px;
+      }
+
+      .vec-label {
+        color: var(--text-dim);
+        width: 80px;
+        text-align: right;
+      }
+      .vec-bar-wrap {
+        display: flex;
+        gap: 3px;
+      }
+
+      .vec-cell {
+        width: 36px;
+        height: 28px;
+        border: 1px solid rgba(0, 212, 160, 0.2);
+        border-radius: 2px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 10px;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--vec-green);
+        background: rgba(0, 212, 160, 0.06);
+        transition: background 0.3s;
+      }
+
+      .vec-cell:hover {
+        background: rgba(0, 212, 160, 0.15);
+      }
+
+      .vec-arrow {
+        color: var(--text-dim);
+        font-size: 14px;
+      }
+
+      /* ── INDEX TYPES VISUAL ── */
+      .index-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+      }
+
+      .index-card {
+        background: var(--bg);
+        border: 1px solid var(--border);
+        border-radius: 4px;
+        padding: 14px;
+        text-align: center;
+        transition: border-color 0.2s;
+      }
+
+      .index-card:hover {
+        border-color: var(--pg-blue);
+      }
+
+      .vec-section .index-card:hover {
+        border-color: var(--vec-green);
+      }
+
+      .index-card-name {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--vec-green);
+        margin-bottom: 5px;
+      }
+
+      .index-card-desc {
+        font-size: 11px;
+        color: var(--text-dim);
+        line-height: 1.5;
+      }
+
+      /* ── SCROLLBAR ── */
+      ::-webkit-scrollbar {
+        width: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 3px;
+      }
+
+      /* ── RESPONSIVE ── */
+      @media (max-width: 1100px) {
+        .sidebar {
+          display: none;
+        }
+        .main {
+          margin-left: 0;
+        }
+        .content {
+          padding: 24px 20px;
+        }
+        .hero {
+          padding: 40px 20px 32px;
+        }
+        .grid-2,
+        .grid-3 {
+          grid-template-columns: 1fr;
+        }
+        .compare-row {
+          grid-template-columns: 1fr;
+        }
+        .compare-row > div:first-child {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+        }
+        .index-grid {
+          grid-template-columns: 1fr !important;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+      @media (max-width: 600px) {
+        .hero {
+          padding: 32px 16px;
+        }
+        .content {
+          padding: 16px;
+        }
+        pre,
+        code {
+          font-size: 0.78rem;
+        }
+        .topnav {
+          padding: 0 12px;
+          gap: 12px;
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════════════════════ TOP NAV ══════════════════════════════ -->
+    <nav class="topnav">
+      <a href="index.html" class="tl">⚡ AI Ecosystem Docs</a>
+      <a href="langchain.html">LangChain</a>
+      <a href="langgraph.html">LangGraph</a>
+      <a href="mcp.html">MCP</a>
+      <a href="fastmcp.html">FastMCP</a>
+      <a href="rag.html">RAG</a>
+      <a href="rag_concept_docs.html">RAG Concepts</a>
+      <a href="rag_learning_path.html">RAG Path</a>
+      <a href="multi_agent.html">Multi-Agent</a>
+      <a href="fastApi.html">FastAPI</a>
+      <a href="pgAndPgVector.html" class="active">PgVector</a>
+    </nav>
+    <!-- ══════════════════════════════ SIDEBAR ══════════════════════════════ -->
+    <nav class="sidebar">
+      <div class="sidebar-logo">
+        <a
+          href="index.html"
+          style="
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            color: var(--text-dim);
+            text-decoration: none;
+            margin-bottom: 10px;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+            letter-spacing: 0.5px;
+            transition: color 0.2s;
+          "
+          onmouseover="this.style.color = 'var(--pg-blue-bright)'"
+          onmouseout="this.style.color = 'var(--text-dim)'"
+          >← AI Ecosystem Docs</a
+        >
+        <div>
+          <span class="logo-pg">Postgres</span>
+          <span class="logo-vec">+ pgvector</span>
+        </div>
+        <div class="logo-sub">Complete Reference</div>
+      </div>
+
+      <div class="nav-section">PostgreSQL</div>
+      <a href="#install" class="nav-link"
+        ><span class="nav-dot"></span>Installation</a
+      >
+      <a href="#psql" class="nav-link"
+        ><span class="nav-dot"></span>psql Commands</a
+      >
+      <a href="#db" class="nav-link"><span class="nav-dot"></span>Databases</a>
+      <a href="#schema" class="nav-link"
+        ><span class="nav-dot"></span>Schemas</a
+      >
+      <a href="#tables" class="nav-link"
+        ><span class="nav-dot"></span>Tables & Types</a
+      >
+      <a href="#crud" class="nav-link"><span class="nav-dot"></span>CRUD</a>
+      <a href="#constraints" class="nav-link"
+        ><span class="nav-dot"></span>Constraints</a
+      >
+      <a href="#joins" class="nav-link"><span class="nav-dot"></span>Joins</a>
+      <a href="#indexes" class="nav-link"
+        ><span class="nav-dot"></span>Indexes</a
+      >
+      <a href="#agg" class="nav-link"
+        ><span class="nav-dot"></span>Aggregation</a
+      >
+      <a href="#json" class="nav-link"
+        ><span class="nav-dot"></span>JSON / JSONB</a
+      >
+      <a href="#transactions" class="nav-link"
+        ><span class="nav-dot"></span>Transactions</a
+      >
+      <a href="#views" class="nav-link"
+        ><span class="nav-dot"></span>Views & Mat. Views</a
+      >
+      <a href="#funcs" class="nav-link"
+        ><span class="nav-dot"></span>Functions</a
+      >
+      <a href="#triggers" class="nav-link"
+        ><span class="nav-dot"></span>Triggers</a
+      >
+      <a href="#roles" class="nav-link"
+        ><span class="nav-dot"></span>Roles & Users</a
+      >
+      <a href="#backup" class="nav-link"
+        ><span class="nav-dot"></span>Backup & Restore</a
+      >
+      <a href="#perf" class="nav-link"
+        ><span class="nav-dot"></span>Performance</a
+      >
+      <a href="#adv" class="nav-link"
+        ><span class="nav-dot"></span>CTE & Window Fns</a
+      >
+      <a href="#concurrency" class="nav-link"
+        ><span class="nav-dot"></span>Concurrency</a
+      >
+      <a href="#extensions" class="nav-link"
+        ><span class="nav-dot"></span>Extensions</a
+      >
+      <a href="#vacuum" class="nav-link"><span class="nav-dot"></span>Vacuum</a>
+      <a href="#compare" class="nav-link"
+        ><span class="nav-dot"></span>PG vs MySQL</a
+      >
+
+      <div class="nav-section">pgvector</div>
+      <a href="#vec-intro" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Intro & Install</a
+      >
+      <a href="#vec-table" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Vector Columns</a
+      >
+      <a href="#vec-ops" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Distance Ops</a
+      >
+      <a href="#vec-index" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Indexes (IVFFlat/HNSW)</a
+      >
+      <a href="#vec-query" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Similarity Search</a
+      >
+      <a href="#vec-hybrid" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Hybrid Search</a
+      >
+      <a href="#vec-tips" class="nav-link vec"
+        ><span class="nav-dot vec"></span>Tips & Tuning</a
+      >
+    </nav>
+
+    <!-- ══════════════════════════════ MAIN ══════════════════════════════ -->
+    <main class="main">
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-badges">
+          <span class="badge badge-pg">PostgreSQL</span>
+          <span class="badge badge-vec">pgvector</span>
+        </div>
+        <h1>
+          <span class="blue">Complete</span><br /><span class="green"
+            >Reference</span
+          >
+        </h1>
+        <div class="hero-sub">
+          // Installation → Advanced Queries → Vector Similarity Search
+        </div>
+      </div>
+
+      <div class="content">
+        <!-- ── INSTALLATION ── -->
+        <div class="section" id="install">
+          <div class="section-header">
+            <span class="section-num">01</span>
+            <span class="section-title">Installation & Service</span>
+            <span class="section-icon">⚙</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Arch Linux</div>
+                <pre><code><span class="cm"># Install package</span>
+<span class="kw">sudo</span> pacman -S postgresql
+
+<span class="cm"># Init cluster (first time)</span>
+<span class="kw">sudo</span> -iu postgres
+initdb --locale=en_US.UTF-8 \
+  -D /var/lib/postgres/data
+<span class="kw">exit</span>
+
+<span class="cm"># Start / enable service</span>
+<span class="kw">sudo</span> systemctl start postgresql
+<span class="kw">sudo</span> systemctl enable postgresql</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Ubuntu / Debian</div>
+                <pre><code><span class="cm"># Install</span>
+<span class="kw">sudo</span> apt install postgresql postgresql-contrib
+
+<span class="cm"># Service control</span>
+<span class="kw">sudo</span> systemctl start postgresql
+<span class="kw">sudo</span> systemctl status postgresql
+
+<span class="cm"># Connect as postgres user</span>
+<span class="kw">sudo</span> -u postgres psql
+
+<span class="cm"># Check version</span>
+<span class="fn">psql</span> --version</code></pre>
+              </div>
+            </div>
+            <div class="callout">
+              Default data directory:
+              <code class="ic">/var/lib/postgres/data</code> (Arch)
+              &nbsp;|&nbsp;
+              <code class="ic">/var/lib/postgresql/&lt;ver&gt;/main</code>
+              (Ubuntu)
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PSQL META ── -->
+        <div class="section" id="psql">
+          <div class="section-header">
+            <span class="section-num">02</span>
+            <span class="section-title">psql Meta Commands</span>
+            <span class="section-icon">$</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Command</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>\l</td>
+                    <td>List all databases</td>
+                  </tr>
+                  <tr>
+                    <td>\c dbname</td>
+                    <td>Connect to database</td>
+                  </tr>
+                  <tr>
+                    <td>\dt</td>
+                    <td>List tables in current schema</td>
+                  </tr>
+                  <tr>
+                    <td>\dt *.*</td>
+                    <td>List all tables</td>
+                  </tr>
+                  <tr>
+                    <td>\d tablename</td>
+                    <td>Describe table (columns, types, constraints)</td>
+                  </tr>
+                  <tr>
+                    <td>\dn</td>
+                    <td>List schemas</td>
+                  </tr>
+                  <tr>
+                    <td>\du</td>
+                    <td>List roles/users</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Command</th>
+                    <th>Description</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>\df</td>
+                    <td>List functions</td>
+                  </tr>
+                  <tr>
+                    <td>\dv</td>
+                    <td>List views</td>
+                  </tr>
+                  <tr>
+                    <td>\di</td>
+                    <td>List indexes</td>
+                  </tr>
+                  <tr>
+                    <td>\dm</td>
+                    <td>List materialized views</td>
+                  </tr>
+                  <tr>
+                    <td>\e</td>
+                    <td>Open query in editor</td>
+                  </tr>
+                  <tr>
+                    <td>\timing</td>
+                    <td>Toggle query timing</td>
+                  </tr>
+                  <tr>
+                    <td>\q</td>
+                    <td>Quit psql</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <pre><code><span class="cm">-- Connect with specific credentials</span>
+psql -h localhost -p 5432 -U myuser -d mydb
+
+<span class="cm">-- Execute file</span>
+psql -U postgres -d mydb -f script.sql
+
+<span class="cm">-- Run inline query</span>
+psql -U postgres -c <span class="str">"SELECT version();"</span></code></pre>
+          </div>
+        </div>
+
+        <!-- ── DATABASE MANAGEMENT ── -->
+        <div class="section" id="db">
+          <div class="section-header">
+            <span class="section-num">03</span>
+            <span class="section-title">Database Management</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Create / Drop</div>
+                <pre><code><span class="cm">-- Create</span>
+<span class="kw">CREATE DATABASE</span> company;
+
+<span class="cm">-- With options</span>
+<span class="kw">CREATE DATABASE</span> app_db
+  <span class="kw">OWNER</span> = myuser
+  <span class="kw">ENCODING</span> = <span class="str">'UTF8'</span>
+  <span class="kw">LC_COLLATE</span> = <span class="str">'en_US.UTF-8'</span>;
+
+<span class="cm">-- Rename</span>
+<span class="kw">ALTER DATABASE</span> company <span class="kw">RENAME TO</span> corp;
+
+<span class="cm">-- Drop (disconnect first!)</span>
+<span class="kw">DROP DATABASE</span> company;
+<span class="kw">DROP DATABASE IF EXISTS</span> company;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Useful Queries</div>
+                <pre><code><span class="cm">-- Current database & user</span>
+<span class="kw">SELECT</span> <span class="fn">current_database</span>(), <span class="fn">current_user</span>;
+
+<span class="cm">-- All databases with sizes</span>
+<span class="kw">SELECT</span> datname,
+  <span class="fn">pg_size_pretty</span>(<span class="fn">pg_database_size</span>(datname))
+<span class="kw">FROM</span> pg_database;
+
+<span class="cm">-- Active connections</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> pg_stat_activity
+<span class="kw">WHERE</span> datname = <span class="str">'company'</span>;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── SCHEMAS ── -->
+        <div class="section" id="schema">
+          <div class="section-header">
+            <span class="section-num">04</span>
+            <span class="section-title">Schema Management</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="kw">CREATE SCHEMA</span> hr;
+<span class="kw">CREATE SCHEMA</span> finance;
+
+<span class="cm">-- Table inside schema</span>
+<span class="kw">CREATE TABLE</span> hr.employees (
+  id <span class="tp">SERIAL PRIMARY KEY</span>,
+  name <span class="tp">VARCHAR</span>(<span class="nm">100</span>)
+);
+
+<span class="cm">-- Set default search path</span>
+<span class="kw">SET</span> search_path <span class="kw">TO</span> hr, public;
+
+<span class="cm">-- Transfer ownership</span>
+<span class="kw">ALTER SCHEMA</span> hr <span class="kw">OWNER TO</span> myuser;</code></pre>
+              <pre><code><span class="cm">-- List schemas</span>
+\dn
+
+<span class="cm">-- Tables in specific schema</span>
+<span class="kw">SELECT</span> table_name
+<span class="kw">FROM</span> information_schema.tables
+<span class="kw">WHERE</span> table_schema = <span class="str">'hr'</span>
+  <span class="kw">AND</span> table_type = <span class="str">'BASE TABLE'</span>;
+
+<span class="cm">-- Drop schema</span>
+<span class="kw">DROP SCHEMA</span> hr <span class="kw">CASCADE</span>;
+</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TABLES & TYPES ── -->
+        <div class="section" id="tables">
+          <div class="section-header">
+            <span class="section-num">05</span>
+            <span class="section-title">Tables & Data Types</span>
+          </div>
+          <div class="section-body">
+            <div class="sub">
+              <div class="sub-title">Full Table Example</div>
+              <pre><code><span class="kw">CREATE TABLE</span> users (
+  id    <span class="tp">INT</span> <span class="kw">GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,  <span class="cm">-- modern auto-increment</span>
+  uuid  <span class="tp">UUID</span> <span class="kw">DEFAULT</span> <span class="fn">gen_random_uuid</span>(),
+  name  <span class="tp">VARCHAR</span>(<span class="nm">100</span>) <span class="kw">NOT NULL</span>,
+  email <span class="tp">VARCHAR</span>(<span class="nm">150</span>) <span class="kw">UNIQUE</span>,
+  age   <span class="tp">INT</span> <span class="kw">CHECK</span> (age > <span class="nm">0</span> <span class="kw">AND</span> age < <span class="nm">150</span>),
+  role  <span class="tp">TEXT</span> <span class="kw">DEFAULT</span> <span class="str">'viewer'</span>,
+  meta  <span class="tp">JSONB</span>,
+  tags  <span class="tp">TEXT[]</span>,
+  score <span class="tp">NUMERIC</span>(<span class="nm">5</span>,<span class="nm">2</span>),
+  is_active    <span class="tp">BOOLEAN</span> <span class="kw">DEFAULT</span> <span class="kw">TRUE</span>,
+  created_at   <span class="tp">TIMESTAMPTZ</span> <span class="kw">DEFAULT</span> <span class="fn">NOW</span>(),
+  updated_at   <span class="tp">TIMESTAMPTZ</span>
+);</code></pre>
+            </div>
+            <div class="grid-2">
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Example / Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>SMALLINT / INT / BIGINT</td>
+                    <td>2/4/8 byte integers</td>
+                  </tr>
+                  <tr>
+                    <td>SERIAL / BIGSERIAL</td>
+                    <td>Auto-increment (legacy)</td>
+                  </tr>
+                  <tr>
+                    <td>GENERATED ALWAYS AS IDENTITY</td>
+                    <td>Modern standard</td>
+                  </tr>
+                  <tr>
+                    <td>NUMERIC(p,s)</td>
+                    <td>Exact decimal</td>
+                  </tr>
+                  <tr>
+                    <td>FLOAT / DOUBLE PRECISION</td>
+                    <td>Approx floating point</td>
+                  </tr>
+                  <tr>
+                    <td>CHAR(n) / VARCHAR(n) / TEXT</td>
+                    <td>String types</td>
+                  </tr>
+                  <tr>
+                    <td>BOOLEAN</td>
+                    <td>TRUE/FALSE/NULL</td>
+                  </tr>
+                </tbody>
+              </table>
+              <table class="tbl">
+                <thead>
+                  <tr>
+                    <th>Type</th>
+                    <th>Notes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>DATE</td>
+                    <td>2024-01-15</td>
+                  </tr>
+                  <tr>
+                    <td>TIME / TIMETZ</td>
+                    <td>Time with/without timezone</td>
+                  </tr>
+                  <tr>
+                    <td>TIMESTAMP / TIMESTAMPTZ</td>
+                    <td>Use TIMESTAMPTZ in prod</td>
+                  </tr>
+                  <tr>
+                    <td>INTERVAL</td>
+                    <td>'2 days 3 hours'</td>
+                  </tr>
+                  <tr>
+                    <td>UUID</td>
+                    <td>gen_random_uuid()</td>
+                  </tr>
+                  <tr>
+                    <td>JSON / JSONB</td>
+                    <td>JSONB indexable, preferred</td>
+                  </tr>
+                  <tr>
+                    <td>TEXT[] / INT[]</td>
+                    <td>Array types</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="sub">
+              <div class="sub-title">Alter Table</div>
+              <pre><code><span class="kw">ALTER TABLE</span> users <span class="kw">ADD COLUMN</span> phone <span class="tp">VARCHAR</span>(<span class="nm">20</span>);
+<span class="kw">ALTER TABLE</span> users <span class="kw">DROP COLUMN</span> phone;
+<span class="kw">ALTER TABLE</span> users <span class="kw">RENAME COLUMN</span> name <span class="kw">TO</span> full_name;
+<span class="kw">ALTER TABLE</span> users <span class="kw">ALTER COLUMN</span> age <span class="kw">SET DEFAULT</span> <span class="nm">18</span>;
+<span class="kw">ALTER TABLE</span> users <span class="kw">ALTER COLUMN</span> name <span class="kw">TYPE</span> <span class="tp">TEXT</span>;
+<span class="kw">ALTER TABLE</span> users <span class="kw">RENAME TO</span> app_users;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CRUD ── -->
+        <div class="section" id="crud">
+          <div class="section-header">
+            <span class="section-num">06</span>
+            <span class="section-title">CRUD Operations</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Insert</div>
+                <pre><code><span class="cm">-- Single row</span>
+<span class="kw">INSERT INTO</span> users (name, email, age)
+<span class="kw">VALUES</span> (<span class="str">'Alice'</span>, <span class="str">'alice@x.com'</span>, <span class="nm">28</span>);
+
+<span class="cm">-- Multiple rows</span>
+<span class="kw">INSERT INTO</span> users (name, age) <span class="kw">VALUES</span>
+  (<span class="str">'Bob'</span>, <span class="nm">34</span>),
+  (<span class="str">'Carol'</span>, <span class="nm">22</span>);
+
+<span class="cm">-- With RETURNING</span>
+<span class="kw">INSERT INTO</span> users (name)
+<span class="kw">VALUES</span> (<span class="str">'Dave'</span>)
+<span class="kw">RETURNING</span> id, created_at;
+
+<span class="cm">-- Upsert (ON CONFLICT)</span>
+<span class="kw">INSERT INTO</span> users (email, name)
+<span class="kw">VALUES</span> (<span class="str">'alice@x.com'</span>, <span class="str">'Alice2'</span>)
+<span class="kw">ON CONFLICT</span> (email)
+<span class="kw">DO UPDATE SET</span> name = <span class="kw">EXCLUDED</span>.name;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Select</div>
+                <pre><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> users;
+<span class="kw">SELECT</span> name, age <span class="kw">FROM</span> users
+  <span class="kw">WHERE</span> age > <span class="nm">25</span>
+  <span class="kw">ORDER BY</span> name <span class="kw">ASC</span>
+  <span class="kw">LIMIT</span> <span class="nm">10</span> <span class="kw">OFFSET</span> <span class="nm">20</span>;
+
+<span class="cm">-- Distinct</span>
+<span class="kw">SELECT DISTINCT</span> role <span class="kw">FROM</span> users;
+
+<span class="cm">-- Case expression</span>
+<span class="kw">SELECT</span> name,
+  <span class="kw">CASE
+    WHEN</span> age < <span class="nm">18</span> <span class="kw">THEN</span> <span class="str">'minor'</span>
+    <span class="kw">WHEN</span> age < <span class="nm">65</span> <span class="kw">THEN</span> <span class="str">'adult'</span>
+    <span class="kw">ELSE</span> <span class="str">'senior'</span>
+  <span class="kw">END AS</span> category
+<span class="kw">FROM</span> users;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Update</div>
+                <pre><code><span class="kw">UPDATE</span> users
+<span class="kw">SET</span> age = <span class="nm">30</span>, updated_at = <span class="fn">NOW</span>()
+<span class="kw">WHERE</span> id = <span class="nm">1</span>;
+
+<span class="cm">-- Update with RETURNING</span>
+<span class="kw">UPDATE</span> users
+<span class="kw">SET</span> is_active = <span class="kw">FALSE</span>
+<span class="kw">WHERE</span> last_login < <span class="fn">NOW</span>() - <span class="kw">INTERVAL</span> <span class="str">'90 days'</span>
+<span class="kw">RETURNING</span> id, name;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Delete</div>
+                <pre><code><span class="kw">DELETE FROM</span> users <span class="kw">WHERE</span> id = <span class="nm">1</span>;
+
+<span class="cm">-- Delete with RETURNING</span>
+<span class="kw">DELETE FROM</span> users
+<span class="kw">WHERE</span> is_active = <span class="kw">FALSE</span>
+<span class="kw">RETURNING</span> id;
+
+<span class="cm">-- Truncate (fast delete all)</span>
+<span class="kw">TRUNCATE TABLE</span> users;
+<span class="kw">TRUNCATE TABLE</span> users <span class="kw">RESTART IDENTITY</span>;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CONSTRAINTS ── -->
+        <div class="section" id="constraints">
+          <div class="section-header">
+            <span class="section-num">07</span>
+            <span class="section-title">Constraints & Foreign Keys</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="kw">CREATE TABLE</span> orders (
+  id   <span class="tp">INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY</span>,
+  uid  <span class="tp">INT</span> <span class="kw">NOT NULL</span>
+       <span class="kw">REFERENCES</span> users(id)
+       <span class="kw">ON DELETE CASCADE</span>
+       <span class="kw">ON UPDATE CASCADE</span>,
+  amount  <span class="tp">NUMERIC</span>(<span class="nm">10</span>,<span class="nm">2</span>) <span class="kw">CHECK</span> (amount > <span class="nm">0</span>),
+  status  <span class="tp">TEXT</span> <span class="kw">CHECK</span> (
+    status <span class="kw">IN</span> (<span class="str">'pending'</span>,<span class="str">'paid'</span>,<span class="str">'cancelled'</span>)
+  ) <span class="kw">DEFAULT</span> <span class="str">'pending'</span>,
+  <span class="kw">UNIQUE</span> (uid, amount)  <span class="cm">-- composite unique</span>
+);</code></pre>
+              <div>
+                <div class="sub">
+                  <div class="sub-title">Add / Drop Constraints</div>
+                  <pre><code><span class="cm">-- Add named constraint</span>
+<span class="kw">ALTER TABLE</span> orders
+<span class="kw">ADD CONSTRAINT</span> chk_amount
+  <span class="kw">CHECK</span> (amount > <span class="nm">0</span>);
+
+<span class="cm">-- Drop constraint</span>
+<span class="kw">ALTER TABLE</span> orders
+<span class="kw">DROP CONSTRAINT</span> chk_amount;
+
+<span class="cm">-- Add FK later</span>
+<span class="kw">ALTER TABLE</span> orders
+<span class="kw">ADD CONSTRAINT</span> fk_user
+  <span class="kw">FOREIGN KEY</span> (uid)
+  <span class="kw">REFERENCES</span> users(id);</code></pre>
+                </div>
+                <div class="tags" style="margin-top: 12px">
+                  <span class="tag blue">PRIMARY KEY</span>
+                  <span class="tag blue">FOREIGN KEY</span>
+                  <span class="tag blue">UNIQUE</span>
+                  <span class="tag blue">NOT NULL</span>
+                  <span class="tag blue">CHECK</span>
+                  <span class="tag blue">DEFAULT</span>
+                  <span class="tag orange">ON DELETE CASCADE</span>
+                  <span class="tag orange">ON DELETE SET NULL</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── JOINS ── -->
+        <div class="section" id="joins">
+          <div class="section-header">
+            <span class="section-num">08</span>
+            <span class="section-title">Joins</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Join Types</div>
+                <pre><code><span class="cm">-- INNER JOIN (matching rows both sides)</span>
+<span class="kw">SELECT</span> u.name, o.amount
+<span class="kw">FROM</span> users u
+<span class="kw">JOIN</span> orders o <span class="kw">ON</span> u.id = o.uid;
+
+<span class="cm">-- LEFT JOIN (all users, matched orders)</span>
+<span class="kw">SELECT</span> u.name, o.amount
+<span class="kw">FROM</span> users u
+<span class="kw">LEFT JOIN</span> orders o <span class="kw">ON</span> u.id = o.uid;
+
+<span class="cm">-- RIGHT JOIN</span>
+<span class="kw">SELECT</span> u.name, o.amount
+<span class="kw">FROM</span> users u
+<span class="kw">RIGHT JOIN</span> orders o <span class="kw">ON</span> u.id = o.uid;
+
+<span class="cm">-- FULL OUTER JOIN</span>
+<span class="kw">SELECT</span> u.name, o.amount
+<span class="kw">FROM</span> users u
+<span class="kw">FULL JOIN</span> orders o <span class="kw">ON</span> u.id = o.uid;
+
+<span class="cm">-- CROSS JOIN (Cartesian)</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> colors <span class="kw">CROSS JOIN</span> sizes;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Multi-Table & Self Join</div>
+                <pre><code><span class="cm">-- Three-table join</span>
+<span class="kw">SELECT</span> u.name, o.amount, p.name <span class="kw">AS</span> product
+<span class="kw">FROM</span> users u
+<span class="kw">JOIN</span> orders o <span class="kw">ON</span> u.id = o.uid
+<span class="kw">JOIN</span> products p <span class="kw">ON</span> o.product_id = p.id;
+
+<span class="cm">-- Self join (e.g., manager)</span>
+<span class="kw">SELECT</span> e.name, m.name <span class="kw">AS</span> manager
+<span class="kw">FROM</span> employees e
+<span class="kw">LEFT JOIN</span> employees m
+  <span class="kw">ON</span> e.manager_id = m.id;
+
+<span class="cm">-- LATERAL join</span>
+<span class="kw">SELECT</span> u.name, recent.*
+<span class="kw">FROM</span> users u,
+<span class="kw">LATERAL</span> (
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> orders
+  <span class="kw">WHERE</span> uid = u.id
+  <span class="kw">ORDER BY</span> created_at <span class="kw">DESC</span>
+  <span class="kw">LIMIT</span> <span class="nm">1</span>
+) recent;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── INDEXES ── -->
+        <div class="section" id="indexes">
+          <div class="section-header">
+            <span class="section-num">09</span>
+            <span class="section-title">Indexes</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="cm">-- Basic index</span>
+<span class="kw">CREATE INDEX</span> idx_users_email
+  <span class="kw">ON</span> users(email);
+
+<span class="cm">-- Unique index</span>
+<span class="kw">CREATE UNIQUE INDEX</span> idx_uniq_email
+  <span class="kw">ON</span> users(email);
+
+<span class="cm">-- Composite index</span>
+<span class="kw">CREATE INDEX</span> idx_name_age
+  <span class="kw">ON</span> users(name, age);
+
+<span class="cm">-- Partial index</span>
+<span class="kw">CREATE INDEX</span> idx_active_users
+  <span class="kw">ON</span> users(email)
+  <span class="kw">WHERE</span> is_active = <span class="kw">TRUE</span>;
+
+<span class="cm">-- Expression index</span>
+<span class="kw">CREATE INDEX</span> idx_lower_email
+  <span class="kw">ON</span> users(<span class="fn">lower</span>(email));</code></pre>
+              <div>
+                <div class="sub">
+                  <div class="sub-title">Index Types</div>
+                  <div class="index-grid">
+                    <div
+                      class="index-card"
+                      style="border-color: rgba(74, 159, 212, 0.3)"
+                    >
+                      <div
+                        class="index-card-name"
+                        style="color: var(--pg-blue-bright)"
+                      >
+                        B-TREE
+                      </div>
+                      <div class="index-card-desc">
+                        Default. Range, equality, sort queries
+                      </div>
+                    </div>
+                    <div
+                      class="index-card"
+                      style="border-color: rgba(74, 159, 212, 0.3)"
+                    >
+                      <div
+                        class="index-card-name"
+                        style="color: var(--pg-blue-bright)"
+                      >
+                        HASH
+                      </div>
+                      <div class="index-card-desc">
+                        Equality only. Fast lookups
+                      </div>
+                    </div>
+                    <div
+                      class="index-card"
+                      style="border-color: rgba(74, 159, 212, 0.3)"
+                    >
+                      <div
+                        class="index-card-name"
+                        style="color: var(--pg-blue-bright)"
+                      >
+                        GIN
+                      </div>
+                      <div class="index-card-desc">
+                        JSONB, arrays, full-text search
+                      </div>
+                    </div>
+                    <div
+                      class="index-card"
+                      style="border-color: rgba(74, 159, 212, 0.3)"
+                    >
+                      <div
+                        class="index-card-name"
+                        style="color: var(--pg-blue-bright)"
+                      >
+                        GiST
+                      </div>
+                      <div class="index-card-desc">Geometric, range types</div>
+                    </div>
+                    <div
+                      class="index-card"
+                      style="border-color: rgba(74, 159, 212, 0.3)"
+                    >
+                      <div
+                        class="index-card-name"
+                        style="color: var(--pg-blue-bright)"
+                      >
+                        BRIN
+                      </div>
+                      <div class="index-card-desc">
+                        Large tables, sequential data
+                      </div>
+                    </div>
+                    <div
+                      class="index-card"
+                      style="border-color: rgba(74, 159, 212, 0.3)"
+                    >
+                      <div
+                        class="index-card-name"
+                        style="color: var(--pg-blue-bright)"
+                      >
+                        SP-GiST
+                      </div>
+                      <div class="index-card-desc">Space-partitioned trees</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <pre><code><span class="cm">-- Concurrently (no table lock)</span>
+<span class="kw">CREATE INDEX CONCURRENTLY</span> idx_users_name <span class="kw">ON</span> users(name);
+<span class="kw">DROP INDEX CONCURRENTLY</span> idx_users_name;</code></pre>
+          </div>
+        </div>
+
+        <!-- ── AGGREGATION ── -->
+        <div class="section" id="agg">
+          <div class="section-header">
+            <span class="section-num">10</span>
+            <span class="section-title">Aggregation & Grouping</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="kw">SELECT</span>
+  <span class="fn">COUNT</span>(*),
+  <span class="fn">COUNT</span>(DISTINCT uid),
+  <span class="fn">SUM</span>(amount),
+  <span class="fn">AVG</span>(amount),
+  <span class="fn">MIN</span>(amount),
+  <span class="fn">MAX</span>(amount),
+  <span class="fn">STDDEV</span>(amount),
+  <span class="fn">PERCENTILE_CONT</span>(<span class="nm">0.5</span>)
+    <span class="kw">WITHIN GROUP</span> (<span class="kw">ORDER BY</span> amount) <span class="kw">AS</span> median
+<span class="kw">FROM</span> orders;</code></pre>
+              <pre><code><span class="cm">-- Group by with HAVING</span>
+<span class="kw">SELECT</span> uid, <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total
+<span class="kw">FROM</span> orders
+<span class="kw">GROUP BY</span> uid
+<span class="kw">HAVING</span> <span class="fn">SUM</span>(amount) > <span class="nm">1000</span>
+<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>;
+
+<span class="cm">-- ROLLUP (subtotals)</span>
+<span class="kw">SELECT</span> dept, role, <span class="fn">COUNT</span>(*)
+<span class="kw">FROM</span> employees
+<span class="kw">GROUP BY ROLLUP</span> (dept, role);
+
+<span class="cm">-- CUBE (all combinations)</span>
+<span class="kw">GROUP BY CUBE</span> (dept, role);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── JSON ── -->
+        <div class="section" id="json">
+          <div class="section-header">
+            <span class="section-num">11</span>
+            <span class="section-title">JSON & JSONB</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Operators</div>
+                <table class="tbl">
+                  <thead>
+                    <tr>
+                      <th>Op</th>
+                      <th>Returns</th>
+                      <th>Example</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>-></td>
+                      <td>JSON</td>
+                      <td>data->'price'</td>
+                    </tr>
+                    <tr>
+                      <td>->></td>
+                      <td>TEXT</td>
+                      <td>data->>'name'</td>
+                    </tr>
+                    <tr>
+                      <td>#></td>
+                      <td>JSON path</td>
+                      <td>data#>'{a,b}'</td>
+                    </tr>
+                    <tr>
+                      <td>#>></td>
+                      <td>TEXT path</td>
+                      <td>data#>>'{a,b}'</td>
+                    </tr>
+                    <tr>
+                      <td>@></td>
+                      <td>Contains</td>
+                      <td>data @> '{"k":1}'</td>
+                    </tr>
+                    <tr>
+                      <td>?</td>
+                      <td>Key exists</td>
+                      <td>data ? 'price'</td>
+                    </tr>
+                    <tr>
+                      <td>||</td>
+                      <td>Concat</td>
+                      <td>a || b</td>
+                    </tr>
+                    <tr>
+                      <td>-</td>
+                      <td>Remove key</td>
+                      <td>data - 'key'</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Queries</div>
+                <pre><code><span class="cm">-- Insert JSONB</span>
+<span class="kw">INSERT INTO</span> products (data) <span class="kw">VALUES</span>
+  (<span class="str">'{"name":"Laptop","price":999,"tags":["tech"]}'</span>);
+
+<span class="cm">-- Query field</span>
+<span class="kw">SELECT</span> data->><span class="str">'name'</span> <span class="kw">AS</span> name,
+       (data->><span class="str">'price'</span>)::<span class="tp">INT</span> <span class="kw">AS</span> price
+<span class="kw">FROM</span> products
+<span class="kw">WHERE</span> data @> <span class="str">'{"tags":["tech"]}'</span>;
+
+<span class="cm">-- Update nested key</span>
+<span class="kw">UPDATE</span> products
+<span class="kw">SET</span> data = <span class="fn">jsonb_set</span>(data,
+  <span class="str">'{price}'</span>, <span class="str">'1099'</span>)
+<span class="kw">WHERE</span> id = <span class="nm">1</span>;
+
+<span class="cm">-- GIN index on JSONB</span>
+<span class="kw">CREATE INDEX</span> idx_product_data
+  <span class="kw">ON</span> products <span class="kw">USING GIN</span> (data);</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TRANSACTIONS ── -->
+        <div class="section" id="transactions">
+          <div class="section-header">
+            <span class="section-num">12</span>
+            <span class="section-title">Transactions & Savepoints</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="kw">BEGIN</span>;
+
+<span class="kw">UPDATE</span> accounts
+<span class="kw">SET</span> balance = balance - <span class="nm">100</span>
+<span class="kw">WHERE</span> id = <span class="nm">1</span>;
+
+<span class="kw">SAVEPOINT</span> after_debit;
+
+<span class="kw">UPDATE</span> accounts
+<span class="kw">SET</span> balance = balance + <span class="nm">100</span>
+<span class="kw">WHERE</span> id = <span class="nm">2</span>;
+
+<span class="cm">-- Partial rollback</span>
+<span class="kw">ROLLBACK TO SAVEPOINT</span> after_debit;
+
+<span class="kw">COMMIT</span>;  <span class="cm">-- or ROLLBACK;</span></code></pre>
+              <div>
+                <div class="sub">
+                  <div class="sub-title">Isolation Levels</div>
+                  <pre><code><span class="kw">SET TRANSACTION ISOLATION LEVEL</span>
+  SERIALIZABLE;
+
+<span class="cm">-- Levels (least → strictest):</span>
+<span class="cm">-- READ COMMITTED (default)</span>
+<span class="cm">-- REPEATABLE READ</span>
+<span class="cm">-- SERIALIZABLE</span>
+
+<span class="kw">SHOW</span> transaction_isolation;</code></pre>
+                </div>
+                <div class="callout" style="margin-top: 12px">
+                  Use <code class="ic">SERIALIZABLE</code> for financial
+                  operations. <code class="ic">READ COMMITTED</code> is safe for
+                  most OLTP workloads.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VIEWS ── -->
+        <div class="section" id="views">
+          <div class="section-header">
+            <span class="section-num">13</span>
+            <span class="section-title">Views & Materialized Views</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Regular Views</div>
+                <pre><code><span class="kw">CREATE VIEW</span> active_users <span class="kw">AS</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> users
+  <span class="kw">WHERE</span> is_active = <span class="kw">TRUE</span>;
+
+<span class="cm">-- Updatable view</span>
+<span class="kw">CREATE VIEW</span> user_names <span class="kw">AS</span>
+  <span class="kw">SELECT</span> id, name <span class="kw">FROM</span> users
+<span class="kw">WITH CHECK OPTION</span>;
+
+<span class="cm">-- Replace view</span>
+<span class="kw">CREATE OR REPLACE VIEW</span> active_users <span class="kw">AS</span>
+  <span class="kw">SELECT</span> id, name, email
+  <span class="kw">FROM</span> users
+  <span class="kw">WHERE</span> is_active = <span class="kw">TRUE</span>;
+
+<span class="kw">DROP VIEW</span> active_users;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Materialized Views</div>
+                <pre><code><span class="cm">-- Create (runs query and stores result)</span>
+<span class="kw">CREATE MATERIALIZED VIEW</span> dept_summary <span class="kw">AS</span>
+  <span class="kw">SELECT</span> department_id,
+    <span class="fn">COUNT</span>(*) <span class="kw">AS</span> headcount,
+    <span class="fn">AVG</span>(salary) <span class="kw">AS</span> avg_salary
+  <span class="kw">FROM</span> employees
+  <span class="kw">GROUP BY</span> department_id
+<span class="kw">WITH DATA</span>;
+
+<span class="cm">-- Refresh data</span>
+<span class="kw">REFRESH MATERIALIZED VIEW</span> dept_summary;
+
+<span class="cm">-- Non-blocking refresh</span>
+<span class="kw">REFRESH MATERIALIZED VIEW CONCURRENTLY</span>
+  dept_summary;
+
+<span class="kw">DROP MATERIALIZED VIEW</span> dept_summary;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── FUNCTIONS ── -->
+        <div class="section" id="funcs">
+          <div class="section-header">
+            <span class="section-num">14</span>
+            <span class="section-title">Functions & Stored Procedures</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">PL/pgSQL Function</div>
+                <pre><code><span class="kw">CREATE OR REPLACE FUNCTION</span>
+  <span class="fn">get_user_total</span>(p_uid <span class="tp">INT</span>)
+<span class="kw">RETURNS NUMERIC AS</span> $$
+<span class="kw">DECLARE</span>
+  total <span class="tp">NUMERIC</span>;
+<span class="kw">BEGIN</span>
+  <span class="kw">SELECT</span> <span class="fn">COALESCE</span>(<span class="fn">SUM</span>(amount), <span class="nm">0</span>)
+    <span class="kw">INTO</span> total
+  <span class="kw">FROM</span> orders
+  <span class="kw">WHERE</span> uid = p_uid;
+
+  <span class="kw">RETURN</span> total;
+<span class="kw">END</span>;
+$$ <span class="kw">LANGUAGE</span> plpgsql;
+
+<span class="cm">-- Call it</span>
+<span class="kw">SELECT</span> <span class="fn">get_user_total</span>(<span class="nm">1</span>);</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Returns Table</div>
+                <pre><code><span class="kw">CREATE FUNCTION</span> <span class="fn">active_orders</span>(lim <span class="tp">INT</span>)
+<span class="kw">RETURNS TABLE</span>(
+  order_id <span class="tp">INT</span>,
+  user_name <span class="tp">TEXT</span>,
+  amount <span class="tp">NUMERIC</span>
+) <span class="kw">AS</span> $$
+<span class="kw">BEGIN</span>
+  <span class="kw">RETURN QUERY</span>
+    <span class="kw">SELECT</span> o.id, u.name, o.amount
+    <span class="kw">FROM</span> orders o
+    <span class="kw">JOIN</span> users u <span class="kw">ON</span> o.uid = u.id
+    <span class="kw">LIMIT</span> lim;
+<span class="kw">END</span>;
+$$ <span class="kw">LANGUAGE</span> plpgsql;
+
+<span class="cm">-- Stored Procedure (no return)</span>
+<span class="kw">CREATE PROCEDURE</span> <span class="fn">archive_orders</span>()
+<span class="kw">LANGUAGE</span> plpgsql <span class="kw">AS</span> $$
+<span class="kw">BEGIN</span>
+  <span class="kw">INSERT INTO</span> archive
+    <span class="kw">SELECT</span> * <span class="kw">FROM</span> orders
+    <span class="kw">WHERE</span> status = <span class="str">'paid'</span>;
+  <span class="kw">DELETE FROM</span> orders
+    <span class="kw">WHERE</span> status = <span class="str">'paid'</span>;
+<span class="kw">END</span>;
+$$;
+<span class="kw">CALL</span> <span class="fn">archive_orders</span>();</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── TRIGGERS ── -->
+        <div class="section" id="triggers">
+          <div class="section-header">
+            <span class="section-num">15</span>
+            <span class="section-title">Triggers</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="cm">-- Trigger function</span>
+<span class="kw">CREATE OR REPLACE FUNCTION</span>
+  <span class="fn">update_timestamp</span>()
+<span class="kw">RETURNS TRIGGER AS</span> $$
+<span class="kw">BEGIN</span>
+  NEW.updated_at = <span class="fn">NOW</span>();
+  <span class="kw">RETURN</span> NEW;
+<span class="kw">END</span>;
+$$ <span class="kw">LANGUAGE</span> plpgsql;
+
+<span class="cm">-- Attach trigger</span>
+<span class="kw">CREATE TRIGGER</span> trg_users_updated
+<span class="kw">BEFORE UPDATE ON</span> users
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">EXECUTE FUNCTION</span> <span class="fn">update_timestamp</span>();</code></pre>
+              <pre><code><span class="cm">-- Audit log trigger</span>
+<span class="kw">CREATE FUNCTION</span> <span class="fn">log_delete</span>()
+<span class="kw">RETURNS TRIGGER AS</span> $$
+<span class="kw">BEGIN</span>
+  <span class="kw">INSERT INTO</span> audit_log
+    (tbl, action, old_data, at)
+  <span class="kw">VALUES</span>
+    (<span class="kw">TG_TABLE_NAME</span>, <span class="str">'DELETE'</span>,
+     <span class="fn">row_to_json</span>(OLD), <span class="fn">NOW</span>());
+  <span class="kw">RETURN</span> OLD;
+<span class="kw">END</span>;
+$$ <span class="kw">LANGUAGE</span> plpgsql;
+
+<span class="kw">CREATE TRIGGER</span> trg_audit
+<span class="kw">AFTER DELETE ON</span> users
+<span class="kw">FOR EACH ROW</span>
+<span class="kw">EXECUTE FUNCTION</span> <span class="fn">log_delete</span>();
+
+<span class="cm">-- List / drop triggers</span>
+\d users
+<span class="kw">DROP TRIGGER</span> trg_audit <span class="kw">ON</span> users;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── ROLES ── -->
+        <div class="section" id="roles">
+          <div class="section-header">
+            <span class="section-num">16</span>
+            <span class="section-title">Roles & Users</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="cm">-- Create role</span>
+<span class="kw">CREATE ROLE</span> readonly;
+
+<span class="cm">-- Create user (role with login)</span>
+<span class="kw">CREATE USER</span> alice
+  <span class="kw">WITH PASSWORD</span> <span class="str">'secret'</span>
+  <span class="kw">CREATEDB</span>;
+
+<span class="cm">-- Grant schema access</span>
+<span class="kw">GRANT USAGE ON SCHEMA</span> public <span class="kw">TO</span> readonly;
+<span class="kw">GRANT SELECT ON ALL TABLES IN SCHEMA</span>
+  public <span class="kw">TO</span> readonly;
+
+<span class="cm">-- Grant DB access</span>
+<span class="kw">GRANT ALL PRIVILEGES ON DATABASE</span>
+  company <span class="kw">TO</span> alice;
+
+<span class="cm">-- Assign role to user</span>
+<span class="kw">GRANT</span> readonly <span class="kw">TO</span> alice;</code></pre>
+              <pre><code><span class="cm">-- Revoke</span>
+<span class="kw">REVOKE SELECT ON</span> users <span class="kw">FROM</span> alice;
+
+<span class="cm">-- Row-level security</span>
+<span class="kw">ALTER TABLE</span> orders <span class="kw">ENABLE ROW LEVEL SECURITY</span>;
+
+<span class="kw">CREATE POLICY</span> orders_owner
+  <span class="kw">ON</span> orders
+  <span class="kw">USING</span> (uid = <span class="fn">current_user_id</span>());
+
+<span class="cm">-- Change password</span>
+<span class="kw">ALTER USER</span> alice
+  <span class="kw">WITH PASSWORD</span> <span class="str">'new_pass'</span>;
+
+<span class="cm">-- Drop user</span>
+<span class="kw">DROP USER</span> alice;
+
+<span class="cm">-- View roles</span>
+\du</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── BACKUP ── -->
+        <div class="section" id="backup">
+          <div class="section-header">
+            <span class="section-num">17</span>
+            <span class="section-title">Backup & Restore</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">pg_dump</div>
+                <pre><code><span class="cm"># SQL dump</span>
+pg_dump company > backup.sql
+
+<span class="cm"># Compressed</span>
+pg_dump -Fc company > backup.dump
+
+<span class="cm"># Specific table</span>
+pg_dump -t users company > users.sql
+
+<span class="cm"># All databases</span>
+pg_dumpall > all_dbs.sql
+
+<span class="cm"># Parallel dump (custom format)</span>
+pg_dump -Fd -j 4 company \
+  -f ./backup_dir</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">pg_restore / psql</div>
+                <pre><code><span class="cm"># SQL restore</span>
+psql company < backup.sql
+
+<span class="cm"># Custom format restore</span>
+pg_restore -d company backup.dump
+
+<span class="cm"># Parallel restore</span>
+pg_restore -d company -j 4 \
+  ./backup_dir
+
+<span class="cm"># Restore single table</span>
+pg_restore -d company -t users \
+  backup.dump
+
+<span class="cm"># To remote host</span>
+pg_restore -h host -U user \
+  -d company backup.dump</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── PERFORMANCE ── -->
+        <div class="section" id="perf">
+          <div class="section-header">
+            <span class="section-num">18</span>
+            <span class="section-title">Performance & EXPLAIN</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="cm">-- Basic explain</span>
+<span class="kw">EXPLAIN</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> users
+  <span class="kw">WHERE</span> age > <span class="nm">25</span>;
+
+<span class="cm">-- With actual execution stats</span>
+<span class="kw">EXPLAIN ANALYZE</span>
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> users
+  <span class="kw">WHERE</span> age > <span class="nm">25</span>;
+
+<span class="cm">-- Full detail (buffers + format)</span>
+<span class="kw">EXPLAIN</span> (
+  ANALYZE, BUFFERS,
+  FORMAT JSON
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users;</code></pre>
+              <div>
+                <div class="sub">
+                  <div class="sub-title">Monitoring</div>
+                  <pre><code><span class="cm">-- Active queries</span>
+<span class="kw">SELECT</span> pid, query, state, wait_event
+<span class="kw">FROM</span> pg_stat_activity
+<span class="kw">WHERE</span> state != <span class="str">'idle'</span>;
+
+<span class="cm">-- Long running</span>
+<span class="kw">SELECT</span> pid, <span class="fn">NOW</span>() - query_start <span class="kw">AS</span> dur,
+  query
+<span class="kw">FROM</span> pg_stat_activity
+<span class="kw">WHERE</span> state = <span class="str">'active'</span>
+<span class="kw">ORDER BY</span> dur <span class="kw">DESC</span>;
+
+<span class="cm">-- Kill query</span>
+<span class="kw">SELECT</span> <span class="fn">pg_terminate_backend</span>(pid)
+<span class="kw">FROM</span> pg_stat_activity
+<span class="kw">WHERE</span> pid = <span class="nm">12345</span>;</code></pre>
+                </div>
+              </div>
+            </div>
+            <div class="sub">
+              <div class="sub-title">Table Stats & Sizes</div>
+              <pre><code><span class="cm">-- Table sizes</span>
+<span class="kw">SELECT</span> relname, <span class="fn">pg_size_pretty</span>(<span class="fn">pg_total_relation_size</span>(relid)) <span class="kw">AS</span> size
+<span class="kw">FROM</span> pg_stat_user_tables
+<span class="kw">ORDER BY</span> <span class="fn">pg_total_relation_size</span>(relid) <span class="kw">DESC</span>;
+
+<span class="cm">-- Index usage</span>
+<span class="kw">SELECT</span> indexrelname, idx_scan, idx_tup_read
+<span class="kw">FROM</span> pg_stat_user_indexes
+<span class="kw">ORDER BY</span> idx_scan;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CTE & WINDOW ── -->
+        <div class="section" id="adv">
+          <div class="section-header">
+            <span class="section-num">19</span>
+            <span class="section-title"
+              >CTE, Window Functions & Subqueries</span
+            >
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Common Table Expressions</div>
+                <pre><code><span class="cm">-- Simple CTE</span>
+<span class="kw">WITH</span> high_earners <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> * <span class="kw">FROM</span> employees
+  <span class="kw">WHERE</span> salary > <span class="nm">80000</span>
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> high_earners;
+
+<span class="cm">-- Chained CTEs</span>
+<span class="kw">WITH</span>
+  base <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> uid, <span class="fn">SUM</span>(amount) total
+    <span class="kw">FROM</span> orders <span class="kw">GROUP BY</span> uid
+  ),
+  ranked <span class="kw">AS</span> (
+    <span class="kw">SELECT</span> *,
+      <span class="fn">RANK</span>() <span class="kw">OVER</span>
+        (<span class="kw">ORDER BY</span> total <span class="kw">DESC</span>)
+    <span class="kw">FROM</span> base
+  )
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> ranked <span class="kw">WHERE</span> rank <= <span class="nm">10</span>;
+
+<span class="cm">-- Recursive CTE (org chart)</span>
+<span class="kw">WITH RECURSIVE</span> org <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> id, name, manager_id
+  <span class="kw">FROM</span> employees
+  <span class="kw">WHERE</span> manager_id <span class="kw">IS NULL</span>
+  <span class="kw">UNION ALL</span>
+  <span class="kw">SELECT</span> e.id, e.name, e.manager_id
+  <span class="kw">FROM</span> employees e
+  <span class="kw">JOIN</span> org o <span class="kw">ON</span> e.manager_id = o.id
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> org;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Window Functions</div>
+                <pre><code><span class="kw">SELECT</span>
+  name, dept, salary,
+
+  <span class="cm">-- Rank within department</span>
+  <span class="fn">RANK</span>() <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> dept
+    <span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>
+  ) <span class="kw">AS</span> dept_rank,
+
+  <span class="cm">-- Row number (unique)</span>
+  <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span>
+    (<span class="kw">ORDER BY</span> salary <span class="kw">DESC</span>) <span class="kw">AS</span> row_n,
+
+  <span class="cm">-- Running total</span>
+  <span class="fn">SUM</span>(salary) <span class="kw">OVER</span> (
+    <span class="kw">PARTITION BY</span> dept
+    <span class="kw">ORDER BY</span> salary
+  ) <span class="kw">AS</span> running_total,
+
+  <span class="cm">-- Percent rank</span>
+  <span class="fn">PERCENT_RANK</span>() <span class="kw">OVER</span>
+    (<span class="kw">ORDER BY</span> salary) <span class="kw">AS</span> pct,
+
+  <span class="cm">-- Lead / Lag</span>
+  <span class="fn">LAG</span>(salary, <span class="nm">1</span>) <span class="kw">OVER</span>
+    (<span class="kw">ORDER BY</span> id) <span class="kw">AS</span> prev_salary,
+  <span class="fn">LEAD</span>(salary, <span class="nm">1</span>) <span class="kw">OVER</span>
+    (<span class="kw">ORDER BY</span> id) <span class="kw">AS</span> next_salary
+
+<span class="kw">FROM</span> employees;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── CONCURRENCY ── -->
+        <div class="section" id="concurrency">
+          <div class="section-header">
+            <span class="section-num">20</span>
+            <span class="section-title">Concurrency, Locks & Sequences</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="cm">-- Advisory locks (app-level)</span>
+<span class="kw">SELECT</span> <span class="fn">pg_advisory_lock</span>(<span class="nm">12345</span>);
+<span class="cm">-- do work...</span>
+<span class="kw">SELECT</span> <span class="fn">pg_advisory_unlock</span>(<span class="nm">12345</span>);
+
+<span class="cm">-- Row-level lock</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> accounts
+<span class="kw">WHERE</span> id = <span class="nm">1</span>
+<span class="kw">FOR UPDATE</span>;
+
+<span class="cm">-- Skip locked rows</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> job_queue
+<span class="kw">WHERE</span> status = <span class="str">'pending'</span>
+<span class="kw">LIMIT</span> <span class="nm">5</span>
+<span class="kw">FOR UPDATE SKIP LOCKED</span>;
+
+<span class="cm">-- View locks</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> pg_locks;</code></pre>
+              <div class="sub">
+                <div class="sub-title">Sequences</div>
+                <pre><code><span class="kw">CREATE SEQUENCE</span> order_seq
+  <span class="kw">START</span> <span class="nm">1000</span>
+  <span class="kw">INCREMENT BY</span> <span class="nm">1</span>
+  <span class="kw">NO MAXVALUE</span>
+  <span class="kw">CACHE</span> <span class="nm">10</span>;
+
+<span class="kw">SELECT</span> <span class="fn">nextval</span>(<span class="str">'order_seq'</span>);
+<span class="kw">SELECT</span> <span class="fn">currval</span>(<span class="str">'order_seq'</span>);
+<span class="kw">SELECT</span> <span class="fn">setval</span>(<span class="str">'order_seq'</span>, <span class="nm">5000</span>);
+
+<span class="cm">-- Reset identity column</span>
+<span class="kw">ALTER TABLE</span> orders
+  <span class="kw">ALTER COLUMN</span> id
+  <span class="kw">RESTART WITH</span> <span class="nm">1</span>;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── EXTENSIONS ── -->
+        <div class="section" id="extensions">
+          <div class="section-header">
+            <span class="section-num">21</span>
+            <span class="section-title">Extensions</span>
+          </div>
+          <div class="section-body">
+            <pre><code><span class="kw">SELECT</span> * <span class="kw">FROM</span> pg_available_extensions;
+
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"uuid-ossp"</span>;      <span class="cm">-- UUID generation</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"pg_trgm"</span>;        <span class="cm">-- Trigram fuzzy search</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"unaccent"</span>;       <span class="cm">-- Remove accents for search</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"hstore"</span>;         <span class="cm">-- Key-value store type</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"postgis"</span>;        <span class="cm">-- Geospatial queries</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"pg_stat_statements"</span>;  <span class="cm">-- Query statistics</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> <span class="str">"vector"</span>;         <span class="cm">-- pgvector!</span>
+
+<span class="cm">-- Use uuid-ossp</span>
+<span class="kw">SELECT</span> <span class="fn">uuid_generate_v4</span>();
+
+<span class="cm">-- Trigram similarity search</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> users
+<span class="kw">WHERE</span> name % <span class="str">'Jon'</span>           <span class="cm">-- fuzzy match</span>
+<span class="kw">ORDER BY</span> <span class="fn">similarity</span>(name, <span class="str">'Jon'</span>) <span class="kw">DESC</span>;</code></pre>
+          </div>
+        </div>
+
+        <!-- ── VACUUM ── -->
+        <div class="section" id="vacuum">
+          <div class="section-header">
+            <span class="section-num">22</span>
+            <span class="section-title">VACUUM, ANALYZE & Maintenance</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <pre><code><span class="cm">-- Vacuum dead rows</span>
+<span class="kw">VACUUM</span>;
+<span class="kw">VACUUM</span> users;
+
+<span class="cm">-- Full vacuum (rewrites table, locks!)</span>
+<span class="kw">VACUUM FULL</span> users;
+
+<span class="cm">-- Analyze (update planner stats)</span>
+<span class="kw">ANALYZE</span>;
+<span class="kw">ANALYZE</span> users;
+
+<span class="cm">-- Both</span>
+<span class="kw">VACUUM ANALYZE</span> users;</code></pre>
+              <div>
+                <div class="callout orange">
+                  <strong>Autovacuum</strong> runs automatically in the
+                  background. Manual VACUUM FULL is needed only when table bloat
+                  is severe. Use <code class="ic">pg_stat_user_tables</code> to
+                  check dead tuple counts.
+                </div>
+                <pre
+                  style="margin-top: 12px"
+                ><code><span class="cm">-- Check vacuum status</span>
+<span class="kw">SELECT</span> relname,
+  last_vacuum, last_autovacuum,
+  n_dead_tup
+<span class="kw">FROM</span> pg_stat_user_tables;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── COMPARISON ── -->
+        <div class="section" id="compare">
+          <div class="section-header">
+            <span class="section-num">23</span>
+            <span class="section-title">PostgreSQL vs MySQL</span>
+          </div>
+          <div class="section-body">
+            <div
+              class="compare-row"
+              style="
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                overflow: hidden;
+              "
+            >
+              <div
+                class="compare-header mysql"
+                style="border-right: 1px solid var(--border)"
+              >
+                MySQL
+              </div>
+              <div class="compare-header pg">PostgreSQL</div>
+            </div>
+            <div
+              style="
+                border: 1px solid var(--border);
+                border-top: none;
+                border-radius: 0 0 4px 4px;
+                overflow: hidden;
+              "
+            >
+              <div class="compare-row">
+                <div>TINYINT(1)</div>
+                <div>BOOLEAN</div>
+              </div>
+              <div class="compare-row">
+                <div>AUTO_INCREMENT</div>
+                <div>SERIAL / IDENTITY</div>
+              </div>
+              <div class="compare-row">
+                <div>JSON (text-based)</div>
+                <div>JSONB (binary, indexable)</div>
+              </div>
+              <div class="compare-row">
+                <div>No RETURNING</div>
+                <div>RETURNING clause</div>
+              </div>
+              <div class="compare-row">
+                <div>Schemas = Databases</div>
+                <div>Powerful schema namespacing</div>
+              </div>
+              <div class="compare-row">
+                <div>Less strict type coercion</div>
+                <div>Strict, standards-compliant</div>
+              </div>
+              <div class="compare-row">
+                <div>No CTEs until 8.0</div>
+                <div>CTEs, Recursive CTEs</div>
+              </div>
+              <div class="compare-row">
+                <div>Limited window fns</div>
+                <div>Full window function support</div>
+              </div>
+              <div class="compare-row">
+                <div>No RLS</div>
+                <div>Row-Level Security</div>
+              </div>
+              <div class="compare-row">
+                <div>No custom types</div>
+                <div>Custom domains, enums, composites</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ════════════════════════════════════
+         PGVECTOR SECTION
+    ════════════════════════════════════ -->
+
+        <!-- DIVIDER -->
+        <div
+          style="display: flex; align-items: center; gap: 16px; margin: 8px 0"
+        >
+          <div
+            style="flex: 1; height: 1px; background: rgba(0, 212, 160, 0.15)"
+          ></div>
+          <div
+            style="
+              font-size: 11px;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+              color: var(--vec-green);
+              letter-spacing: 2px;
+              opacity: 0.8;
+            "
+          >
+            — pgvector —
+          </div>
+          <div
+            style="flex: 1; height: 1px; background: rgba(0, 212, 160, 0.15)"
+          ></div>
+        </div>
+
+        <!-- ── VEC INTRO ── -->
+        <div class="section vec-section" id="vec-intro">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V1</span
+            >
+            <span class="section-title">pgvector — Introduction & Install</span>
+            <span class="section-icon" style="color: var(--vec-green)">⊕</span>
+          </div>
+          <div class="section-body">
+            <div class="callout green">
+              <strong>pgvector</strong> is a PostgreSQL extension for storing
+              and querying high-dimensional vector embeddings. It enables
+              semantic search, recommendations, and RAG applications directly in
+              your existing Postgres database.
+            </div>
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Install</div>
+                <pre><code><span class="cm"># From source</span>
+git clone \
+  https://github.com/pgvector/pgvector.git
+cd pgvector
+make
+sudo make install
+
+<span class="cm"># Ubuntu apt</span>
+sudo apt install postgresql-16-pgvector
+
+<span class="cm"># Docker (pgvector/pgvector image)</span>
+docker run -e POSTGRES_PASSWORD=pass \
+  -p 5432:5432 pgvector/pgvector:pg16</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Enable & Verify</div>
+                <pre><code><span class="cm">-- Enable in database</span>
+<span class="kw">CREATE EXTENSION IF NOT EXISTS</span> vector;
+
+<span class="cm">-- Verify</span>
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> pg_extension
+<span class="kw">WHERE</span> extname = <span class="str">'vector'</span>;
+
+<span class="cm">-- Check version</span>
+<span class="kw">SELECT</span> extversion
+<span class="kw">FROM</span> pg_extension
+<span class="kw">WHERE</span> extname = <span class="str">'vector'</span>;</code></pre>
+              </div>
+            </div>
+
+            <!-- VECTOR VISUAL -->
+            <div class="vec-diagram">
+              <div
+                style="
+                  font-size: 11px;
+                  color: var(--text-dim);
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                  margin-bottom: 4px;
+                "
+              >
+                Embedding: "The quick brown fox" → 1536-dim vector
+              </div>
+              <div class="vec-row">
+                <div class="vec-label">dim[0..5]</div>
+                <div class="vec-bar-wrap">
+                  <div class="vec-cell">0.12</div>
+                  <div class="vec-cell">-0.4</div>
+                  <div class="vec-cell">0.87</div>
+                  <div class="vec-cell">0.03</div>
+                  <div class="vec-cell">-0.2</div>
+                  <div class="vec-cell">0.56</div>
+                  <span
+                    style="
+                      color: var(--text-dim);
+                      font-size: 11px;
+                      align-self: center;
+                      margin-left: 6px;
+                    "
+                    >… 1530 more</span
+                  >
+                </div>
+              </div>
+              <div
+                style="
+                  font-size: 11px;
+                  color: var(--text-dim);
+                  font-family: &quot;JetBrains Mono&quot;, monospace;
+                "
+              >
+                Stored as
+                <code style="color: var(--vec-green)">VECTOR(1536)</code> column
+                in PostgreSQL
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VEC TABLE ── -->
+        <div class="section vec-section" id="vec-table">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V2</span
+            >
+            <span class="section-title">Vector Columns & CRUD</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Create Table</div>
+                <pre><code><span class="cm">-- Documents with embeddings</span>
+<span class="kw">CREATE TABLE</span> documents (
+  id      <span class="tp">INT GENERATED ALWAYS AS IDENTITY
+          PRIMARY KEY</span>,
+  title   <span class="tp">TEXT</span> <span class="kw">NOT NULL</span>,
+  content <span class="tp">TEXT</span>,
+  source  <span class="tp">TEXT</span>,
+  meta    <span class="tp">JSONB</span>,
+  embedding <span class="tp">VECTOR</span>(<span class="nm">1536</span>),  <span class="cm">-- OpenAI ada-002</span>
+  created_at <span class="tp">TIMESTAMPTZ</span>
+             <span class="kw">DEFAULT</span> <span class="fn">NOW</span>()
+);
+
+<span class="cm">-- Add vector column to existing table</span>
+<span class="kw">ALTER TABLE</span> products
+<span class="kw">ADD COLUMN</span> embedding <span class="tp">VECTOR</span>(<span class="nm">384</span>);</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Insert & Update Vectors</div>
+                <pre><code><span class="cm">-- Insert with embedding array</span>
+<span class="kw">INSERT INTO</span> documents
+  (title, content, embedding)
+<span class="kw">VALUES</span> (
+  <span class="str">'Intro to AI'</span>,
+  <span class="str">'Artificial intelligence ...'</span>,
+  <span class="str">'[0.1, 0.3, -0.2, ...]'</span>::<span class="tp">vector</span>
+);
+
+<span class="cm">-- Bulk insert (from app)</span>
+<span class="kw">INSERT INTO</span> documents
+  (title, embedding)
+<span class="kw">SELECT</span> title, embedding::<span class="tp">vector</span>
+<span class="kw">FROM</span> staging;
+
+<span class="cm">-- Update embedding</span>
+<span class="kw">UPDATE</span> documents
+<span class="kw">SET</span> embedding = <span class="str">'[0.2, 0.5, ...]'</span>::<span class="tp">vector</span>
+<span class="kw">WHERE</span> id = <span class="nm">1</span>;
+
+<span class="cm">-- Cast text to vector</span>
+<span class="kw">SELECT</span> <span class="str">'[1,2,3]'</span>::<span class="tp">vector</span>;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VEC OPS ── -->
+        <div class="section vec-section" id="vec-ops">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V3</span
+            >
+            <span class="section-title">Distance Operators</span>
+          </div>
+          <div class="section-body">
+            <table class="tbl">
+              <thead>
+                <tr>
+                  <th>Operator</th>
+                  <th>Distance Metric</th>
+                  <th>Best Used For</th>
+                  <th>Example</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>&lt;-&gt;</td>
+                  <td>Euclidean (L2)</td>
+                  <td>General similarity, spatial</td>
+                  <td>embedding &lt;-&gt; query_vec</td>
+                </tr>
+                <tr>
+                  <td>&lt;=&gt;</td>
+                  <td>Cosine distance</td>
+                  <td>NLP embeddings (direction matters)</td>
+                  <td>embedding &lt;=&gt; query_vec</td>
+                </tr>
+                <tr>
+                  <td>&lt;#&gt;</td>
+                  <td>Inner product (neg)</td>
+                  <td>Normalized vectors, dot product</td>
+                  <td>embedding &lt;#&gt; query_vec</td>
+                </tr>
+                <tr>
+                  <td>&lt;+&gt;</td>
+                  <td>L1 (Manhattan)</td>
+                  <td>Sparse vectors (v0.7.0+)</td>
+                  <td>embedding &lt;+&gt; query_vec</td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Compute Distances</div>
+                <pre><code><span class="cm">-- L2 distance</span>
+<span class="kw">SELECT</span> id,
+  embedding <span class="op">&lt;-&gt;</span> <span class="str">'[1,2,3]'</span>::<span class="tp">vector</span>
+    <span class="kw">AS</span> l2_dist
+<span class="kw">FROM</span> items
+<span class="kw">ORDER BY</span> l2_dist <span class="kw">LIMIT</span> <span class="nm">5</span>;
+
+<span class="cm">-- Cosine similarity = 1 - cosine_distance</span>
+<span class="kw">SELECT</span> id,
+  <span class="nm">1</span> - (embedding <span class="op">&lt;=&gt;</span>
+    <span class="str">'[1,2,3]'</span>::<span class="tp">vector</span>)
+  <span class="kw">AS</span> cosine_similarity
+<span class="kw">FROM</span> items
+<span class="kw">ORDER BY</span> cosine_similarity <span class="kw">DESC</span>;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Vector Arithmetic</div>
+                <pre><code><span class="cm">-- Add vectors</span>
+<span class="kw">SELECT</span> <span class="str">'[1,2,3]'</span>::<span class="tp">vector</span>
+  + <span class="str">'[4,5,6]'</span>::<span class="tp">vector</span>;
+
+<span class="cm">-- Average embedding (centroid)</span>
+<span class="kw">SELECT</span> <span class="fn">avg</span>(embedding)
+<span class="kw">FROM</span> documents
+<span class="kw">WHERE</span> category = <span class="str">'tech'</span>;
+
+<span class="cm">-- Dimensions</span>
+<span class="kw">SELECT</span> <span class="fn">vector_dims</span>(embedding)
+<span class="kw">FROM</span> documents <span class="kw">LIMIT</span> <span class="nm">1</span>;
+
+<span class="cm">-- L2 norm (magnitude)</span>
+<span class="kw">SELECT</span> <span class="fn">vector_norm</span>(embedding)
+<span class="kw">FROM</span> documents <span class="kw">LIMIT</span> <span class="nm">1</span>;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VEC INDEX ── -->
+        <div class="section vec-section" id="vec-index">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V4</span
+            >
+            <span class="section-title">Vector Indexes — IVFFlat & HNSW</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div
+                class="index-card"
+                style="
+                  border-color: rgba(0, 212, 160, 0.3);
+                  text-align: left;
+                  padding: 18px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: var(--vec-green);
+                    margin-bottom: 8px;
+                  "
+                >
+                  IVFFlat
+                </div>
+                <div
+                  style="
+                    font-size: 12px;
+                    color: var(--text-dim);
+                    line-height: 1.6;
+                    margin-bottom: 12px;
+                  "
+                >
+                  Inverted File with Flat compression. Divides vectors into
+                  <em>lists</em> (Voronoi cells). Approximate nearest neighbor
+                  via list probing.
+                </div>
+                <pre><code><span class="cm">-- Build after inserting data</span>
+<span class="kw">CREATE INDEX</span> ON documents
+<span class="kw">USING ivfflat</span> (embedding vector_cosine_ops)
+<span class="kw">WITH</span> (lists = <span class="nm">100</span>);
+
+<span class="cm">-- Set probes at query time</span>
+<span class="kw">SET</span> ivfflat.probes = <span class="nm">10</span>;
+
+<span class="cm">-- Rule of thumb:</span>
+<span class="cm">-- lists = rows / 1000 (up to 1M)</span>
+<span class="cm">-- lists = sqrt(rows) (over 1M)</span>
+<span class="cm">-- probes: higher = slower + accurate</span></code></pre>
+              </div>
+              <div
+                class="index-card"
+                style="
+                  border-color: rgba(0, 212, 160, 0.3);
+                  text-align: left;
+                  padding: 18px;
+                "
+              >
+                <div
+                  style="
+                    font-size: 13px;
+                    font-weight: 700;
+                    color: var(--vec-green);
+                    margin-bottom: 8px;
+                  "
+                >
+                  HNSW
+                  <span
+                    style="
+                      font-size: 10px;
+                      color: var(--text-dim);
+                      font-weight: 400;
+                    "
+                    >(recommended)</span
+                  >
+                </div>
+                <div
+                  style="
+                    font-size: 12px;
+                    color: var(--text-dim);
+                    line-height: 1.6;
+                    margin-bottom: 12px;
+                  "
+                >
+                  Hierarchical Navigable Small World graphs. Better recall at
+                  same speed. Slower to build, uses more memory. Preferred for
+                  production.
+                </div>
+                <pre><code><span class="cm">-- Create HNSW index</span>
+<span class="kw">CREATE INDEX</span> ON documents
+<span class="kw">USING hnsw</span> (embedding vector_cosine_ops)
+<span class="kw">WITH</span> (m = <span class="nm">16</span>, ef_construction = <span class="nm">64</span>);
+
+<span class="cm">-- Tune at query time</span>
+<span class="kw">SET</span> hnsw.ef_search = <span class="nm">100</span>;
+
+<span class="cm">-- m: neighbors per layer (16 default)</span>
+<span class="cm">-- ef_construction: build accuracy (64)</span>
+<span class="cm">-- ef_search: query accuracy vs speed</span></code></pre>
+              </div>
+            </div>
+            <div class="sub" style="margin-top: 8px">
+              <div class="sub-title">Index Operator Classes</div>
+              <pre><code><span class="cm">-- For each distance metric, use matching operator class:</span>
+<span class="cm">-- L2 distance        →</span> vector_l2_ops
+<span class="cm">-- Cosine distance    →</span> vector_cosine_ops
+<span class="cm">-- Inner product      →</span> vector_ip_ops
+<span class="cm">-- L1 distance        →</span> vector_l1_ops
+
+<span class="cm">-- Halfvec (for large dims 2001-4000)</span>
+<span class="kw">CREATE INDEX</span> ON docs
+<span class="kw">USING hnsw</span> ((embedding::<span class="tp">halfvec</span>(<span class="nm">3072</span>)) halfvec_cosine_ops);
+
+<span class="cm">-- Binary vectors (bit)</span>
+<span class="kw">CREATE INDEX</span> ON docs
+<span class="kw">USING hnsw</span> ((embedding::<span class="tp">bit</span>(<span class="nm">3072</span>)) bit_hamming_ops);</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VEC QUERY ── -->
+        <div class="section vec-section" id="vec-query">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V5</span
+            >
+            <span class="section-title">Similarity Search Queries</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Basic KNN Search</div>
+                <pre><code><span class="cm">-- Find 5 most similar documents</span>
+<span class="kw">SELECT</span>
+  id,
+  title,
+  <span class="nm">1</span> - (embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>)
+    <span class="kw">AS</span> similarity
+<span class="kw">FROM</span> documents
+<span class="kw">ORDER BY</span> embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>
+<span class="kw">LIMIT</span> <span class="nm">5</span>;
+
+<span class="cm">-- With minimum similarity threshold</span>
+<span class="kw">SELECT</span> id, title,
+  <span class="nm">1</span> - (embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>) <span class="kw">AS</span> sim
+<span class="kw">FROM</span> documents
+<span class="kw">WHERE</span> <span class="nm">1</span> - (embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>) > <span class="nm">0.8</span>
+<span class="kw">ORDER BY</span> sim <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nm">10</span>;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Filtered Search</div>
+                <pre><code><span class="cm">-- Pre-filter by metadata then search</span>
+<span class="kw">SELECT</span> id, title, source
+<span class="kw">FROM</span> documents
+<span class="kw">WHERE</span> source = <span class="str">'manual'</span>
+  <span class="kw">AND</span> created_at > <span class="str">'2024-01-01'</span>
+<span class="kw">ORDER BY</span> embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>
+<span class="kw">LIMIT</span> <span class="nm">5</span>;
+
+<span class="cm">-- JSONB filter + vector search</span>
+<span class="kw">SELECT</span> id, title
+<span class="kw">FROM</span> documents
+<span class="kw">WHERE</span> meta @> <span class="str">'{"lang":"en"}'</span>
+<span class="kw">ORDER BY</span> embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>
+<span class="kw">LIMIT</span> <span class="nm">10</span>;</code></pre>
+              </div>
+            </div>
+            <div class="sub">
+              <div class="sub-title">Advanced Patterns</div>
+              <pre><code><span class="cm">-- Self-similarity (find duplicates)</span>
+<span class="kw">SELECT</span> a.id, b.id,
+  a.embedding <span class="op">&lt;=&gt;</span> b.embedding <span class="kw">AS</span> cosine_dist
+<span class="kw">FROM</span> documents a, documents b
+<span class="kw">WHERE</span> a.id < b.id
+  <span class="kw">AND</span> a.embedding <span class="op">&lt;=&gt;</span> b.embedding < <span class="nm">0.05</span>
+<span class="kw">ORDER BY</span> cosine_dist;
+
+<span class="cm">-- Diverse results (avoid clustering)</span>
+<span class="kw">WITH</span> ranked <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> id, title, category,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span> (
+      <span class="kw">PARTITION BY</span> category
+      <span class="kw">ORDER BY</span> embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>
+    ) <span class="kw">AS</span> rn
+  <span class="kw">FROM</span> documents
+)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> ranked <span class="kw">WHERE</span> rn = <span class="nm">1</span>
+<span class="kw">ORDER BY</span> rn <span class="kw">LIMIT</span> <span class="nm">10</span>;</code></pre>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── HYBRID SEARCH ── -->
+        <div class="section vec-section" id="vec-hybrid">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V6</span
+            >
+            <span class="section-title"
+              >Hybrid Search (Vector + Full-Text)</span
+            >
+          </div>
+          <div class="section-body">
+            <div class="callout green" style="margin-bottom: 16px">
+              Hybrid search combines semantic (vector) similarity with keyword
+              (BM25/FTS) relevance for best-of-both results, especially useful
+              in RAG pipelines.
+            </div>
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Full-Text Search Setup</div>
+                <pre><code><span class="cm">-- Add tsvector column</span>
+<span class="kw">ALTER TABLE</span> documents
+<span class="kw">ADD COLUMN</span> fts <span class="tp">TSVECTOR</span>
+  <span class="kw">GENERATED ALWAYS AS</span> (
+    <span class="fn">to_tsvector</span>(<span class="str">'english'</span>, content)
+  ) <span class="kw">STORED</span>;
+
+<span class="cm">-- GIN index for FTS</span>
+<span class="kw">CREATE INDEX</span> idx_fts
+  <span class="kw">ON</span> documents <span class="kw">USING GIN</span>(fts);
+
+<span class="cm">-- FTS query</span>
+<span class="kw">SELECT</span> id, title,
+  <span class="fn">ts_rank</span>(fts, query) <span class="kw">AS</span> rank
+<span class="kw">FROM</span> documents,
+  <span class="fn">to_tsquery</span>(<span class="str">'english'</span>,<span class="str">'postgres & vector'</span>) query
+<span class="kw">WHERE</span> fts @@ query
+<span class="kw">ORDER BY</span> rank <span class="kw">DESC</span>;</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Reciprocal Rank Fusion (RRF)</div>
+                <pre><code><span class="kw">WITH</span> vec_results <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> id,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span>
+      (<span class="kw">ORDER BY</span> embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>)
+    <span class="kw">AS</span> vec_rank
+  <span class="kw">FROM</span> documents
+  <span class="kw">LIMIT</span> <span class="nm">50</span>
+),
+fts_results <span class="kw">AS</span> (
+  <span class="kw">SELECT</span> id,
+    <span class="fn">ROW_NUMBER</span>() <span class="kw">OVER</span>
+      (<span class="kw">ORDER BY</span> <span class="fn">ts_rank</span>(fts, $<span class="nm">2</span>) <span class="kw">DESC</span>)
+    <span class="kw">AS</span> fts_rank
+  <span class="kw">FROM</span> documents
+  <span class="kw">WHERE</span> fts @@ $<span class="nm">2</span>
+  <span class="kw">LIMIT</span> <span class="nm">50</span>
+)
+<span class="kw">SELECT</span> d.id, d.title,
+  <span class="nm">1.0</span>/(<span class="nm">60</span> + <span class="fn">COALESCE</span>(v.vec_rank,<span class="nm">1000</span>))
+  + <span class="nm">1.0</span>/(<span class="nm">60</span> + <span class="fn">COALESCE</span>(f.fts_rank,<span class="nm">1000</span>))
+  <span class="kw">AS</span> rrf_score
+<span class="kw">FROM</span> documents d
+<span class="kw">LEFT JOIN</span> vec_results v <span class="kw">ON</span> d.id = v.id
+<span class="kw">LEFT JOIN</span> fts_results f <span class="kw">ON</span> d.id = f.id
+<span class="kw">WHERE</span> v.id <span class="kw">IS NOT NULL</span>
+  <span class="kw">OR</span> f.id <span class="kw">IS NOT NULL</span>
+<span class="kw">ORDER BY</span> rrf_score <span class="kw">DESC</span>
+<span class="kw">LIMIT</span> <span class="nm">10</span>;</code></pre>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ── VEC TIPS ── -->
+        <div class="section vec-section" id="vec-tips">
+          <div class="section-header">
+            <span
+              class="section-num"
+              style="
+                color: var(--vec-green);
+                border-color: rgba(0, 212, 160, 0.2);
+              "
+              >V7</span
+            >
+            <span class="section-title">Tips, Tuning & Python Integration</span>
+          </div>
+          <div class="section-body">
+            <div class="grid-2">
+              <div class="sub">
+                <div class="sub-title">Python (psycopg2)</div>
+                <pre><code><span class="kw">import</span> psycopg2
+<span class="kw">from</span> pgvector.psycopg2 <span class="kw">import</span> register_vector
+<span class="kw">import</span> openai
+
+conn = psycopg2.<span class="fn">connect</span>(
+  <span class="str">"host=localhost dbname=mydb"</span>)
+<span class="fn">register_vector</span>(conn)
+
+<span class="cm"># Get embedding from OpenAI</span>
+res = openai.embeddings.<span class="fn">create</span>(
+  input=<span class="str">"search query text"</span>,
+  model=<span class="str">"text-embedding-ada-002"</span>
+)
+vec = res.data[<span class="nm">0</span>].embedding
+
+<span class="cm"># Query</span>
+cur = conn.<span class="fn">cursor</span>()
+cur.<span class="fn">execute</span>(<span class="str">"""
+  SELECT id, title,
+    1 - (embedding &lt;=&gt; %s) AS sim
+  FROM documents
+  ORDER BY embedding &lt;=&gt; %s
+  LIMIT 5
+"""</span>, (vec, vec))
+results = cur.<span class="fn">fetchall</span>()</code></pre>
+              </div>
+              <div class="sub">
+                <div class="sub-title">Performance Tips</div>
+                <ul class="list">
+                  <li>
+                    Always create an index (HNSW preferred) before running
+                    similarity queries on large tables
+                  </li>
+                  <li>
+                    Use <code class="ic">HNSW</code> over
+                    <code class="ic">IVFFlat</code> for better recall; IVFFlat
+                    needs data loaded before indexing
+                  </li>
+                  <li>
+                    Normalize vectors before storing if using inner product
+                    (<code class="ic">&lt;#&gt;</code>) for cosine-like behavior
+                  </li>
+                  <li>
+                    Set <code class="ic">ef_search</code> /
+                    <code class="ic">probes</code> per session based on recall
+                    vs latency tradeoff
+                  </li>
+                  <li>
+                    Use <code class="ic">LIMIT</code> — KNN is only fast with a
+                    LIMIT clause that the planner can push down
+                  </li>
+                  <li>
+                    For &gt;2000 dimensions, use
+                    <code class="ic">halfvec</code> type to halve memory usage
+                  </li>
+                  <li>
+                    Tune <code class="ic">maintenance_work_mem</code> before
+                    building HNSW index for speed
+                  </li>
+                </ul>
+                <pre
+                  style="margin-top: 10px"
+                ><code><span class="cm">-- Increase memory for index build</span>
+<span class="kw">SET</span> maintenance_work_mem = <span class="str">'1GB'</span>;
+
+<span class="kw">CREATE INDEX</span> ...;
+
+<span class="cm">-- Check index usage</span>
+<span class="kw">EXPLAIN</span> (ANALYZE, BUFFERS)
+<span class="kw">SELECT</span> * <span class="kw">FROM</span> documents
+<span class="kw">ORDER BY</span> embedding <span class="op">&lt;=&gt;</span> $<span class="nm">1</span>
+<span class="kw">LIMIT</span> <span class="nm">5</span>;</code></pre>
+              </div>
+            </div>
+            <div class="sub">
+              <div class="sub-title">Supported Types Summary</div>
+              <div class="grid-3">
+                <div class="index-card">
+                  <div class="index-card-name">vector</div>
+                  <div class="index-card-desc">
+                    Standard 32-bit floats. Up to 16,000 dims. Default type.
+                  </div>
+                </div>
+                <div class="index-card">
+                  <div class="index-card-name">halfvec</div>
+                  <div class="index-card-desc">
+                    16-bit floats. Up to 16,000 dims. Half the storage of
+                    vector.
+                  </div>
+                </div>
+                <div class="index-card">
+                  <div class="index-card-name">bit</div>
+                  <div class="index-card-desc">
+                    Binary vectors. Hamming / Jaccard distance. Very compact.
+                  </div>
+                </div>
+                <div class="index-card">
+                  <div class="index-card-name">sparsevec</div>
+                  <div class="index-card-desc">
+                    Sparse representation. Up to 1000 non-zero dims stored.
+                  </div>
+                </div>
+                <div class="index-card">
+                  <div class="index-card-name">IVFFlat</div>
+                  <div class="index-card-desc">
+                    Fast build, good for static datasets, tune
+                    <code>lists</code> + <code>probes</code>.
+                  </div>
+                </div>
+                <div class="index-card">
+                  <div class="index-card-name">HNSW</div>
+                  <div class="index-card-desc">
+                    Best recall, supports live inserts, tune <code>m</code> +
+                    <code>ef_search</code>.
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /content -->
+    </main>
+
+    <script>
+      // Active nav highlighting
+      const links = document.querySelectorAll(".nav-link");
+      const sections = document.querySelectorAll("[id]");
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              links.forEach((l) => (l.style.color = ""));
+              const active = document.querySelector(
+                `.nav-link[href="#${entry.target.id}"]`,
+              );
+              if (active) {
+                active.style.color = active.classList.contains("vec")
+                  ? "var(--vec-green)"
+                  : "var(--text-bright)";
+              }
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+
+      sections.forEach((s) => observer.observe(s));
+    </script>
+  </body>
+</html>

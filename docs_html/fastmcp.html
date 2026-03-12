@@ -1,0 +1,1279 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FastMCP — AI Ecosystem Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      aside {
+        width: 240px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 72px;
+        align-self: flex-start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+      aside ul {
+        list-style: none;
+      }
+      aside li a {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.87rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 4px 4px 0;
+      }
+      aside li a:hover,
+      aside li a.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+      }
+      aside .group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.8rem 0.8rem 0.3rem;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding-left: 3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 2.5rem 0 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.6rem;
+        color: var(--primary);
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1.2rem 0 0.4rem;
+        color: var(--orange);
+      }
+      p {
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.84rem;
+        margin: 1rem 0;
+      }
+      code:not(pre code) {
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: var(--orange);
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      .callout {
+        border-left: 4px solid var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+        padding: 1rem 1.2rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+      .callout.green {
+        border-left-color: var(--green);
+        background: rgba(63, 185, 80, 0.07);
+      }
+      .callout.yellow {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.07);
+      }
+      .callout.red {
+        border-left-color: var(--red);
+        background: rgba(248, 81, 73, 0.07);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+      th {
+        background: var(--surface2);
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td code {
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.82em;
+      }
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .compare-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .compare-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+      }
+      .compare-card h4 {
+        color: var(--muted);
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        margin-bottom: 0.6rem;
+        letter-spacing: 0.04em;
+      }
+      .section-anchor {
+        scroll-margin-top: 80px;
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 2rem;
+        height: 2rem;
+        background: var(--orange);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+      .github-mcp {
+        background: linear-gradient(
+          135deg,
+          rgba(88, 166, 255, 0.07),
+          rgba(188, 140, 255, 0.07)
+        );
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin: 1rem 0;
+      }
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav .logo {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding-left: 0;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          height: 56px;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+          overflow-x: visible;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .layout {
+          padding: 1rem;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html">LangChain</a>
+        <a href="langgraph.html">LangGraph</a>
+        <a href="mcp.html">MCP</a>
+        <a href="fastmcp.html" class="active">FastMCP</a>
+        <a href="rag.html">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="group-label">Concepts</div>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#vs-mcp">FastMCP vs raw MCP</a></li>
+          <li><a href="#install">Installation</a></li>
+        </ul>
+        <div class="group-label">Server</div>
+        <ul>
+          <li><a href="#server-basics">Server Basics</a></li>
+          <li><a href="#tool-decorator">@mcp.tool</a></li>
+          <li><a href="#resource-decorator">@mcp.resource</a></li>
+          <li><a href="#prompt-decorator">@mcp.prompt</a></li>
+          <li><a href="#context">Context Object</a></li>
+          <li><a href="#transport">Running the Server</a></li>
+        </ul>
+        <div class="group-label">Client</div>
+        <ul>
+          <li><a href="#client">FastMCP Client</a></li>
+          <li><a href="#call-tool">Calling Tools</a></li>
+        </ul>
+        <div class="group-label">Real Example</div>
+        <ul>
+          <li><a href="#github-mcp">GitHub MCP Server</a></li>
+          <li><a href="#github-tools">GitHub Tools</a></li>
+        </ul>
+        <div class="group-label">Tasks</div>
+        <ul>
+          <li><a href="#task1">Task 1 — Hello FastMCP</a></li>
+          <li><a href="#task2">Task 2 — HTTP Server + Client</a></li>
+          <li><a href="#task3">Task 3 — GitHub MCP</a></li>
+        </ul>
+      </aside>
+
+      <main>
+        <h1>⚡ FastMCP</h1>
+        <p class="lead">
+          FastMCP is a Pythonic framework that makes building MCP servers
+          dramatically simpler. Where the raw <code>mcp</code> library requires
+          boilerplate for every tool, FastMCP lets you decorate any Python
+          function and have a fully compliant MCP server in minutes.
+        </p>
+
+        <div class="callout green">
+          <strong>✅ FastMCP = Fast + MCP</strong>
+          FastMCP handles all the protocol wiring (JSON-RPC, schema generation,
+          transport setup) automatically. You focus on the logic; FastMCP
+          handles the rest.
+        </div>
+
+        <!-- Overview -->
+        <h2 id="overview" class="section-anchor">Overview</h2>
+
+        <div class="diagram-wrap">
+          <div id="merChart_0"></div>
+        </div>
+
+        <!-- Comparison -->
+        <h2 id="vs-mcp" class="section-anchor">FastMCP vs Raw MCP</h2>
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>❌ Raw MCP SDK (verbose)</h4>
+            <pre
+              style="margin: 0; font-size: 0.8rem"
+            ><code class="language-python">server = Server("my-server")
+
+@server.list_tools()
+async def list_tools():
+    return [Tool(name="greet",
+        description="Say hello",
+        inputSchema={...})]
+
+@server.call_tool()
+async def call_tool(name, args):
+    if name == "greet":
+        return [TextContent(
+            type="text",
+            text=f"Hello, {args['name']}!"
+        )]
+
+async with stdio_server() as (r,w):
+    await server.run(r, w, ...)</code></pre>
+          </div>
+          <div class="compare-card">
+            <h4>✅ FastMCP (clean)</h4>
+            <pre
+              style="margin: 0; font-size: 0.8rem"
+            ><code class="language-python">from fastmcp import FastMCP
+
+mcp = FastMCP("my-server")
+
+@mcp.tool
+def greet(name: str) -> str:
+    """Say hello."""
+    return f"Hello, {name}!"
+
+mcp.run()</code></pre>
+          </div>
+        </div>
+
+        <!-- Install -->
+        <h2 id="install" class="section-anchor">Installation</h2>
+        <pre><code class="language-bash">pip install fastmcp</code></pre>
+        <p>
+          FastMCP requires Python 3.10+. It can run both as a stdio server (for
+          local tools) and as an HTTP server (for remote access).
+        </p>
+
+        <!-- Server Basics -->
+        <h2 id="server-basics" class="section-anchor">Server Basics</h2>
+        <p>
+          Create a <code>FastMCP</code> instance to represent your server. This
+          object has decorators for tools, resources, and prompts.
+        </p>
+
+        <pre><code class="language-python">from fastmcp import FastMCP
+
+# Create the server — the name is shown to clients
+mcp = FastMCP("My MCP Server")
+
+# Configure server options inline
+mcp = FastMCP(
+    "My MCP Server",
+    instructions="This server provides weather and search tools.",  # system instructions
+    host="0.0.0.0",  # host for HTTP transport
+    port=8080,       # port for HTTP transport
+)</code></pre>
+
+        <h3>FastMCP Constructor Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>str</td>
+            <td>required</td>
+            <td>Server name shown to connecting clients</td>
+          </tr>
+          <tr>
+            <td><code>instructions</code></td>
+            <td>str</td>
+            <td>None</td>
+            <td>Optional system-level instructions for the LLM</td>
+          </tr>
+          <tr>
+            <td><code>host</code></td>
+            <td>str</td>
+            <td>"127.0.0.1"</td>
+            <td>Host for HTTP transport</td>
+          </tr>
+          <tr>
+            <td><code>port</code></td>
+            <td>int</td>
+            <td>8000</td>
+            <td>Port for HTTP transport</td>
+          </tr>
+        </table>
+
+        <!-- @mcp.tool -->
+        <h2 id="tool-decorator" class="section-anchor">
+          @mcp.tool — Defining Tools
+        </h2>
+        <p>
+          The <code>@mcp.tool</code> decorator registers any Python function as
+          an MCP tool. Type annotations define the parameter schema; the
+          docstring becomes the description.
+        </p>
+
+        <pre><code class="language-python">from fastmcp import FastMCP
+
+mcp = FastMCP("My Server")
+
+# Simple synchronous tool
+@mcp.tool
+def greet(name: str) -> str:
+    """Say hello to someone by name.
+    
+    Args:
+        name: The person's name to greet
+    """
+    return f"Hello, {name}!"
+
+# Async tool — use async for I/O-bound operations
+@mcp.tool
+async def fetch_data(url: str, timeout: int = 10) -> str:
+    """Fetch data from an HTTP URL.
+    
+    Args:
+        url: The URL to fetch from
+        timeout: Request timeout in seconds (default: 10)
+    """
+    import httpx
+    async with httpx.AsyncClient() as client:
+        response = await client.get(url, timeout=timeout)
+        return response.text
+
+# Tool with multiple parameters and optional fields
+@mcp.tool
+def search_users(
+    query: str,
+    limit: int = 10,
+    active_only: bool = True
+) -> str:
+    """Search for users in the database.
+    
+    Args:
+        query: Search term
+        limit: Maximum number of results to return
+        active_only: Whether to return only active users
+    """
+    return f"Found matching users for: {query} (limit={limit}, active={active_only})"</code></pre>
+
+        <h3>@mcp.tool Behaviour</h3>
+        <table>
+          <tr>
+            <th>Feature</th>
+            <th>How FastMCP handles it</th>
+          </tr>
+          <tr>
+            <td>Tool name</td>
+            <td>Taken from the Python function name</td>
+          </tr>
+          <tr>
+            <td>Description</td>
+            <td>Taken from the Google-style docstring first line</td>
+          </tr>
+          <tr>
+            <td>Parameter schema</td>
+            <td>Auto-generated from Python type annotations</td>
+          </tr>
+          <tr>
+            <td>Required params</td>
+            <td>Parameters without default values are required</td>
+          </tr>
+          <tr>
+            <td>Optional params</td>
+            <td>Parameters with defaults become optional in the schema</td>
+          </tr>
+          <tr>
+            <td>Return type</td>
+            <td>str is wrapped in a TextContent response automatically</td>
+          </tr>
+        </table>
+
+        <!-- @mcp.resource -->
+        <h2 id="resource-decorator" class="section-anchor">
+          @mcp.resource — Exposing Data
+        </h2>
+        <p>
+          Resources make data available to the LLM for context. They are
+          identified by a URI and can be parameterised.
+        </p>
+
+        <pre><code class="language-python">import json
+
+@mcp.resource("config://server")
+def get_server_config() -> str:
+    """Returns the current server configuration."""
+    return json.dumps({
+        "version": "1.0",
+        "model": "openai/gpt-oss-120b",
+        "features": ["tools", "resources", "prompts"]
+    }, indent=2)
+
+# Parameterised resource — URI template
+@mcp.resource("user://{user_id}/profile")
+async def get_user_profile(user_id: str) -> str:
+    """Fetch a user's profile.
+    
+    Args:
+        user_id: The unique user identifier
+    """
+    # In a real app, query a database here
+    return json.dumps({"id": user_id, "name": "Alice", "role": "admin"})</code></pre>
+
+        <!-- @mcp.prompt -->
+        <h2 id="prompt-decorator" class="section-anchor">
+          @mcp.prompt — Reusable Prompts
+        </h2>
+        <p>
+          Prompts are reusable message templates that clients can request.
+          Useful for consistent system instructions or task-specific prompts.
+        </p>
+
+        <pre><code class="language-python">from mcp.types import TextContent
+
+@mcp.prompt
+def analyze_code_prompt(language: str, code: str) -> list[TextContent]:
+    """Generate a prompt for code analysis.
+    
+    Args:
+        language: Programming language (e.g. Python, JavaScript)
+        code: The code to analyze
+    """
+    return [
+        TextContent(type="text", text=f"""Analyze this {language} code:
+
+```{language}
+{code}
+```
+
+Provide:
+1. What the code does
+2. Potential bugs or issues
+3. Suggestions for improvement
+""")
+    ]</code></pre>
+
+        <!-- Context -->
+        <h2 id="context" class="section-anchor">The Context Object</h2>
+        <p>
+          FastMCP provides a <code>Context</code> object that your tool
+          functions can accept. It gives you access to logging, progress
+          reporting, and other server capabilities at runtime.
+        </p>
+
+        <pre><code class="language-python">from fastmcp import FastMCP, Context
+
+mcp = FastMCP("My Server")
+
+@mcp.tool
+async def long_running_task(items: int, ctx: Context) -> str:
+    """Process a bunch of items with progress reporting.
+    
+    Args:
+        items: Number of items to process
+    """
+    results = []
+    for i in range(items):
+        # Report progress to the client
+        await ctx.report_progress(i, items)
+        
+        # Log a message (visible to the client)
+        await ctx.info(f"Processing item {i+1}/{items}")
+        
+        results.append(f"item_{i}")
+
+    return f"Processed {len(results)} items"</code></pre>
+
+        <h3>Context Methods</h3>
+        <table>
+          <tr>
+            <th>Method</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>ctx.info(message)</code></td>
+            <td>Send an info log message to the client</td>
+          </tr>
+          <tr>
+            <td><code>ctx.warning(message)</code></td>
+            <td>Send a warning to the client</td>
+          </tr>
+          <tr>
+            <td><code>ctx.error(message)</code></td>
+            <td>Send an error message to the client</td>
+          </tr>
+          <tr>
+            <td><code>ctx.report_progress(current, total)</code></td>
+            <td>Report progress for long-running operations</td>
+          </tr>
+          <tr>
+            <td><code>ctx.read_resource(uri)</code></td>
+            <td>Read a resource from the current server</td>
+          </tr>
+        </table>
+
+        <!-- Transport -->
+        <h2 id="transport" class="section-anchor">Running the Server</h2>
+        <p>
+          Call <code>mcp.run()</code> with the desired transport. For local
+          development use <code>stdio</code>; for network access use
+          <code>http</code>.
+        </p>
+
+        <pre><code class="language-python">from fastmcp import FastMCP
+
+mcp = FastMCP("My Server")
+
+@mcp.tool
+def greet(name: str) -> str:
+    """Greet someone."""
+    return f"Hello, {name}!"
+
+# Run options:
+if __name__ == "__main__":
+    # Option 1: stdio (for local tools, default)
+    mcp.run()                              # transport defaults to stdio
+
+    # Option 2: HTTP server (network accessible)
+    mcp.run(transport="http", port=8080)   # available at localhost:8080/mcp
+
+    # Option 3: SSE (HTTP with streaming)
+    mcp.run(transport="sse", port=8080)</code></pre>
+
+        <h3>mcp.run() Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>transport</code></td>
+            <td>str</td>
+            <td>"stdio"</td>
+            <td>
+              <code>"stdio"</code>, <code>"http"</code>, or <code>"sse"</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>host</code></td>
+            <td>str</td>
+            <td>"127.0.0.1"</td>
+            <td>Bind address for HTTP/SSE transport</td>
+          </tr>
+          <tr>
+            <td><code>port</code></td>
+            <td>int</td>
+            <td>8000</td>
+            <td>Port for HTTP/SSE transport</td>
+          </tr>
+          <tr>
+            <td><code>path</code></td>
+            <td>str</td>
+            <td>"/mcp"</td>
+            <td>URL path for HTTP/SSE transport</td>
+          </tr>
+        </table>
+
+        <!-- Client -->
+        <h2 id="client" class="section-anchor">FastMCP Client</h2>
+        <p>
+          FastMCP ships its own async client that connects to both HTTP and
+          stdio servers with a clean context manager API.
+        </p>
+
+        <pre><code class="language-python">import asyncio
+from fastmcp import Client
+
+# Connect to an HTTP server
+client = Client("http://localhost:8080/mcp")
+
+async def main():
+    async with client:
+        # List all available tools
+        tools = await client.list_tools()
+        print("Tools:", [t.name for t in tools])
+
+        # Call a tool by name with keyword arguments
+        result = await client.call_tool("greet", {"name": "Alice"})
+        print(result)  # prints the tool output
+
+asyncio.run(main())</code></pre>
+
+        <h3>Client Methods</h3>
+        <table>
+          <tr>
+            <th>Method</th>
+            <th>Returns</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>await client.list_tools()</code></td>
+            <td>list[Tool]</td>
+            <td>Get all tools the server exposes</td>
+          </tr>
+          <tr>
+            <td><code>await client.call_tool(name, args)</code></td>
+            <td>list[Content]</td>
+            <td>Call a tool with the given arguments</td>
+          </tr>
+          <tr>
+            <td><code>await client.list_resources()</code></td>
+            <td>list[Resource]</td>
+            <td>Get all resources the server exposes</td>
+          </tr>
+          <tr>
+            <td><code>await client.read_resource(uri)</code></td>
+            <td>Content</td>
+            <td>Read a specific resource by URI</td>
+          </tr>
+          <tr>
+            <td><code>await client.list_prompts()</code></td>
+            <td>list[Prompt]</td>
+            <td>Get all prompts the server exposes</td>
+          </tr>
+          <tr>
+            <td><code>await client.get_prompt(name, args)</code></td>
+            <td>list[Message]</td>
+            <td>Get a rendered prompt</td>
+          </tr>
+        </table>
+
+        <!-- Call Tool -->
+        <h2 id="call-tool" class="section-anchor">
+          Calling Tools from the Client
+        </h2>
+        <pre><code class="language-python">import asyncio
+from fastmcp import Client
+
+async def call_tool(name: str):
+    client = Client("http://localhost:8080/mcp")
+    async with client:
+        result = await client.call_tool("greet", {"name": name})
+        # result is a list of content items
+        for item in result:
+            print(item.text)  # TextContent has a .text attribute
+
+asyncio.run(call_tool("Bishwajit"))</code></pre>
+
+        <!-- GitHub MCP -->
+        <h2 id="github-mcp" class="section-anchor">
+          Real-World Example: GitHub MCP Server
+        </h2>
+        <div class="github-mcp">
+          <p>
+            The <code>github_mcp/server.py</code> file in this project is a
+            production FastMCP server that wraps the GitHub REST and GraphQL
+            APIs. It demonstrates how to build a real-world MCP server with
+            authentication, multiple tools, and error handling.
+          </p>
+        </div>
+
+        <pre><code class="language-python">import os
+import httpx
+from dotenv import load_dotenv
+from loguru import logger
+from fastmcp import FastMCP
+
+load_dotenv()
+
+mcp = FastMCP("github-mcp")
+
+GITHUB_API = "https://api.github.com"
+GITHUB_TOKEN = os.environ.get("GITHUB_TOKEN", "")
+DEFAULT_OWNER = os.environ.get("GITHUB_OWNER", "")
+DEFAULT_REPO = os.environ.get("GITHUB_REPO", "")
+
+def _headers() -> dict:
+    """Build authenticated GitHub API headers."""
+    if not GITHUB_TOKEN:
+        raise RuntimeError("GITHUB_TOKEN is not set. Add it to your .env file.")
+    return {
+        "Authorization": f"Bearer {GITHUB_TOKEN}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+
+def _raise_for_status(resp: httpx.Response) -> None:
+    """Raise a descriptive error for 4xx/5xx responses."""
+    if resp.status_code >= 400:
+        try:
+            detail = resp.json()
+        except Exception:
+            detail = resp.text
+        logger.error(f"GitHub API {resp.status_code}: {detail}")
+        raise RuntimeError(f"GitHub API error {resp.status_code}: {detail}")</code></pre>
+
+        <!-- GitHub Tools -->
+        <h2 id="github-tools" class="section-anchor">GitHub MCP Tools</h2>
+        <p>
+          Here's how the GitHub MCP server exposes repository and issue
+          management as MCP tools:
+        </p>
+
+        <pre><code class="language-python">@mcp.tool
+async def list_issues(
+    owner: str = DEFAULT_OWNER,
+    repo: str = DEFAULT_REPO,
+    state: str = "open",
+    limit: int = 20,
+) -> str:
+    """List GitHub issues for a repository.
+
+    Args:
+        owner: GitHub username or org (default from GITHUB_OWNER env)
+        repo: Repository name (default from GITHUB_REPO env)
+        state: Issue state — 'open', 'closed', or 'all'
+        limit: Maximum number of issues to return
+    """
+    url = f"{GITHUB_API}/repos/{owner}/{repo}/issues"
+    params = {"state": state, "per_page": limit}
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url, headers=_headers(), params=params)
+        _raise_for_status(resp)
+        issues = resp.json()
+        if not issues:
+            return f"No {state} issues found."
+        lines = [f"#{i['number']}: {i['title']} [{i['state']}]" for i in issues]
+        return "\n".join(lines)
+
+
+@mcp.tool
+async def create_issue(
+    title: str,
+    body: str = "",
+    labels: list[str] | None = None,
+    owner: str = DEFAULT_OWNER,
+    repo: str = DEFAULT_REPO,
+) -> str:
+    """Create a new GitHub issue.
+
+    Args:
+        title: Issue title
+        body: Issue body / description (markdown supported)
+        labels: List of label names to add
+        owner: GitHub username or org
+        repo: Repository name
+    """
+    url = f"{GITHUB_API}/repos/{owner}/{repo}/issues"
+    payload = {"title": title, "body": body}
+    if labels:
+        payload["labels"] = labels
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(url, headers=_headers(), json=payload)
+        _raise_for_status(resp)
+        created = resp.json()
+        return f"Created issue #{created['number']}: {created['html_url']}"
+
+
+@mcp.tool
+async def get_file_content(
+    path: str,
+    owner: str = DEFAULT_OWNER,
+    repo: str = DEFAULT_REPO,
+    ref: str = "main",
+) -> str:
+    """Get the content of a file from a GitHub repository.
+
+    Args:
+        path: File path in the repo (e.g. 'src/main.py')
+        owner: GitHub username or org
+        repo: Repository name
+        ref: Branch, tag, or commit SHA (default: 'main')
+    """
+    import base64
+    url = f"{GITHUB_API}/repos/{owner}/{repo}/contents/{path}"
+    params = {"ref": ref}
+    async with httpx.AsyncClient() as client:
+        resp = await client.get(url, headers=_headers(), params=params)
+        _raise_for_status(resp)
+        data = resp.json()
+        if data.get("encoding") == "base64":
+            return base64.b64decode(data["content"]).decode("utf-8")
+        return data.get("content", "")
+
+
+if __name__ == "__main__":
+    mcp.run()  # stdio by default — connect with any MCP client</code></pre>
+
+        <div class="callout">
+          <strong>🔑 Environment Variables for GitHub MCP</strong>
+          <pre
+            style="margin: 0.5rem 0 0; font-size: 0.85rem"
+          ><code>GITHUB_TOKEN=ghp_your_token_here
+GITHUB_OWNER=your-username-or-org
+GITHUB_REPO=your-default-repo
+PROJECT_ID=1  # optional: GitHub Projects ID</code></pre>
+        </div>
+
+        <!-- Tasks -->
+        <h2 id="task1" class="section-anchor">📙 Task 1 — Hello FastMCP</h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Build the simplest possible FastMCP server, run
+          it, and call it with the client.
+        </div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Create <code>fastmcp_server.py</code></h4>
+            <pre><code class="language-python">from fastmcp import FastMCP
+
+mcp = FastMCP("My MCP Server")
+
+@mcp.tool
+def greet(name: str) -> str:
+    """Say hello to someone."""
+    return f"Hello, {name}!"
+
+if __name__ == "__main__":
+    mcp.run(transport="http", port=8080)</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Start the server</h4>
+            <pre><code class="language-bash">python fastmcp_server.py
+# Server listening on http://localhost:8080/mcp</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Create and run <code>fastmcp_client.py</code></h4>
+            <pre><code class="language-python">import asyncio
+from fastmcp import Client
+
+async def call_tool(name: str):
+    client = Client("http://localhost:8080/mcp")
+    async with client:
+        result = await client.call_tool("greet", {"name": name})
+        print(result)
+
+asyncio.run(call_tool("Bishwajit"))</code></pre>
+            <pre><code class="language-bash">python fastmcp_client.py
+# Output: [TextContent(type='text', text='Hello, Bishwajit!')]</code></pre>
+          </div>
+        </div>
+
+        <h2 id="task2" class="section-anchor">
+          📙 Task 2 — HTTP Server with Multiple Tools
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Add calculator and info tools, run over HTTP,
+          and call each from the client.
+        </div>
+        <pre><code class="language-python"># server.py
+from fastmcp import FastMCP
+import platform, sys
+
+mcp = FastMCP("MultiTool Server")
+
+@mcp.tool
+def calculate(expression: str) -> str:
+    """Evaluate a math expression safely."""
+    allowed = set("0123456789+-*/()., ")
+    if not all(c in allowed for c in expression):
+        return "Error: invalid characters in expression"
+    try:
+        return str(eval(expression))
+    except Exception as e:
+        return f"Error: {e}"
+
+@mcp.tool
+def server_info() -> str:
+    """Get information about the server environment."""
+    return (f"Python {sys.version}\n"
+            f"Platform: {platform.system()} {platform.release()}")
+
+@mcp.resource("docs://readme")
+def get_readme() -> str:
+    """Returns the server documentation."""
+    return "# MultiTool Server\nProvides calculator and server-info tools."
+
+if __name__ == "__main__":
+    mcp.run(transport="http", port=8080)</code></pre>
+
+        <h2 id="task3" class="section-anchor">
+          📙 Task 3 — Run the GitHub MCP Server
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Configure and run the GitHub MCP server to
+          manage issues via natural language.
+        </div>
+        <pre><code class="language-bash"># 1. Add to .env:
+# GITHUB_TOKEN=your_token
+# GITHUB_OWNER=your-org
+# GITHUB_REPO=your-repo
+
+# 2. Run the server
+cd github_mcp
+python server.py
+
+# 3. Connect any MCP client and send:
+# "List all open issues"
+# "Create an issue: Fix login bug — users can't log in on mobile"
+# "Show me the content of README.md"</code></pre>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        FastMCP Documentation ·
+        <a href="index.html" style="color: var(--primary)">← Back to Home</a>
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+      const links = document.querySelectorAll("aside a");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `aside a[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -75% 0px" },
+      );
+      document
+        .querySelectorAll(".section-anchor")
+        .forEach((el) => obs.observe(el));
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `flowchart LR
+  subgraph Dev["👨‍💻 Developer writes"]
+    F1["@mcp.tool\ndef greet(name)"]
+    F2["@mcp.resource\ndef config()"]
+    F3["@mcp.prompt\ndef system_prompt()"]
+  end
+  subgraph FastMCP["⚡ FastMCP handles"]
+    direction TB
+    S["JSON-RPC schema\ngeneration"]
+    T["Transport\n(stdio / HTTP / SSE)"]
+    V["Input validation\n& type coercion"]
+  end
+  subgraph Wire["🔌 Wire Protocol (MCP)"]
+    W["tools/list\ntools/call\nresources/read\nprompts/get"]
+  end
+  Dev --> FastMCP --> Wire
+  style Dev fill:#1c2128,stroke:#3fb950
+  style FastMCP fill:#1c2128,stroke:#e3b341
+  style Wire fill:#1c2128,stroke:#58a6ff`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

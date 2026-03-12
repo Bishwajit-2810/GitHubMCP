@@ -1,0 +1,1161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Multi-Agent Systems — AI Ecosystem Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      aside {
+        width: 240px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 72px;
+        align-self: flex-start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+      aside ul {
+        list-style: none;
+      }
+      aside li a {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.87rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 4px 4px 0;
+      }
+      aside li a:hover,
+      aside li a.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+      }
+      aside .group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.8rem 0.8rem 0.3rem;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding-left: 3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 2.5rem 0 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.6rem;
+        color: var(--primary);
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1.2rem 0 0.4rem;
+        color: var(--orange);
+      }
+      p {
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.84rem;
+        margin: 1rem 0;
+      }
+      code:not(pre code) {
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: var(--orange);
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      .callout {
+        border-left: 4px solid var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+        padding: 1rem 1.2rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+      .callout.green {
+        border-left-color: var(--green);
+        background: rgba(63, 185, 80, 0.07);
+      }
+      .callout.yellow {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.07);
+      }
+      .callout.red {
+        border-left-color: var(--red);
+        background: rgba(248, 81, 73, 0.07);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+      th {
+        background: var(--surface2);
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td code {
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.82em;
+      }
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .section-anchor {
+        scroll-margin-top: 80px;
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 2rem;
+        height: 2rem;
+        background: var(--purple);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+      /* log block */
+      .log-block {
+        background: #0a0f14;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1rem;
+        font-family: "Courier New", monospace;
+        font-size: 0.82rem;
+        margin: 1rem 0;
+        overflow-x: auto;
+      }
+      .log-info {
+        color: #58a6ff;
+      }
+      .log-success {
+        color: #3fb950;
+      }
+      .log-warning {
+        color: #d29922;
+      }
+      .log-time {
+        color: #8b949e;
+      }
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav .logo {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding-left: 0;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          height: 56px;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+          overflow-x: visible;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .layout {
+          padding: 1rem;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html">LangChain</a>
+        <a href="langgraph.html">LangGraph</a>
+        <a href="mcp.html">MCP</a>
+        <a href="fastmcp.html">FastMCP</a>
+        <a href="rag.html">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html" class="active">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="group-label">Concepts</div>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#patterns">Agent Patterns</a></li>
+          <li><a href="#when-multi">When to Use Multi-Agent</a></li>
+        </ul>
+        <div class="group-label">Building Agents</div>
+        <ul>
+          <li><a href="#tool-def">Defining Tools</a></li>
+          <li><a href="#agent-create">Creating Agents</a></li>
+          <li><a href="#response">Extracting Responses</a></li>
+          <li><a href="#interactive">Interactive Loop</a></li>
+        </ul>
+        <div class="group-label">Logging</div>
+        <ul>
+          <li><a href="#loguru">Loguru Setup</a></li>
+          <li><a href="#agent-logger">AgentLogger</a></li>
+          <li><a href="#with-logging">Agent + Logging</a></li>
+        </ul>
+        <div class="group-label">Multi-Agent</div>
+        <ul>
+          <li><a href="#supervisor">Supervisor Pattern</a></li>
+          <li><a href="#handoffs">Agent Handoffs</a></li>
+          <li><a href="#full-system">Full System</a></li>
+        </ul>
+        <div class="group-label">Tasks</div>
+        <ul>
+          <li><a href="#task1">Task 1 — Basic Agent</a></li>
+          <li><a href="#task2">Task 2 — Logged Agent</a></li>
+          <li><a href="#task3">Task 3 — Multi-Agent</a></li>
+        </ul>
+      </aside>
+
+      <main>
+        <h1>🤖 Multi-Agent Systems</h1>
+        <p class="lead">
+          Multi-agent systems let you compose several specialised AI agents,
+          each with their own tools and expertise, into a coordinated pipeline.
+          A supervisor agent routes tasks to the right worker; workers execute
+          and return results.
+        </p>
+
+        <div class="callout">
+          <strong>✅ What you'll learn</strong>
+          How to define tools with <code>@tool</code>, create agents, add Loguru
+          callback logging, build an interactive agent loop, and compose a
+          supervisor + worker multi-agent system.
+        </div>
+
+        <!-- Overview -->
+        <h2 id="overview" class="section-anchor">Overview</h2>
+        <p>
+          An agent system follows the <strong>ReAct</strong> loop:
+          <em>Reason → Act → Observe → Repeat</em>. Multiple agents extend this
+          by letting one agent call another as if it were a tool.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_0"></div>
+        </div>
+
+        <!-- Patterns -->
+        <h2 id="patterns" class="section-anchor">Agent Patterns</h2>
+        <table>
+          <tr>
+            <th>Pattern</th>
+            <th>Structure</th>
+            <th>Best For</th>
+          </tr>
+          <tr>
+            <td><strong>Single Agent</strong></td>
+            <td>1 LLM + N tools</td>
+            <td>General assistants with multiple capabilities</td>
+          </tr>
+          <tr>
+            <td><strong>Supervisor + Workers</strong></td>
+            <td>Supervisor routes to specialised agents</td>
+            <td>Clear task separation, each agent optimised</td>
+          </tr>
+          <tr>
+            <td><strong>Sequential Pipeline</strong></td>
+            <td>Agent A output → Agent B input</td>
+            <td>Multi-step workflows (research → write → review)</td>
+          </tr>
+          <tr>
+            <td><strong>Parallel Agents</strong></td>
+            <td>Multiple agents run simultaneously</td>
+            <td>Independent sub-tasks that can be merged</td>
+          </tr>
+        </table>
+
+        <!-- When -->
+        <h2 id="when-multi" class="section-anchor">When to Use Multi-Agent</h2>
+        <div class="callout yellow">
+          <strong>🤔 Single Agent is enough when:</strong>
+          the task can be completed with a handful of tools and the context
+          window is large enough to hold all memory.
+        </div>
+        <div class="callout green">
+          <strong>✅ Multi-Agent shines when:</strong>
+          <ul style="padding-left: 1.2rem; margin-top: 0.4rem">
+            <li>
+              Tasks have clearly distinct domains (e.g. research vs coding vs
+              reviewing)
+            </li>
+            <li>Parallel execution would save significant time</li>
+            <li>
+              Each sub-task is complex enough to warrant its own specialisation
+            </li>
+            <li>You need independent quality checks between steps</li>
+          </ul>
+        </div>
+
+        <!-- Tool Definition -->
+        <h2 id="tool-def" class="section-anchor">Defining Tools</h2>
+        <p>
+          Each agent gets a set of tools it can use. Tools are Python functions
+          decorated with <code>@tool</code>.
+        </p>
+
+        <pre><code class="language-python">import os, requests
+from langchain_core.tools import tool
+
+@tool
+def weather_api(city: str) -> str:
+    """Get current weather information for a given city using OpenWeather API.
+    
+    Args:
+        city: Name of the city (e.g. 'London', 'New York', 'Tokyo')
+    """
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    if not api_key:
+        return "OpenWeather API key not found in environment."
+    
+    url = "https://api.openweathermap.org/data/2.5/weather"
+    params = {"q": city, "appid": api_key, "units": "metric"}
+    
+    try:
+        response = requests.get(url, params=params, timeout=10)
+        data = response.json()
+        if response.status_code != 200:
+            return f"Weather data unavailable: {data.get('message', 'Unknown error')}"
+        temp = data["main"]["temp"]
+        desc = data["weather"][0]["description"]
+        return f"Weather in {city}: {temp}°C, {desc}"
+    except Exception as e:
+        return f"Weather API error: {str(e)}"
+
+
+@tool
+def google_search_api(query: str) -> str:
+    """Search the web for current information using Serper API. Returns top 3 results.
+    
+    Args:
+        query: Search query string
+    """
+    api_key = os.getenv("SERPER_API_KEY")
+    if not api_key:
+        return "Serper API key not found in environment."
+    
+    url = "https://google.serper.dev/search"
+    headers = {"X-API-KEY": api_key, "Content-Type": "application/json"}
+    
+    try:
+        response = requests.post(url, headers=headers, json={"q": query}, timeout=10)
+        data = response.json()
+        if "organic" not in data:
+            return "No search results found."
+        results = data["organic"][:3]
+        return "\n".join([f"{r.get('title')} — {r.get('snippet')}" for r in results])
+    except Exception as e:
+        return f"Search API error: {str(e)}"</code></pre>
+
+        <!-- Agent Create -->
+        <h2 id="agent-create" class="section-anchor">Creating Agents</h2>
+        <pre><code class="language-python">from langchain.agents import create_agent
+from langchain_groq import ChatGroq
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+
+tools = [weather_api, google_search_api]
+
+agent = create_agent(
+    llm,
+    tools=tools,
+    system_prompt="""You are a helpful research assistant with access to weather and search tools.
+Respond conversationally. Use tools precisely when needed for real-time data.
+For weather questions, call weather_api. For factual lookups, call google_search_api.""",
+)</code></pre>
+
+        <!-- Response Extraction -->
+        <h2 id="response" class="section-anchor">
+          Extracting the Final Response
+        </h2>
+        <p>
+          The agent returns a dict with a <code>messages</code> list. The last
+          non-empty message is the final answer.
+        </p>
+
+        <pre><code class="language-python">from langchain_core.messages import AIMessage
+
+def extract_final_answer(response: dict) -> str:
+    """Extract the agent's final answer from the LangGraph state dict."""
+    messages = response["messages"]
+    # Walk backwards to find the last message with content
+    for msg in reversed(messages):
+        if hasattr(msg, "content") and msg.content:
+            return msg.content
+    return "No final answer found."
+
+# Example usage
+response = agent.invoke({
+    "messages": [{"role": "user", "content": "What is the weather in Paris?"}]
+})
+answer = extract_final_answer(response)
+print(answer)</code></pre>
+
+        <!-- Interactive Loop -->
+        <h2 id="interactive" class="section-anchor">
+          Interactive Conversation Loop
+        </h2>
+        <pre><code class="language-python">if __name__ == "__main__":
+    print("Agent ready! Type 'exit' to quit.\n")
+
+    while True:
+        user_input = input("You: ").strip()
+
+        if not user_input:
+            continue
+        if user_input.lower() in ["exit", "quit", "bye"]:
+            print("Goodbye!")
+            break
+
+        try:
+            response = agent.invoke({
+                "messages": [{"role": "user", "content": user_input}]
+            })
+            answer = extract_final_answer(response)
+            print(f"\nAgent: {answer}\n")
+        except Exception as e:
+            print(f"\nError: {e}\n")</code></pre>
+
+        <!-- Loguru -->
+        <h2 id="loguru" class="section-anchor">Loguru Logging Setup</h2>
+        <p>
+          Loguru is a modern logging library that's far simpler than Python's
+          standard <code>logging</code> module. It writes to both console and
+          files with automatic rotation.
+        </p>
+
+        <pre><code class="language-python">from loguru import logger
+
+# Console output is on by default.
+# Add a file sink with rotation and retention:
+logger.add(
+    "agent.log",          # log file path
+    rotation="10 MB",     # create a new file when this one reaches 10MB
+    retention="7 days",   # keep log files for 7 days
+    level="INFO",         # minimum log level to write
+    format="{time:YYYY-MM-DD HH:mm:ss} | {level} | {message}",
+)
+
+# Usage:
+logger.debug("Debug message — not written if level=INFO")
+logger.info("ℹ️  Info message")
+logger.success("✅ Success message")
+logger.warning("⚠️  Warning message")
+logger.error("❌ Error message")
+logger.critical("🚨 Critical message")</code></pre>
+
+        <h3>Loguru logger.add() Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>sink</code></td>
+            <td>str / Path / callable</td>
+            <td>File path, or a callable like <code>sys.stderr</code></td>
+          </tr>
+          <tr>
+            <td><code>rotation</code></td>
+            <td>str / int</td>
+            <td>
+              When to start a new file: <code>"10 MB"</code>,
+              <code>"1 day"</code>, <code>"00:00"</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>retention</code></td>
+            <td>str / int</td>
+            <td>
+              How long to keep old files: <code>"7 days"</code>,
+              <code>3</code> (number of files)
+            </td>
+          </tr>
+          <tr>
+            <td><code>level</code></td>
+            <td>str</td>
+            <td>
+              Minimum level: DEBUG, INFO, SUCCESS, WARNING, ERROR, CRITICAL
+            </td>
+          </tr>
+          <tr>
+            <td><code>format</code></td>
+            <td>str</td>
+            <td>
+              Log message format string with <code>{time}</code>,
+              <code>{level}</code>, <code>{message}</code> etc.
+            </td>
+          </tr>
+          <tr>
+            <td><code>compression</code></td>
+            <td>str</td>
+            <td>Compress old files: <code>"gz"</code>, <code>"zip"</code></td>
+          </tr>
+          <tr>
+            <td><code>backtrace</code></td>
+            <td>bool</td>
+            <td>Show full stack trace on exceptions (default: True)</td>
+          </tr>
+        </table>
+
+        <!-- AgentLogger -->
+        <h2 id="agent-logger" class="section-anchor">
+          AgentLogger — Callback Handler
+        </h2>
+        <p>
+          Create a custom <code>BaseCallbackHandler</code> that logs every agent
+          action, tool call, and completion to loguru.
+        </p>
+
+        <pre><code class="language-python">from langchain_core.callbacks import BaseCallbackHandler
+from loguru import logger
+
+class AgentLogger(BaseCallbackHandler):
+    """Logs all agent lifecycle events via loguru."""
+
+    def on_agent_action(self, action, **kwargs):
+        """Called when the agent decides to call a tool."""
+        logger.info(
+            f"🛠️  Agent action: tool={action.tool!r} | input={action.tool_input!r}"
+        )
+
+    def on_agent_finish(self, finish, **kwargs):
+        """Called when the agent produces its final answer."""
+        output_len = len(str(finish)) if finish else 0
+        logger.success(f"✅ Agent finished: {output_len} chars in response")
+
+    def on_tool_start(self, serialized, input_str, **kwargs):
+        """Called just before a tool is executed."""
+        tool_name = serialized.get("name", "unknown")
+        logger.info(f"🔧 Tool start: {tool_name!r} | input: {input_str!r}")
+
+    def on_tool_end(self, output, **kwargs):
+        """Called when a tool returns its result."""
+        logger.success(f"✅ Tool end: {len(str(output))} chars output")
+
+    def on_tool_error(self, error, **kwargs):
+        """Called when a tool raises an exception."""
+        logger.error(f"❌ Tool error: {error}")</code></pre>
+
+        <!-- Sample log output -->
+        <div class="log-block">
+          <span class="log-time">2026-03-11 10:23:01</span> |
+          <span class="log-info">INFO</span> | 🛠️ Agent action:
+          tool='weather_api' | input='Paris'<br />
+          <span class="log-time">2026-03-11 10:23:01</span> |
+          <span class="log-info">INFO</span> | 🔧 Tool start: 'weather_api' |
+          input: 'Paris'<br />
+          <span class="log-time">2026-03-11 10:23:02</span> |
+          <span class="log-success">SUCCESS</span> | ✅ Tool end: 35 chars
+          output<br />
+          <span class="log-time">2026-03-11 10:23:03</span> |
+          <span class="log-success">SUCCESS</span> | ✅ Agent finished: 142
+          chars in response
+        </div>
+
+        <!-- Agent with Logging -->
+        <h2 id="with-logging" class="section-anchor">
+          Full Agent with Logging
+        </h2>
+        <pre><code class="language-python">from langchain_core.runnables import RunnableConfig
+
+agent_logger = AgentLogger()
+config = RunnableConfig(callbacks=[agent_logger])
+
+response = agent.invoke(
+    {"messages": [{"role": "user", "content": "What's the weather in Tokyo?"}]},
+    config=config,
+)</code></pre>
+
+        <!-- Supervisor Pattern -->
+        <h2 id="supervisor" class="section-anchor">Supervisor Pattern</h2>
+        <p>
+          A supervisor agent receives the user's request and decides which
+          worker agent to call. In LangGraph, this is modelled as a node that
+          conditionally routes to other nodes.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_1"></div>
+        </div>
+
+        <pre><code class="language-python">from langgraph.graph import StateGraph, END
+from typing import TypedDict, Annotated, Literal
+from langchain_core.messages import BaseMessage
+from langgraph.graph.message import add_messages
+from langchain_groq import ChatGroq
+from langchain.agents import create_agent
+
+class MultiAgentState(TypedDict):
+    messages: Annotated[list[BaseMessage], add_messages]
+    next: str  # which agent to call next
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+
+# Create specialised worker agents
+weather_agent = create_agent(llm, tools=[weather_api],
+    system_prompt="You specialise in weather data. Use weather_api for all weather queries.")
+
+search_agent = create_agent(llm, tools=[google_search_api],
+    system_prompt="You specialise in web search. Use google_search_api for all lookup queries.")
+
+# Supervisor uses routing prompt
+from langchain_core.prompts import ChatPromptTemplate
+
+supervisor_prompt = ChatPromptTemplate.from_messages([
+    ("system", """You are a supervisor routing tasks to specialised agents.
+Based on the user's question, respond with ONLY the agent name to call:
+- 'weather_agent' — for weather, temperature, forecast questions
+- 'search_agent' — for factual lookups, current events, general information
+- 'FINISH' — if you can answer directly without any agent
+
+Respond with ONLY the agent name or FINISH."""),
+    ("human", "{input}"),
+])
+
+def supervisor_node(state: MultiAgentState) -> MultiAgentState:
+    """Supervisor decides which agent to call."""
+    last_message = state["messages"][-1]
+    response = llm.invoke(supervisor_prompt.format_messages(input=last_message.content))
+    return {"next": response.content.strip()}</code></pre>
+
+        <!-- Agent Handoffs -->
+        <h2 id="handoffs" class="section-anchor">Agent Handoffs</h2>
+        <pre><code class="language-python">def weather_node(state: MultiAgentState) -> MultiAgentState:
+    """Run the weather agent and return its response."""
+    result = weather_agent.invoke({"messages": state["messages"]})
+    return {"messages": result["messages"], "next": "supervisor"}
+
+def search_node(state: MultiAgentState) -> MultiAgentState:
+    """Run the search agent and return its response."""
+    result = search_agent.invoke({"messages": state["messages"]})
+    return {"messages": result["messages"], "next": "supervisor"}
+
+def route(state: MultiAgentState) -> Literal["weather_agent", "search_agent", "__end__"]:
+    """Route to the appropriate agent based on supervisor decision."""
+    next_agent = state.get("next", "FINISH")
+    if next_agent == "weather_agent":
+        return "weather_agent"
+    elif next_agent == "search_agent":
+        return "search_agent"
+    return "__end__"</code></pre>
+
+        <!-- Full System -->
+        <h2 id="full-system" class="section-anchor">Full Multi-Agent System</h2>
+        <pre><code class="language-python"># Build the graph
+graph = StateGraph(MultiAgentState)
+graph.add_node("supervisor", supervisor_node)
+graph.add_node("weather_agent", weather_node)
+graph.add_node("search_agent", search_node)
+
+graph.set_entry_point("supervisor")
+
+graph.add_conditional_edges(
+    "supervisor",
+    route,
+    {
+        "weather_agent": "weather_agent",
+        "search_agent": "search_agent",
+        "__end__": END,
+    },
+)
+# Workers always return to supervisor
+graph.add_edge("weather_agent", "supervisor")
+graph.add_edge("search_agent", "supervisor")
+
+multi_agent_app = graph.compile()
+
+# Run the full multi-agent system
+result = multi_agent_app.invoke({
+    "messages": [{"role": "user", "content": "What's the weather in Berlin?"}],
+    "next": "",
+})
+
+for msg in result["messages"]:
+    if hasattr(msg, "content") and msg.content:
+        print(f"{msg.__class__.__name__}: {msg.content[:200]}")</code></pre>
+
+        <!-- TASKS -->
+        <h2 id="task1" class="section-anchor">
+          🤖 Task 1 — Simple Agent with Tools
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Build and run a single agent with weather and
+          search tools.
+        </div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Create the tools and agent</h4>
+            <pre><code class="language-python"># Save as simple_agent.py
+import os, requests
+from dotenv import load_dotenv
+from langchain_groq import ChatGroq
+from langchain_core.tools import tool
+from langchain.agents import create_agent
+
+load_dotenv()
+
+@tool
+def weather_api(city: str) -> str:
+    """Get current weather for a city."""
+    api_key = os.getenv("OPENWEATHER_API_KEY")
+    if not api_key: return "No API key"
+    resp = requests.get("https://api.openweathermap.org/data/2.5/weather",
+        params={"q": city, "appid": api_key, "units": "metric"}, timeout=10).json()
+    if "main" not in resp: return f"Error: {resp.get('message')}"
+    return f"{city}: {resp['main']['temp']}°C, {resp['weather'][0]['description']}"
+
+llm = ChatGroq(model="openai/gpt-oss-120b", temperature=0)
+agent = create_agent(llm, tools=[weather_api], system_prompt="Use weather_api for weather questions.")
+
+resp = agent.invoke({"messages": [{"role": "user", "content": "Weather in London?"}]})
+print(resp["messages"][-1].content)</code></pre>
+          </div>
+        </div>
+
+        <h2 id="task2" class="section-anchor">
+          🤖 Task 2 — Agent with Loguru Logging
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Add full logging to the agent from
+          <code>multi_agent_logger.py</code>.
+        </div>
+        <pre><code class="language-python"># Run the existing multi_agent_logger.py
+python multi_agent_logger.py
+
+# Watch the agent.log file in real time:
+tail -f agent.log</code></pre>
+        <p>
+          You should see structured log entries for every tool invocation and
+          agent decision.
+        </p>
+
+        <h2 id="task3" class="section-anchor">
+          🤖 Task 3 — Build the Full Multi-Agent Graph
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Implement the supervisor + worker architecture
+          from scratch.
+        </div>
+        <pre><code class="language-python"># Key steps:
+# 1. Define MultiAgentState TypedDict with messages and next
+# 2. Create weather_agent and search_agent with create_agent
+# 3. Build supervisor_node that decides routing
+# 4. Build worker nodes that run agents and return to supervisor
+# 5. Compose StateGraph with conditional routing
+# 6. Test with weather and search queries
+
+# Quick test:
+result = multi_agent_app.invoke({
+    "messages": [{"role": "user", "content": "Who invented the telephone?"}],
+    "next": "",
+})
+for msg in result["messages"]:
+    if hasattr(msg, "content") and msg.content:
+        print(f"[{msg.__class__.__name__}]: {msg.content[:200]}")</code></pre>
+
+        <h3>Ecosystem Integration: Tying it all together</h3>
+        <div class="callout">
+          <strong>🏛️ The Full Stack in Action</strong>
+          <p style="margin: 0.5rem 0 0">
+            Combine everything from this documentation into one system:
+          </p>
+          <ol style="padding-left: 1.2rem; margin-top: 0.4rem">
+            <li>
+              <strong>LangChain</strong> — builds the prompt and chain for each
+              agent
+            </li>
+            <li>
+              <strong>LangGraph</strong> — orchestrates the supervisor + worker
+              graph
+            </li>
+            <li>
+              <strong>FastMCP</strong> — wraps external APIs as MCP tools for
+              the agents
+            </li>
+            <li>
+              <strong>RAG</strong> — gives agents a knowledge base a retrieval
+              tool
+            </li>
+            <li>
+              <strong>Loguru</strong> — logs every action for observability
+            </li>
+            <li>
+              <strong>Groq</strong> — provides ultra-fast inference for all LLM
+              calls
+            </li>
+          </ol>
+        </div>
+
+        <div class="diagram-wrap">
+          <div id="merChart_2"></div>
+        </div>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        Multi-Agent Documentation ·
+        <a href="index.html" style="color: var(--primary)">← Back to Home</a>
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+      const links = document.querySelectorAll("aside a");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `aside a[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -75% 0px" },
+      );
+      document
+        .querySelectorAll(".section-anchor")
+        .forEach((el) => obs.observe(el));
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `flowchart TB
+  User["👤 User"] --> S
+  subgraph S["🎯 Supervisor Agent"]
+    SLLM["LLM reasons:\nwhich agent handles this?"]
+  end
+  S -->|"needs weather"| WA
+  S -->|"needs web search"| SA
+  S -->|"needs math"| CA
+  subgraph WA["🏤️ Weather Agent"]
+    direction LR
+    WLLM2["LLM"] --> WT["weather_api\ntool"]
+  end
+  subgraph SA["🔍 Search Agent"]
+    direction LR
+    SLLM2["LLM"] --> ST["google_search_api\ntool"]
+  end
+  subgraph CA["🔢 Calc Agent"]
+    direction LR
+    CLLM["LLM"] --> CT["calculator\ntool"]
+  end
+  WA & SA & CA -->|"result"| S
+  S --> User
+  style S fill:#1c2128,stroke:#bc8cff
+  style WA fill:#1c2128,stroke:#3fb950
+  style SA fill:#1c2128,stroke:#58a6ff
+  style CA fill:#1c2128,stroke:#e3b341`,
+      merChart_1: `stateDiagram-v2
+  [*] --> supervisor : User input
+  supervisor --> weather_agent : weather-related question
+  supervisor --> search_agent : search/lookup question
+  supervisor --> [*] : can answer directly
+  weather_agent --> supervisor : result
+  search_agent --> supervisor : result
+  note right of supervisor
+    LLM decides routing based on the question content
+  end note`,
+      merChart_2: `flowchart TB
+  U["👤 User"] --> MA
+  subgraph MA["Multi-Agent Orchestrator (LangGraph)"]
+    direction TB
+    SUP["Supervisor LLM\n(routes queries)"]
+  end
+  MA --> WA & SA & RA
+  subgraph WA["Weather Agent"]
+    direction LR
+    WC["LangChain\nChain"] --> WMCP["FastMCP\nweather_api tool"]
+  end
+  subgraph SA["Search Agent"]
+    direction LR
+    SC["LangChain\nChain"] --> SMCP["FastMCP\nsearch tool"]
+  end
+  subgraph RA["RAG Agent"]
+    direction LR
+    RC["LangChain\nChain"] --> CHROMA["ChromaDB\nRetriever"]
+  end
+  WA & SA & RA -->|result| MA
+  MA --> U
+  GROQ["⚡ Groq\nopenai/gpt-oss-120b"] -.->|"inference"| WC & SC & RC & SUP
+  style MA fill:#1c2128,stroke:#bc8cff
+  style WA fill:#1c2128,stroke:#3fb950
+  style SA fill:#1c2128,stroke:#58a6ff
+  style RA fill:#1c2128,stroke:#e3b341
+  style GROQ fill:#21262d,stroke:#8b949e`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

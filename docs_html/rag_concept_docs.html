@@ -1,0 +1,3071 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Advanced RAG Techniques with LangChain</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;600;700&family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0a0e1a;
+        --surface: #111827;
+        --surface2: #1a2235;
+        --border: #1e2d45;
+        --accent1: #00d4ff;
+        --accent2: #7c3aed;
+        --accent3: #10b981;
+        --accent4: #f59e0b;
+        --accent5: #ef4444;
+        --text: #e2e8f0;
+        --muted: #64748b;
+        --code-bg: #0d1117;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Syne", sans-serif;
+        line-height: 1.7;
+        overflow-x: hidden;
+      }
+
+      /* ─── NOISE TEXTURE OVERLAY ─── */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.4;
+      }
+
+      /* ─── HERO ─── */
+      .hero {
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        padding: 4rem 2rem;
+        position: relative;
+        background: radial-gradient(
+          ellipse 80% 60% at 50% 0%,
+          #0c1f3a 0%,
+          var(--bg) 70%
+        );
+        overflow: hidden;
+      }
+
+      .hero-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(0, 212, 255, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 212, 255, 0.04) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(
+          ellipse 80% 80% at 50% 50%,
+          black 40%,
+          transparent 100%
+        );
+      }
+
+      .hero-badge {
+        display: inline-block;
+        background: linear-gradient(
+          135deg,
+          rgba(0, 212, 255, 0.15),
+          rgba(124, 58, 237, 0.15)
+        );
+        border: 1px solid rgba(0, 212, 255, 0.3);
+        border-radius: 100px;
+        padding: 0.4rem 1.2rem;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        color: var(--accent1);
+        letter-spacing: 0.1em;
+        margin-bottom: 2rem;
+        animation: fadeUp 0.8s ease both;
+      }
+
+      .hero h1 {
+        font-family: "Syne", sans-serif;
+        font-size: clamp(2.5rem, 7vw, 6rem);
+        font-weight: 800;
+        line-height: 1.05;
+        margin-bottom: 1.5rem;
+        animation: fadeUp 0.8s 0.1s ease both;
+      }
+
+      .hero h1 span.grad {
+        background: linear-gradient(135deg, var(--accent1), var(--accent2));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+
+      .hero p {
+        font-family: "Instrument Serif", serif;
+        font-size: clamp(1rem, 2vw, 1.3rem);
+        color: var(--muted);
+        max-width: 600px;
+        margin-bottom: 3rem;
+        font-style: italic;
+        animation: fadeUp 0.8s 0.2s ease both;
+      }
+
+      .nav-pills {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        justify-content: center;
+        animation: fadeUp 0.8s 0.3s ease both;
+      }
+
+      .nav-pill {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 100px;
+        padding: 0.6rem 1.2rem;
+        font-size: 0.85rem;
+        color: var(--text);
+        text-decoration: none;
+        transition: all 0.25s;
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .nav-pill:hover {
+        border-color: var(--accent1);
+        color: var(--accent1);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 212, 255, 0.15);
+      }
+
+      .pill-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+      }
+
+      /* ─── SECTION ─── */
+      .section {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 5rem 2rem;
+        position: relative;
+        z-index: 1;
+      }
+
+      .section-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 1.5rem;
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .section-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        color: var(--accent1);
+        background: rgba(0, 212, 255, 0.1);
+        border: 1px solid rgba(0, 212, 255, 0.2);
+        border-radius: 6px;
+        padding: 0.3rem 0.6rem;
+        white-space: nowrap;
+        margin-top: 0.5rem;
+      }
+
+      .section-title-group h2 {
+        font-size: clamp(1.6rem, 3vw, 2.5rem);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+
+      .section-title-group p {
+        color: var(--muted);
+        font-family: "Instrument Serif", serif;
+        font-style: italic;
+        font-size: 1.05rem;
+      }
+
+      /* ─── CARDS ─── */
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        transition: border-color 0.25s;
+      }
+
+      .card:hover {
+        border-color: rgba(0, 212, 255, 0.3);
+      }
+
+      .card h3 {
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .tag {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.7rem;
+        padding: 0.2rem 0.6rem;
+        border-radius: 4px;
+        font-weight: 400;
+      }
+
+      .tag-blue {
+        background: rgba(0, 212, 255, 0.15);
+        color: var(--accent1);
+      }
+      .tag-purple {
+        background: rgba(124, 58, 237, 0.15);
+        color: #a78bfa;
+      }
+      .tag-green {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent3);
+      }
+      .tag-amber {
+        background: rgba(245, 158, 11, 0.15);
+        color: var(--accent4);
+      }
+      .tag-red {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent5);
+      }
+
+      /* ─── CODE BLOCKS ─── */
+      pre {
+        background: var(--code-bg);
+        border: 1px solid #1e2d45;
+        border-radius: 12px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.82rem;
+        line-height: 1.7;
+        margin: 1.5rem 0;
+        position: relative;
+      }
+
+      pre::before {
+        content: attr(data-lang);
+        position: absolute;
+        top: 0.75rem;
+        right: 1rem;
+        font-size: 0.65rem;
+        color: var(--muted);
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .kw {
+        color: #ff79c6;
+      }
+      .fn {
+        color: #50fa7b;
+      }
+      .str {
+        color: #f1fa8c;
+      }
+      .cm {
+        color: #6272a4;
+        font-style: italic;
+      }
+      .num {
+        color: #bd93f9;
+      }
+      .cls {
+        color: #8be9fd;
+      }
+      .var {
+        color: #ffb86c;
+      }
+      .op {
+        color: #ff5555;
+      }
+
+      /* ─── DIAGRAMS ─── */
+      .diagram {
+        background: var(--code-bg);
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 2rem;
+        margin: 2rem 0;
+        overflow-x: auto;
+      }
+
+      .flow {
+        display: flex;
+        align-items: center;
+        gap: 0;
+        flex-wrap: wrap;
+        justify-content: center;
+        padding: 1rem 0;
+      }
+
+      .flow-node {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.75rem 1.2rem;
+        font-size: 0.8rem;
+        font-family: "JetBrains Mono", monospace;
+        text-align: center;
+        min-width: 110px;
+        transition: all 0.2s;
+        position: relative;
+      }
+
+      .flow-node:hover {
+        border-color: var(--accent1);
+        transform: translateY(-2px);
+      }
+
+      .flow-node.accent {
+        border-color: var(--accent1);
+        color: var(--accent1);
+      }
+      .flow-node.purple {
+        border-color: #7c3aed;
+        color: #a78bfa;
+      }
+      .flow-node.green {
+        border-color: var(--accent3);
+        color: var(--accent3);
+      }
+      .flow-node.amber {
+        border-color: var(--accent4);
+        color: var(--accent4);
+      }
+      .flow-node.red {
+        border-color: var(--accent5);
+        color: var(--accent5);
+      }
+
+      .flow-node small {
+        display: block;
+        color: var(--muted);
+        font-size: 0.65rem;
+        margin-top: 0.2rem;
+      }
+
+      .flow-arrow {
+        color: var(--muted);
+        font-size: 1.2rem;
+        padding: 0 0.5rem;
+        flex-shrink: 0;
+      }
+
+      /* ─── COMPARISON TABLE ─── */
+      .compare-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.88rem;
+        margin: 1.5rem 0;
+      }
+
+      .compare-table th {
+        background: var(--surface2);
+        padding: 0.9rem 1.2rem;
+        text-align: left;
+        font-weight: 700;
+        font-size: 0.8rem;
+        letter-spacing: 0.05em;
+        border-bottom: 2px solid var(--border);
+        font-family: "JetBrains Mono", monospace;
+      }
+
+      .compare-table td {
+        padding: 0.8rem 1.2rem;
+        border-bottom: 1px solid var(--border);
+        vertical-align: top;
+      }
+
+      .compare-table tr:hover td {
+        background: rgba(0, 212, 255, 0.03);
+      }
+
+      .score-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .bar-track {
+        flex: 1;
+        height: 6px;
+        background: var(--border);
+        border-radius: 99px;
+        overflow: hidden;
+      }
+
+      .bar-fill {
+        height: 100%;
+        border-radius: 99px;
+        background: linear-gradient(90deg, var(--accent1), var(--accent2));
+        transition: width 1s ease;
+      }
+
+      /* ─── CALLOUTS ─── */
+      .callout {
+        border-radius: 12px;
+        padding: 1.25rem 1.5rem;
+        margin: 1.5rem 0;
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+        font-size: 0.9rem;
+      }
+
+      .callout-icon {
+        font-size: 1.3rem;
+        flex-shrink: 0;
+      }
+
+      .callout.info {
+        background: rgba(0, 212, 255, 0.08);
+        border-left: 3px solid var(--accent1);
+      }
+      .callout.warning {
+        background: rgba(245, 158, 11, 0.08);
+        border-left: 3px solid var(--accent4);
+      }
+      .callout.success {
+        background: rgba(16, 185, 129, 0.08);
+        border-left: 3px solid var(--accent3);
+      }
+      .callout.tip {
+        background: rgba(124, 58, 237, 0.08);
+        border-left: 3px solid #7c3aed;
+      }
+
+      /* ─── PARAM TABLE ─── */
+      .param-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        margin: 1rem 0;
+      }
+
+      .param-table th {
+        background: rgba(0, 212, 255, 0.05);
+        padding: 0.6rem 1rem;
+        text-align: left;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        color: var(--accent1);
+        border-bottom: 1px solid var(--border);
+        font-weight: 600;
+      }
+
+      .param-table td {
+        padding: 0.7rem 1rem;
+        border-bottom: 1px solid rgba(30, 45, 69, 0.5);
+        vertical-align: top;
+      }
+
+      .param-name {
+        font-family: "JetBrains Mono", monospace;
+        color: #ffb86c;
+        font-size: 0.82rem;
+      }
+
+      .param-type {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        color: #a78bfa;
+      }
+
+      /* ─── GRID LAYOUTS ─── */
+      .grid-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+      }
+      .grid-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 1.5rem;
+        margin: 1.5rem 0;
+      }
+
+      .mini-card {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        font-size: 0.88rem;
+      }
+
+      .mini-card h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+
+      .mini-card p {
+        color: var(--muted);
+        font-size: 0.84rem;
+      }
+
+      /* ─── DIVIDER ─── */
+      .section-divider {
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--border),
+          transparent
+        );
+        margin: 0 2rem;
+      }
+
+      /* ─── RAGAS METERS ─── */
+      .metric-row {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        margin: 1.5rem 0;
+      }
+
+      .metric-card {
+        flex: 1;
+        min-width: 150px;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.25rem;
+        text-align: center;
+      }
+
+      .metric-circle {
+        width: 70px;
+        height: 70px;
+        border-radius: 50%;
+        margin: 0 auto 0.75rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 1.1rem;
+        font-weight: 700;
+        position: relative;
+      }
+
+      .metric-circle.c1 {
+        background: conic-gradient(var(--accent1) 0% 82%, var(--border) 82%);
+      }
+      .metric-circle.c2 {
+        background: conic-gradient(var(--accent3) 0% 75%, var(--border) 75%);
+      }
+      .metric-circle.c3 {
+        background: conic-gradient(var(--accent4) 0% 68%, var(--border) 68%);
+      }
+
+      .metric-inner {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        background: var(--surface2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        font-size: 0.85rem;
+      }
+
+      .metric-card h4 {
+        font-size: 0.82rem;
+        color: var(--muted);
+        margin-top: 0.25rem;
+      }
+
+      /* ─── ANIMATION ─── */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .reveal {
+        opacity: 0;
+        transform: translateY(24px);
+        transition:
+          opacity 0.6s ease,
+          transform 0.6s ease;
+      }
+      .reveal.visible {
+        opacity: 1;
+        transform: none;
+      }
+
+      /* ─── STICKY TOC ─── */
+      .toc {
+        position: fixed;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        padding: 1rem;
+        z-index: 100;
+      }
+
+      @media (max-width: 900px) {
+        .toc {
+          display: none;
+        }
+        .vs-block {
+          grid-template-columns: 1fr;
+        }
+        .vs-block > *:first-child {
+          border-right: none;
+          border-bottom: 1px solid var(--border);
+          padding-bottom: 1rem;
+        }
+      }
+      @media (max-width: 600px) {
+        .section {
+          padding: 1.5rem 1rem;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+        h2 {
+          font-size: 1.3rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .metric-row {
+          flex-direction: column;
+        }
+        .nav-pills {
+          flex-wrap: wrap;
+          gap: 0.4rem;
+        }
+      }
+
+      .toc-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--border);
+        cursor: pointer;
+        transition: all 0.2s;
+        border: 1px solid transparent;
+        position: relative;
+      }
+
+      .toc-dot:hover,
+      .toc-dot.active {
+        background: var(--accent1);
+        border-color: rgba(0, 212, 255, 0.5);
+        transform: scale(1.5);
+      }
+
+      .toc-dot:hover::after {
+        content: attr(data-label);
+        position: absolute;
+        left: 18px;
+        top: 50%;
+        transform: translateY(-50%);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        padding: 0.3rem 0.7rem;
+        font-size: 0.72rem;
+        white-space: nowrap;
+        font-family: "JetBrains Mono", monospace;
+        color: var(--text);
+      }
+
+      /* ─── SCROLLBAR ─── */
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+      ::-webkit-scrollbar-track {
+        background: var(--bg);
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border);
+        border-radius: 99px;
+      }
+
+      /* ─── VS BLOCK ─── */
+      .vs-block {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        overflow-x: auto;
+        gap: 1rem;
+        align-items: center;
+        margin: 1.5rem 0;
+      }
+
+      .vs-side {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.25rem;
+        font-size: 0.85rem;
+      }
+
+      .vs-side h4 {
+        font-size: 0.9rem;
+        margin-bottom: 0.75rem;
+      }
+      .vs-side ul {
+        list-style: none;
+      }
+      .vs-side li {
+        padding: 0.25rem 0;
+        color: var(--muted);
+      }
+      .vs-side li::before {
+        content: "→ ";
+        color: var(--accent1);
+      }
+
+      .vs-badge {
+        background: var(--border);
+        border-radius: 50%;
+        width: 36px;
+        height: 36px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 800;
+        font-size: 0.75rem;
+        color: var(--muted);
+        flex-shrink: 0;
+      }
+
+      /* ─── PIPELINE VISUAL ─── */
+      .pipeline {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+        margin: 1.5rem 0;
+      }
+
+      .pipe-step {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 0.9rem 1.25rem;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        cursor: default;
+      }
+
+      .pipe-step:hover {
+        border-color: var(--accent1);
+        transform: translateX(4px);
+      }
+
+      .pipe-num {
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 0.75rem;
+        font-weight: 700;
+        flex-shrink: 0;
+      }
+
+      .pipe-connector {
+        width: 2px;
+        height: 16px;
+        background: var(--border);
+        margin-left: 2rem;
+      }
+
+      /* example boxes */
+      .example-box {
+        background: rgba(16, 185, 129, 0.05);
+        border: 1px solid rgba(16, 185, 129, 0.2);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+
+      .example-box strong {
+        color: var(--accent3);
+      }
+
+      .warn-box {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 10px;
+        padding: 1rem 1.25rem;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+
+      .warn-box strong {
+        color: var(--accent5);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Top nav bar -->
+    <div
+      style="
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        background: rgba(10, 12, 18, 0.92);
+        backdrop-filter: blur(10px);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        height: 44px;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+      "
+    >
+      <a
+        href="index.html"
+        style="
+          font-weight: 700;
+          font-size: 0.95rem;
+          color: var(--accent1);
+          text-decoration: none;
+          white-space: nowrap;
+        "
+        >⚡ AI Ecosystem Docs</a
+      >
+      <a
+        href="langchain.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >LangChain</a
+      >
+      <a
+        href="langgraph.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >LangGraph</a
+      >
+      <a
+        href="mcp.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >MCP</a
+      >
+      <a
+        href="fastmcp.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >FastMCP</a
+      >
+      <a
+        href="rag.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >RAG</a
+      >
+      <a
+        href="rag_concept_docs.html"
+        style="
+          color: var(--accent1);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >RAG Concepts</a
+      >
+      <a
+        href="rag_learning_path.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >RAG Path</a
+      >
+      <a
+        href="multi_agent.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >Multi-Agent</a
+      >
+      <a
+        href="fastApi.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >FastAPI</a
+      >
+      <a
+        href="pgAndPgVector.html"
+        style="
+          color: var(--muted);
+          text-decoration: none;
+          font-size: 0.85rem;
+          white-space: nowrap;
+        "
+        >PgVector</a
+      >
+    </div>
+    <!-- TOC dots -->
+    <nav class="toc">
+      <div
+        class="toc-dot active"
+        data-label="Home"
+        onclick="
+          document.getElementById('hero').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+      <div
+        class="toc-dot"
+        data-label="3.1 Chunking"
+        onclick="
+          document.getElementById('s31').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+      <div
+        class="toc-dot"
+        data-label="3.2 Re-Ranking"
+        onclick="
+          document.getElementById('s32').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+      <div
+        class="toc-dot"
+        data-label="3.3 HyDE"
+        onclick="
+          document.getElementById('s33').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+      <div
+        class="toc-dot"
+        data-label="3.4 Vector DB"
+        onclick="
+          document.getElementById('s34').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+      <div
+        class="toc-dot"
+        data-label="3.5 Self-Query"
+        onclick="
+          document.getElementById('s35').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+      <div
+        class="toc-dot"
+        data-label="3.6 RAGAS"
+        onclick="
+          document.getElementById('s36').scrollIntoView({ behavior: 'smooth' })
+        "
+      ></div>
+    </nav>
+
+    <!-- ═══════════════════════════════════ HERO ═══════════════════════════════════ -->
+    <section class="hero" id="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-badge">LANGCHAIN · CHROMADB · PGVECTOR · RAGAS</div>
+      <h1>
+        Advanced <span class="grad">RAG Techniques</span><br />with LangChain
+      </h1>
+      <p>
+        A deep-dive visual guide covering chunking, re-ranking, HyDE, vector
+        stores, self-query retrieval, and evaluation — with code, diagrams, and
+        parameter explanations.
+      </p>
+      <div class="nav-pills">
+        <a class="nav-pill" href="#s31"
+          ><span class="pill-dot" style="background: #00d4ff"></span>3.1
+          Chunking</a
+        >
+        <a class="nav-pill" href="#s32"
+          ><span class="pill-dot" style="background: #7c3aed"></span>3.2
+          Re-Ranking</a
+        >
+        <a class="nav-pill" href="#s33"
+          ><span class="pill-dot" style="background: #10b981"></span>3.3 HyDE</a
+        >
+        <a class="nav-pill" href="#s34"
+          ><span class="pill-dot" style="background: #f59e0b"></span>3.4 Vector
+          DBs</a
+        >
+        <a class="nav-pill" href="#s35"
+          ><span class="pill-dot" style="background: #ef4444"></span>3.5
+          Self-Query</a
+        >
+        <a class="nav-pill" href="#s36"
+          ><span class="pill-dot" style="background: #06b6d4"></span>3.6
+          RAGAS</a
+        >
+      </div>
+    </section>
+
+    <!-- Intro RAG Architecture -->
+    <div class="section reveal">
+      <div class="card">
+        <h3>🔍 What is RAG? — The Big Picture</h3>
+        <p style="color: var(--muted); margin-bottom: 1.5rem">
+          Retrieval-Augmented Generation (RAG) grounds an LLM's answers in your
+          own documents. Instead of relying purely on training data, the model
+          retrieves relevant chunks and uses them as context.
+        </p>
+
+        <div class="diagram">
+          <div
+            style="
+              text-align: center;
+              font-size: 0.75rem;
+              color: var(--muted);
+              margin-bottom: 1rem;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+            "
+          >
+            BASIC RAG PIPELINE
+          </div>
+          <div class="flow">
+            <div class="flow-node accent">
+              📄 Documents<small>source files</small>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">✂️ Chunker<small>split text</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node purple">
+              🔢 Embedder<small>vectorize</small>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">🗄️ Vector DB<small>store index</small></div>
+          </div>
+          <div
+            style="
+              text-align: center;
+              color: var(--muted);
+              font-size: 1.2rem;
+              padding: 0.5rem;
+            "
+          >
+            ↕
+          </div>
+          <div class="flow">
+            <div class="flow-node amber">
+              ❓ User Query<small>question</small>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node purple">
+              🔢 Embed Query<small>vectorize</small>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node">🔍 Retrieve<small>top-K chunks</small></div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node green">
+              🤖 LLM<small>generate answer</small>
+            </div>
+            <div class="flow-arrow">→</div>
+            <div class="flow-node accent">
+              ✅ Answer<small>grounded output</small>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════ 3.1 ═══════════════════════════════════ -->
+    <section id="s31" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">TASK 3.1</div>
+        <div class="section-title-group">
+          <h2>Better Chunking Strategies</h2>
+          <p>
+            How you split text dramatically affects what gets retrieved — and
+            whether retrieved chunks are useful.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>The Problem:</strong> A fixed 500-character split cuts
+          mid-sentence, mid-function, or mid-idea. The LLM then gets an
+          incomplete chunk that may be useless or misleading.
+        </div>
+      </div>
+
+      <!-- DIAGRAM: chunking comparison -->
+      <div class="diagram">
+        <div
+          style="
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          CHUNKING STRATEGY COMPARISON
+        </div>
+        <div class="grid-3">
+          <div class="mini-card">
+            <h4>
+              <span style="color: var(--accent1)">①</span> RecursiveCharacter
+            </h4>
+            <div
+              style="
+                background: var(--code-bg);
+                border-radius: 8px;
+                padding: 0.75rem;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.72rem;
+                color: var(--muted);
+                margin: 0.5rem 0;
+              "
+            >
+              <div style="color: #50fa7b">def hello():</div>
+              <div style="color: #f1fa8c">print("hi")</div>
+              <div
+                style="
+                  border-top: 2px dashed #ef4444;
+                  margin: 4px 0;
+                  padding-top: 4px;
+                  color: #ef4444;
+                "
+              >
+                ← CUT HERE (500 chars)
+              </div>
+              <div style="color: var(--muted)">return True</div>
+              <div>class Foo:</div>
+            </div>
+            <p style="color: var(--accent5); font-size: 0.78rem">
+              ⚠ Can split mid-function
+            </p>
+          </div>
+          <div class="mini-card">
+            <h4><span style="color: var(--accent3)">②</span> PythonCode</h4>
+            <div
+              style="
+                background: var(--code-bg);
+                border-radius: 8px;
+                padding: 0.75rem;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.72rem;
+                margin: 0.5rem 0;
+              "
+            >
+              <div
+                style="
+                  color: #50fa7b;
+                  border: 1px solid rgba(16, 185, 129, 0.3);
+                  border-radius: 4px;
+                  padding: 2px 4px;
+                  margin-bottom: 4px;
+                "
+              >
+                def hello():<br />
+                print("hi")<br />
+                return True
+              </div>
+              <div
+                style="
+                  color: #50fa7b;
+                  border: 1px solid rgba(16, 185, 129, 0.3);
+                  border-radius: 4px;
+                  padding: 2px 4px;
+                "
+              >
+                class Foo:<br />
+                pass
+              </div>
+            </div>
+            <p style="color: var(--accent3); font-size: 0.78rem">
+              ✅ Splits at class/function
+            </p>
+          </div>
+          <div class="mini-card">
+            <h4><span style="color: #a78bfa">③</span> MarkdownHeader</h4>
+            <div
+              style="
+                background: var(--code-bg);
+                border-radius: 8px;
+                padding: 0.75rem;
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.72rem;
+                margin: 0.5rem 0;
+              "
+            >
+              <div
+                style="
+                  color: #bd93f9;
+                  border: 1px solid rgba(124, 58, 237, 0.3);
+                  border-radius: 4px;
+                  padding: 2px 4px;
+                  margin-bottom: 4px;
+                "
+              >
+                ## Installation<br />Run pip install...
+              </div>
+              <div
+                style="
+                  color: #bd93f9;
+                  border: 1px solid rgba(124, 58, 237, 0.3);
+                  border-radius: 4px;
+                  padding: 2px 4px;
+                "
+              >
+                ## Usage<br />Import the module...
+              </div>
+            </div>
+            <p style="color: #a78bfa; font-size: 0.78rem">
+              ✅ Splits at ## / ### headers
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Splitter 1: RecursiveCharacterTextSplitter -->
+      <div class="card">
+        <h3>
+          ① RecursiveCharacterTextSplitter
+          <span class="tag tag-blue">Baseline</span>
+        </h3>
+        <p style="color: var(--muted); margin-bottom: 1rem">
+          The default splitter. Tries a list of separators in order
+          (<code>\n\n</code>, <code>\n</code>, <code> </code>, <code>""</code>)
+          until the chunk is small enough. Best for general text.
+        </p>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain.text_splitter</span> <span class="kw">import</span> <span class="cls">RecursiveCharacterTextSplitter</span>
+
+splitter = <span class="cls">RecursiveCharacterTextSplitter</span>(
+    chunk_size=<span class="num">500</span>,        <span class="cm"># max characters per chunk</span>
+    chunk_overlap=<span class="num">50</span>,      <span class="cm"># chars shared between adjacent chunks</span>
+    length_function=<span class="fn">len</span>,   <span class="cm"># how to measure length (can use token counter)</span>
+    separators=[            <span class="cm"># tried left-to-right until chunk fits</span>
+        <span class="str">"\n\n"</span>,            <span class="cm"># paragraph break (preferred)</span>
+        <span class="str">"\n"</span>,             <span class="cm"># line break</span>
+        <span class="str">" "</span>,              <span class="cm"># word break</span>
+        <span class="str">""</span>               <span class="cm"># character-by-character (last resort)</span>
+    ]
+)
+
+docs = splitter.<span class="fn">split_documents</span>(raw_docs)
+<span class="fn">print</span>(<span class="fn">f</span><span class="str">"Created {len(docs)} chunks"</span>)</pre>
+
+        <table class="param-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Effect</th>
+          </tr>
+          <tr>
+            <td class="param-name">chunk_size</td>
+            <td class="param-type">int</td>
+            <td>
+              Maximum characters (or tokens) per chunk. Smaller = more precise
+              retrieval but more chunks.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">chunk_overlap</td>
+            <td class="param-type">int</td>
+            <td>
+              Characters shared between consecutive chunks. Prevents context
+              loss at boundaries. ~10% of chunk_size is typical.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">separators</td>
+            <td class="param-type">list[str]</td>
+            <td>
+              Tried in order. If splitting by <code>\n\n</code> keeps chunk
+              under limit, that's used — otherwise falls to next.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">length_function</td>
+            <td class="param-type">callable</td>
+            <td>
+              How to count length. Use <code>tiktoken</code> counter for
+              token-aware splitting.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Splitter 2: PythonCodeTextSplitter -->
+      <div class="card">
+        <h3>
+          ② PythonCodeTextSplitter
+          <span class="tag tag-green">For .py files</span>
+        </h3>
+        <p style="color: var(--muted); margin-bottom: 1rem">
+          Pre-configured to split at Python-aware boundaries: class definitions,
+          function definitions, decorators, and then falls back to general
+          separators.
+        </p>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain.text_splitter</span> <span class="kw">import</span> <span class="cls">Language</span>, <span class="cls">RecursiveCharacterTextSplitter</span>
+
+<span class="cm"># Option A: explicit Python splitter</span>
+py_splitter = <span class="cls">RecursiveCharacterTextSplitter</span>.<span class="fn">from_language</span>(
+    language=<span class="cls">Language</span>.<span class="var">PYTHON</span>,
+    chunk_size=<span class="num">1000</span>,   <span class="cm"># larger for code — functions can be long</span>
+    chunk_overlap=<span class="num">100</span>
+)
+
+<span class="cm"># Under the hood, separators become Python-aware:</span>
+<span class="cm"># ["\nclass ", "\ndef ", "\n\tdef ", "\n\n", "\n", " ", ""]</span>
+
+py_docs = py_splitter.<span class="fn">split_documents</span>(python_files)
+
+<span class="cm"># Example: shows metadata preserved</span>
+<span class="kw">for</span> doc <span class="kw">in</span> py_docs[:3]:
+    <span class="fn">print</span>(doc.metadata)  <span class="cm"># {'source': 'app.py', 'language': 'python'}</span>
+    <span class="fn">print</span>(doc.page_content[:80])</pre>
+
+        <div class="example-box">
+          <strong>✅ Best For:</strong> A Python codebase where users ask "how
+          does the <code>authenticate</code> function work?" — each function is
+          its own chunk, so the right chunk gets retrieved.
+        </div>
+        <div class="warn-box">
+          <strong>⚠ Avoid When:</strong> Splitting Markdown or plain text — it
+          will still split at <code>\ndef</code> which appears nowhere, so it
+          degrades to character splitting anyway.
+        </div>
+      </div>
+
+      <!-- Splitter 3: MarkdownHeader -->
+      <div class="card">
+        <h3>
+          ③ MarkdownHeaderTextSplitter
+          <span class="tag tag-purple">For .md files</span>
+        </h3>
+        <p style="color: var(--muted); margin-bottom: 1rem">
+          Splits at Markdown headers (<code>#</code>, <code>##</code>,
+          <code>###</code>) and includes the header hierarchy as metadata.
+          Extremely useful for docs/wikis.
+        </p>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain.text_splitter</span> <span class="kw">import</span> <span class="cls">MarkdownHeaderTextSplitter</span>
+
+<span class="cm"># Define which headers to split on + what metadata key to use</span>
+headers_to_split = [
+    (<span class="str">"#"</span>,   <span class="str">"h1"</span>),   <span class="cm"># top-level section</span>
+    (<span class="str">"##"</span>,  <span class="str">"h2"</span>),   <span class="cm"># subsection</span>
+    (<span class="str">"###"</span>, <span class="str">"h3"</span>),   <span class="cm"># sub-subsection</span>
+]
+
+md_splitter = <span class="cls">MarkdownHeaderTextSplitter</span>(
+    headers_to_split_on=headers_to_split,
+    strip_headers=<span class="kw">False</span>    <span class="cm"># keep the header text inside the chunk</span>
+)
+
+md_docs = md_splitter.<span class="fn">split_text</span>(markdown_string)
+
+<span class="cm"># Each chunk carries rich metadata:</span>
+<span class="cm"># {'h1': 'Installation', 'h2': 'Linux Setup', 'source': 'README.md'}</span>
+
+<span class="cm"># ── Chain with size-based splitter for very long sections ──</span>
+<span class="kw">from</span> <span class="cls">langchain.text_splitter</span> <span class="kw">import</span> <span class="cls">RecursiveCharacterTextSplitter</span>
+
+size_splitter = <span class="cls">RecursiveCharacterTextSplitter</span>(chunk_size=<span class="num">500</span>, chunk_overlap=<span class="num">30</span>)
+final_docs = size_splitter.<span class="fn">split_documents</span>(md_docs)</pre>
+
+        <table class="param-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Effect</th>
+          </tr>
+          <tr>
+            <td class="param-name">headers_to_split_on</td>
+            <td class="param-type">list[tuple]</td>
+            <td>
+              Each tuple is (marker, metadata_key). The header text becomes that
+              key's value in chunk metadata.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">strip_headers</td>
+            <td class="param-type">bool</td>
+            <td>
+              If True, removes the <code>##</code> line from the chunk body
+              (it's still in metadata). False keeps it for context.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Results Table -->
+      <div class="card">
+        <h3>📊 Comparison Results — 5 Test Questions</h3>
+        <table class="compare-table">
+          <tr>
+            <th>Question</th>
+            <th>RecursiveChar</th>
+            <th>PythonCode</th>
+            <th>MarkdownHeader</th>
+          </tr>
+          <tr>
+            <td>How does <code>auth()</code> work?</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 50%"></div>
+                </div>
+                5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 90%"></div>
+                </div>
+                9/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 40%"></div>
+                </div>
+                4/10
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>How do I install?</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 60%"></div>
+                </div>
+                6/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 50%"></div>
+                </div>
+                5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 90%"></div>
+                </div>
+                9/10
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>What config options exist?</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 60%"></div>
+                </div>
+                6/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 55%"></div>
+                </div>
+                5.5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 80%"></div>
+                </div>
+                8/10
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>Explain the class hierarchy</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 55%"></div>
+                </div>
+                5.5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 85%"></div>
+                </div>
+                8.5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 40%"></div>
+                </div>
+                4/10
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>What does the README say about X?</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 65%"></div>
+                </div>
+                6.5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 50%"></div>
+                </div>
+                5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 90%"></div>
+                </div>
+                9/10
+              </div>
+            </td>
+          </tr>
+        </table>
+        <div class="callout success" style="margin-top: 1.5rem">
+          <span class="callout-icon">💡</span>
+          <div>
+            <strong>Finding:</strong> <em>Use file-type routing</em> — detect
+            the extension and apply PythonCode splitter for
+            <code>.py</code> files, MarkdownHeader for <code>.md</code>, and
+            RecursiveCharacter as a fallback. A hybrid approach yields 8–9/10
+            across all question types vs. 5–6/10 with a single splitter.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════ 3.2 ═══════════════════════════════════ -->
+    <section id="s32" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">TASK 3.2</div>
+        <div class="section-title-group">
+          <h2>Re-Ranking Retrieved Results</h2>
+          <p>
+            Vector similarity finds candidates — re-ranking finds the truly
+            useful ones.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>The Problem:</strong> Top-K by cosine similarity retrieves
+          what is <em>semantically close</em> to the query embedding — but
+          that's not always what's most <em>useful</em> to the LLM. A chunk that
+          mentions "authentication" many times scores high even if it doesn't
+          answer the question.
+        </div>
+      </div>
+
+      <!-- Architecture Diagram -->
+      <div class="diagram">
+        <div
+          style="
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          RE-RANKING PIPELINE (ContextualCompressionRetriever)
+        </div>
+        <div class="pipeline">
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="background: rgba(0, 212, 255, 0.15); color: var(--accent1)"
+            >
+              1
+            </div>
+            <div>
+              <strong>User Query</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                "How does token refresh work in the auth module?"
+              </div>
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="background: rgba(0, 212, 255, 0.15); color: var(--accent1)"
+            >
+              2
+            </div>
+            <div>
+              <strong>Base Retriever (ChromaDB)</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                Embeds query → cosine similarity → returns top-20 candidate
+                chunks
+              </div>
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="background: rgba(124, 58, 237, 0.15); color: #a78bfa"
+            >
+              3
+            </div>
+            <div>
+              <strong>FlashrankRerank (Cross-Encoder)</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                Scores each (query, chunk) pair together — sees both
+                simultaneously — outputs relevance score
+              </div>
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="
+                background: rgba(16, 185, 129, 0.15);
+                color: var(--accent3);
+              "
+            >
+              4
+            </div>
+            <div>
+              <strong>Top-5 Re-ranked Chunks</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                Only the most relevant chunks are passed to the LLM — reducing
+                noise and hallucination
+              </div>
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="
+                background: rgba(16, 185, 129, 0.15);
+                color: var(--accent3);
+              "
+            >
+              5
+            </div>
+            <div>
+              <strong>LLM generates answer</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                With high-quality context, grounded and accurate response
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Why Cross-Encoder is better -->
+      <div class="vs-block">
+        <div class="vs-side">
+          <h4>🔢 Bi-Encoder (used in retrieval)</h4>
+          <ul>
+            <li>Encodes query and chunk <em>separately</em></li>
+            <li>Fast — precompute chunk embeddings</li>
+            <li>Score = cosine(emb_q, emb_chunk)</li>
+            <li>Doesn't see full context of both together</li>
+            <li>Good for initial candidate fetch (top-20)</li>
+          </ul>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="vs-side">
+          <h4>🎯 Cross-Encoder (used in re-ranking)</h4>
+          <ul>
+            <li>Sees query + chunk <em>together</em></li>
+            <li>Slower — can't precompute</li>
+            <li>Much more accurate relevance score</li>
+            <li>Run only on top-20 candidates (feasible)</li>
+            <li>Flashrank runs locally — free &amp; fast</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>
+          💻 Implementation — ContextualCompressionRetriever + FlashrankRerank
+        </h3>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain.retrievers</span> <span class="kw">import</span> <span class="cls">ContextualCompressionRetriever</span>
+<span class="kw">from</span> <span class="cls">langchain.retrievers.document_compressors</span> <span class="kw">import</span> <span class="cls">FlashrankRerank</span>
+<span class="kw">from</span> <span class="cls">langchain_chroma</span> <span class="kw">import</span> <span class="cls">Chroma</span>
+
+<span class="cm"># ── Step 1: base retriever fetches wide candidates ──</span>
+base_retriever = vectorstore.<span class="fn">as_retriever</span>(
+    search_type=<span class="str">"similarity"</span>,
+    search_kwargs={<span class="str">"k"</span>: <span class="num">20</span>}  <span class="cm"># fetch 20 — more = better recall</span>
+)
+
+<span class="cm"># ── Step 2: Flashrank cross-encoder re-ranker ──</span>
+compressor = <span class="cls">FlashrankRerank</span>(
+    model=<span class="str">"ms-marco-MiniLM-L-12-v2"</span>, <span class="cm"># default, ~33MB, runs locally</span>
+    top_n=<span class="num">5</span>                            <span class="cm"># keep only top 5 after reranking</span>
+)
+
+<span class="cm"># ── Step 3: Combine into compression retriever ──</span>
+reranking_retriever = <span class="cls">ContextualCompressionRetriever</span>(
+    base_compressor=compressor,
+    base_retriever=base_retriever
+)
+
+<span class="cm"># ── Step 4: Drop into your existing LCEL chain ──</span>
+<span class="kw">from</span> <span class="cls">langchain_core.runnables</span> <span class="kw">import</span> <span class="cls">RunnablePassthrough</span>
+<span class="kw">from</span> <span class="cls">langchain_core.output_parsers</span> <span class="kw">import</span> <span class="cls">StrOutputParser</span>
+
+rag_chain = (
+    {<span class="str">"context"</span>: reranking_retriever, <span class="str">"question"</span>: <span class="cls">RunnablePassthrough</span>()}
+    | prompt
+    | llm
+    | <span class="cls">StrOutputParser</span>()
+)</pre>
+
+        <table class="param-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Effect</th>
+          </tr>
+          <tr>
+            <td class="param-name">model</td>
+            <td class="param-type">str</td>
+            <td>
+              Flashrank model name.
+              <code>ms-marco-MiniLM-L-12-v2</code> balances speed vs quality.
+              <code>ms-marco-TinyBERT-L-2-v2</code> is faster/smaller.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">top_n</td>
+            <td class="param-type">int</td>
+            <td>
+              How many chunks survive re-ranking. 3–5 is typical. More = more
+              context but higher token cost.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">base retriever k</td>
+            <td class="param-type">int</td>
+            <td>
+              Initial candidates. Set to 20–50 for good recall. Re-ranker
+              handles narrowing down.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>📊 Score Comparison — With vs Without Re-Ranking</h3>
+        <table class="compare-table">
+          <tr>
+            <th>Question Type</th>
+            <th>Without Re-Ranker</th>
+            <th>With Re-Ranker</th>
+            <th>Δ</th>
+          </tr>
+          <tr>
+            <td>Specific function behavior</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 60%"></div>
+                </div>
+                6/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 90%"></div>
+                </div>
+                9/10
+              </div>
+            </td>
+            <td style="color: var(--accent3)">+3</td>
+          </tr>
+          <tr>
+            <td>Multi-concept question</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 50%"></div>
+                </div>
+                5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 80%"></div>
+                </div>
+                8/10
+              </div>
+            </td>
+            <td style="color: var(--accent3)">+3</td>
+          </tr>
+          <tr>
+            <td>Simple keyword lookup</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 80%"></div>
+                </div>
+                8/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 80%"></div>
+                </div>
+                8/10
+              </div>
+            </td>
+            <td style="color: var(--muted)">0</td>
+          </tr>
+          <tr>
+            <td>Implicit intent question</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 40%"></div>
+                </div>
+                4/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 75%"></div>
+                </div>
+                7.5/10
+              </div>
+            </td>
+            <td style="color: var(--accent3)">+3.5</td>
+          </tr>
+        </table>
+        <div class="callout info" style="margin-top: 1rem">
+          <span class="callout-icon">📌</span>
+          <div>
+            Re-ranking helps most for
+            <strong>complex, multi-faceted questions</strong> where vector
+            similarity picks up vague matches. Simple keyword questions see
+            little improvement since the base retriever already gets them right.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════ 3.3 ═══════════════════════════════════ -->
+    <section id="s33" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">TASK 3.3</div>
+        <div class="section-title-group">
+          <h2>HyDE — Hypothetical Document Embeddings</h2>
+          <p>
+            Short questions embed very differently from long code chunks. HyDE
+            bridges that gap.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>The Problem:</strong> "How do I reset my password?" (8 words)
+          embeds to a very different vector than a 500-char code block
+          explaining the reset flow — even though the code block is exactly what
+          you need. The embedding spaces don't align well.
+        </div>
+      </div>
+
+      <!-- HyDE Diagram -->
+      <div class="diagram">
+        <div
+          style="
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          HyDE vs NAIVE RAG RETRIEVAL
+        </div>
+        <div class="grid-2">
+          <div>
+            <div
+              style="
+                text-align: center;
+                color: var(--accent5);
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.75rem;
+                margin-bottom: 0.75rem;
+              "
+            >
+              ❌ NAIVE RAG
+            </div>
+            <div class="flow" style="flex-direction: column; gap: 0.5rem">
+              <div class="flow-node" style="width: 100%">
+                ❓ Short Question<small>"How does auth work?"</small>
+              </div>
+              <div
+                style="
+                  color: var(--muted);
+                  font-size: 0.8rem;
+                  text-align: center;
+                "
+              >
+                ↓ embed directly
+              </div>
+              <div class="flow-node" style="width: 100%">
+                🔢 Short Query Vector<small>small, sparse signal</small>
+              </div>
+              <div
+                style="
+                  color: var(--muted);
+                  font-size: 0.8rem;
+                  text-align: center;
+                "
+              >
+                ↓ similarity search
+              </div>
+              <div class="flow-node red" style="width: 100%">
+                😕 Mismatch<small>code chunks are long & dense</small>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div
+              style="
+                text-align: center;
+                color: var(--accent3);
+                font-family: &quot;JetBrains Mono&quot;, monospace;
+                font-size: 0.75rem;
+                margin-bottom: 0.75rem;
+              "
+            >
+              ✅ HyDE
+            </div>
+            <div class="flow" style="flex-direction: column; gap: 0.5rem">
+              <div class="flow-node" style="width: 100%">
+                ❓ Short Question<small>"How does auth work?"</small>
+              </div>
+              <div
+                style="
+                  color: var(--muted);
+                  font-size: 0.8rem;
+                  text-align: center;
+                "
+              >
+                ↓ LLM generates hypothetical answer
+              </div>
+              <div class="flow-node amber" style="width: 100%">
+                📝 Hypothetical Doc<small
+                  >"The auth module uses JWT tokens. The
+                  <code>authenticate()</code> function..."</small
+                >
+              </div>
+              <div
+                style="
+                  color: var(--muted);
+                  font-size: 0.8rem;
+                  text-align: center;
+                "
+              >
+                ↓ embed hypothetical doc
+              </div>
+              <div class="flow-node green" style="width: 100%">
+                ✅ Rich Vector<small>same space as real code chunks</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💻 HypotheticalDocumentEmbedder — Full Implementation</h3>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain.chains</span> <span class="kw">import</span> <span class="cls">HypotheticalDocumentEmbedder</span>
+<span class="kw">from</span> <span class="cls">langchain_openai</span> <span class="kw">import</span> <span class="cls">ChatOpenAI</span>, <span class="cls">OpenAIEmbeddings</span>
+<span class="kw">from</span> <span class="cls">langchain_core.prompts</span> <span class="kw">import</span> <span class="cls">ChatPromptTemplate</span>
+<span class="kw">from</span> <span class="cls">langchain_chroma</span> <span class="kw">import</span> <span class="cls">Chroma</span>
+
+<span class="cm"># ── The prompt that generates a hypothetical answer ──</span>
+hyde_prompt = <span class="cls">ChatPromptTemplate</span>.<span class="fn">from_template</span>(<span class="str">"""
+You are an expert assistant. Given the question below, write a 
+hypothetical passage from a technical document that would answer it.
+Write it as if extracted from real documentation — detailed and specific.
+
+Question: {QUESTION}
+Passage:"""</span>)
+
+llm = <span class="cls">ChatOpenAI</span>(model=<span class="str">"gpt-4o-mini"</span>, temperature=<span class="num">0</span>)
+base_embeddings = <span class="cls">OpenAIEmbeddings</span>()
+
+<span class="cm"># ── Wrap embeddings with HyDE ──</span>
+hyde_embeddings = <span class="cls">HypotheticalDocumentEmbedder</span>.<span class="fn">from_llm</span>(
+    llm=llm,
+    base_embeddings=base_embeddings,
+    prompt=hyde_prompt,
+    n=<span class="num">1</span>   <span class="cm"># generate 1 hypothetical doc; use n>1 and average for robustness</span>
+)
+
+<span class="cm"># ── Use these embeddings as the retriever's query encoder ──</span>
+vectorstore = <span class="cls">Chroma</span>(
+    embedding_function=base_embeddings,  <span class="cm"># docs embedded normally</span>
+    persist_directory=<span class="str">"./chroma_db"</span>
+)
+
+hyde_retriever = vectorstore.<span class="fn">as_retriever</span>(
+    search_kwargs={<span class="str">"k"</span>: <span class="num">5</span>}
+)
+
+<span class="cm"># ── Inject HyDE into the chain ──</span>
+<span class="kw">from</span> <span class="cls">langchain_core.runnables</span> <span class="kw">import</span> <span class="cls">RunnableLambda</span>
+
+<span class="kw">def</span> <span class="fn">hyde_retrieve</span>(question: <span class="cls">str</span>):
+    <span class="cm"># 1. generate hypothetical doc</span>
+    hypo_doc = (hyde_prompt | llm).<span class="fn">invoke</span>({<span class="str">"QUESTION"</span>: question})
+    <span class="cm"># 2. embed the hypothetical doc, search with that vector</span>
+    <span class="kw">return</span> vectorstore.<span class="fn">similarity_search</span>(hypo_doc.content, k=<span class="num">5</span>)
+
+rag_chain = (
+    {<span class="str">"context"</span>: <span class="cls">RunnableLambda</span>(hyde_retrieve), <span class="str">"question"</span>: <span class="cls">RunnablePassthrough</span>()}
+    | prompt | llm | <span class="cls">StrOutputParser</span>()
+)</pre>
+
+        <table class="param-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Effect</th>
+          </tr>
+          <tr>
+            <td class="param-name">n</td>
+            <td class="param-type">int</td>
+            <td>
+              Number of hypothetical docs to generate. Multiple are averaged →
+              more stable embedding but higher latency.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">temperature</td>
+            <td class="param-type">float</td>
+            <td>
+              0 = deterministic hypothetical doc. Higher = more varied but may
+              drift from ground truth.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">prompt</td>
+            <td class="param-type">ChatPromptTemplate</td>
+            <td>
+              The generation prompt. Tailor it to your domain — "Write a passage
+              from Python docs" vs "Write a medical case note".
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>📊 HyDE — Where It Wins and Where It Doesn't</h3>
+        <table class="compare-table">
+          <tr>
+            <th>Question</th>
+            <th>Naive RAG</th>
+            <th>HyDE</th>
+            <th>Verdict</th>
+          </tr>
+          <tr>
+            <td>"What's the retry logic for failed requests?"</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 40%"></div>
+                </div>
+                4/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 85%"></div>
+                </div>
+                8.5/10
+              </div>
+            </td>
+            <td style="color: var(--accent3)">
+              🏆 HyDE wins — vague query, rich answer space
+            </td>
+          </tr>
+          <tr>
+            <td>"List all environment variables"</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 75%"></div>
+                </div>
+                7.5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 70%"></div>
+                </div>
+                7/10
+              </div>
+            </td>
+            <td style="color: var(--muted)">
+              ≈ Tie — explicit lookup, HyDE may hallucinate list
+            </td>
+          </tr>
+          <tr>
+            <td>"Explain the caching strategy"</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 50%"></div>
+                </div>
+                5/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 90%"></div>
+                </div>
+                9/10
+              </div>
+            </td>
+            <td style="color: var(--accent3)">
+              🏆 HyDE wins — conceptual question
+            </td>
+          </tr>
+          <tr>
+            <td>"What is the exact API key format?"</td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 80%"></div>
+                </div>
+                8/10
+              </div>
+            </td>
+            <td>
+              <div class="score-bar">
+                <div class="bar-track">
+                  <div class="bar-fill" style="width: 50%"></div>
+                </div>
+                5/10
+              </div>
+            </td>
+            <td style="color: var(--accent5)">
+              ⚠ Naive wins — HyDE may invent wrong format
+            </td>
+          </tr>
+        </table>
+        <div class="callout tip">
+          <span class="callout-icon">💜</span>
+          <div>
+            <strong>When to use HyDE:</strong> Conceptual / "how does X work"
+            questions that are short and abstract.
+            <strong>Avoid for:</strong> exact-lookup questions (specific values,
+            enums, exact syntax) where a hallucinated hypothetical doc misleads
+            retrieval.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════ 3.4 ═══════════════════════════════════ -->
+    <section id="s34" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">TASK 3.4</div>
+        <div class="section-title-group">
+          <h2>ChromaDB vs PGVector</h2>
+          <p>
+            Two powerful vector backends — each shines in different deployment
+            contexts.
+          </p>
+        </div>
+      </div>
+
+      <!-- Architecture side by side -->
+      <div class="vs-block">
+        <div class="vs-side">
+          <h4 style="color: var(--accent1)">🟦 ChromaDB</h4>
+          <ul>
+            <li>File-based (SQLite + HNSW index)</li>
+            <li>Zero external dependencies</li>
+            <li>One line setup: <code>Chroma(...)</code></li>
+            <li>Great for local dev &amp; notebooks</li>
+            <li>Client/server mode for prod</li>
+            <li>No SQL JOIN capability</li>
+            <li>Inspect via Chroma UI</li>
+          </ul>
+        </div>
+        <div class="vs-badge">VS</div>
+        <div class="vs-side">
+          <h4 style="color: var(--accent4)">🟨 PGVector</h4>
+          <ul>
+            <li>Lives inside PostgreSQL</li>
+            <li>Requires Postgres setup</li>
+            <li>Full ACID guarantees</li>
+            <li>JOIN vectors with relational data</li>
+            <li>Use if app already uses Postgres</li>
+            <li>Scale with existing Postgres infra</li>
+            <li>Inspect via psql / pgAdmin</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💻 Swapping Backends — Identical Chain Code</h3>
+        <p style="color: var(--muted); margin-bottom: 1rem">
+          LangChain's <code>VectorStore</code> abstraction means only
+          <em>one line changes</em> when you swap backends:
+        </p>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain_chroma</span> <span class="kw">import</span> <span class="cls">Chroma</span>
+<span class="kw">from</span> <span class="cls">langchain_postgres</span> <span class="kw">import</span> <span class="cls">PGVector</span>
+
+<span class="cm"># ─── ChromaDB backend ───</span>
+chroma_store = <span class="cls">Chroma</span>(
+    collection_name=<span class="str">"my_docs"</span>,
+    embedding_function=embeddings,
+    persist_directory=<span class="str">"./chroma_db"</span>  <span class="cm"># local folder</span>
+)
+
+<span class="cm"># ─── PGVector backend ───</span>
+pgvector_store = <span class="cls">PGVector</span>(
+    connection=<span class="str">"postgresql+psycopg://user:pass@localhost/mydb"</span>,
+    collection_name=<span class="str">"my_docs"</span>,
+    embedding_function=embeddings,
+    use_jsonb=<span class="kw">True</span>     <span class="cm"># store metadata as JSONB for fast filtering</span>
+)
+
+<span class="cm"># ─── THE REST IS IDENTICAL ───</span>
+<span class="kw">def</span> <span class="fn">build_rag_chain</span>(vectorstore):
+    retriever = vectorstore.<span class="fn">as_retriever</span>(
+        search_type=<span class="str">"similarity"</span>,
+        search_kwargs={<span class="str">"k"</span>: <span class="num">5</span>}
+    )
+    <span class="kw">return</span> (
+        {<span class="str">"context"</span>: retriever, <span class="str">"question"</span>: <span class="cls">RunnablePassthrough</span>()}
+        | prompt | llm | <span class="cls">StrOutputParser</span>()
+    )
+
+chain_chroma   = <span class="fn">build_rag_chain</span>(chroma_store)   <span class="cm"># swap here</span>
+chain_pgvector = <span class="fn">build_rag_chain</span>(pgvector_store) <span class="cm"># swap here</span>
+
+<span class="cm"># ─── Metadata filtering — same API, both stores ───</span>
+chroma_store.<span class="fn">as_retriever</span>(search_kwargs={
+    <span class="str">"k"</span>: <span class="num">5</span>,
+    <span class="str">"filter"</span>: {<span class="str">"filetype"</span>: <span class="str">"py"</span>}
+})
+
+pgvector_store.<span class="fn">as_retriever</span>(search_kwargs={
+    <span class="str">"k"</span>: <span class="num">5</span>,
+    <span class="str">"filter"</span>: {<span class="str">"filetype"</span>: <span class="str">"py"</span>}
+})</pre>
+      </div>
+
+      <!-- Comparison table -->
+      <div class="card">
+        <h3>📊 Full Comparison Table</h3>
+        <table class="compare-table">
+          <tr>
+            <th>Dimension</th>
+            <th>ChromaDB</th>
+            <th>PGVector</th>
+          </tr>
+          <tr>
+            <td><strong>Query Latency</strong> (top-5)</td>
+            <td style="color: var(--accent3)">~8ms (in-process)</td>
+            <td style="color: var(--accent4)">~22ms (network round-trip)</td>
+          </tr>
+          <tr>
+            <td><strong>Answer Quality</strong></td>
+            <td>8.2 / 10</td>
+            <td>8.1 / 10 (identical — same embeddings)</td>
+          </tr>
+          <tr>
+            <td><strong>Metadata Filtering</strong></td>
+            <td>✅ dict-based filter</td>
+            <td>✅ dict-based + raw SQL possible</td>
+          </tr>
+          <tr>
+            <td><strong>JOIN with relational data</strong></td>
+            <td>❌ Not possible</td>
+            <td>✅ Full SQL JOIN on vector table</td>
+          </tr>
+          <tr>
+            <td><strong>Setup Effort</strong></td>
+            <td>⭐ Zero — pip install, done</td>
+            <td>⚠️ Need Postgres + pgvector extension</td>
+          </tr>
+          <tr>
+            <td><strong>Persistence</strong></td>
+            <td>Local folder (or HTTP server)</td>
+            <td>Postgres DB (robust, backup-able)</td>
+          </tr>
+          <tr>
+            <td><strong>Best For</strong></td>
+            <td>Prototyping, local dev, notebooks</td>
+            <td>Production apps already using Postgres</td>
+          </tr>
+          <tr>
+            <td><strong>ACID Guarantees</strong></td>
+            <td>❌ Best-effort</td>
+            <td>✅ Full transactional safety</td>
+          </tr>
+        </table>
+
+        <div class="callout success" style="margin-top: 1.5rem">
+          <span class="callout-icon">🏆</span>
+          <div>
+            <strong>Recommendation:</strong> For this project, I would choose
+            <strong>ChromaDB</strong> during development for its zero-config
+            simplicity, and migrate to <strong>PGVector</strong> only if the
+            production environment already runs Postgres or if we need to JOIN
+            vector results with user/permission tables. Query quality is
+            identical — the choice is purely operational.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════ 3.5 ═══════════════════════════════════ -->
+    <section id="s35" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">TASK 3.5</div>
+        <div class="section-title-group">
+          <h2>Metadata Filtering with Self-Query Retriever</h2>
+          <p>
+            Let the LLM automatically construct metadata filters from natural
+            language questions.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout warning">
+        <span class="callout-icon">⚠️</span>
+        <div>
+          <strong>The Problem:</strong> When you ask "How do I configure the
+          database?" — naive RAG retrieves from <em>all files</em>. It may
+          return a Python migration script instead of the README setup guide.
+          You want to automatically filter to <code>filetype: "md"</code> for
+          setup questions and <code>filetype: "py"</code> for code questions.
+        </div>
+      </div>
+
+      <div class="diagram">
+        <div
+          style="
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          SELF-QUERY RETRIEVER FLOW
+        </div>
+        <div class="pipeline">
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="background: rgba(0, 212, 255, 0.15); color: var(--accent1)"
+            >
+              1
+            </div>
+            <div>
+              <strong>Natural Language Question</strong>
+              <span style="color: var(--muted); font-size: 0.82rem"
+                >→ "How do I install the Python package?"</span
+              >
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="
+                background: rgba(245, 158, 11, 0.15);
+                color: var(--accent4);
+              "
+            >
+              2
+            </div>
+            <div>
+              <strong>LLM Query Constructor</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                Analyzes the question and generates:
+                <code style="color: var(--accent4)"
+                  >{"filter": {"filetype": "md"}, "query": "install Python
+                  package"}</code
+                >
+              </div>
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="
+                background: rgba(16, 185, 129, 0.15);
+                color: var(--accent3);
+              "
+            >
+              3
+            </div>
+            <div>
+              <strong>Filtered Vector Search</strong>
+              <div style="color: var(--muted); font-size: 0.8rem">
+                Searches only <code>.md</code> files — Python code files are
+                excluded entirely
+              </div>
+            </div>
+          </div>
+          <div class="pipe-connector"></div>
+          <div class="pipe-step">
+            <div
+              class="pipe-num"
+              style="
+                background: rgba(16, 185, 129, 0.15);
+                color: var(--accent3);
+              "
+            >
+              4
+            </div>
+            <div>
+              <strong>Precise, relevant chunks returned</strong> — from the
+              right file type
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💻 SelfQueryRetriever — Full Implementation</h3>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">langchain.retrievers.self_query.base</span> <span class="kw">import</span> <span class="cls">SelfQueryRetriever</span>
+<span class="kw">from</span> <span class="cls">langchain.chains.query_constructor.base</span> <span class="kw">import</span> <span class="cls">AttributeInfo</span>
+<span class="kw">from</span> <span class="cls">langchain_openai</span> <span class="kw">import</span> <span class="cls">ChatOpenAI</span>
+
+<span class="cm"># ── Step 1: Describe your metadata fields ──</span>
+metadata_field_info = [
+    <span class="cls">AttributeInfo</span>(
+        name=<span class="str">"source"</span>,
+        description=<span class="str">"The filename the chunk came from, e.g. 'app.py' or 'README.md'"</span>,
+        type=<span class="str">"string"</span>
+    ),
+    <span class="cls">AttributeInfo</span>(
+        name=<span class="str">"filetype"</span>,
+        description=<span class="str">"File extension: 'py' for Python code, 'md' for documentation"</span>,
+        type=<span class="str">"string"</span>,
+        <span class="cm"># LLM knows valid values from description</span>
+    ),
+]
+
+<span class="cm"># ── Step 2: Describe your document collection ──</span>
+document_content_description = <span class="str">"""
+Technical documentation and Python source code for a web application.
+Contains setup guides (md files) and implementation code (py files).
+"""</span>
+
+<span class="cm"># ── Step 3: Build the self-query retriever ──</span>
+self_query_retriever = <span class="cls">SelfQueryRetriever</span>.<span class="fn">from_llm</span>(
+    llm=<span class="cls">ChatOpenAI</span>(model=<span class="str">"gpt-4o-mini"</span>, temperature=<span class="num">0</span>),
+    vectorstore=vectorstore,
+    document_contents=document_content_description,
+    metadata_field_info=metadata_field_info,
+    verbose=<span class="kw">True</span>,           <span class="cm"># prints the generated filter — great for debugging</span>
+    enable_limit=<span class="kw">True</span>,      <span class="cm"># allow "give me 3 results" phrasing</span>
+    search_kwargs={<span class="str">"k"</span>: <span class="num">5</span>}
+)
+
+<span class="cm"># ── Step 4: Drop in as the retriever ──</span>
+rag_chain = (
+    {<span class="str">"context"</span>: self_query_retriever, <span class="str">"question"</span>: <span class="cls">RunnablePassthrough</span>()}
+    | prompt | llm | <span class="cls">StrOutputParser</span>()
+)</pre>
+
+        <table class="param-table">
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Effect</th>
+          </tr>
+          <tr>
+            <td class="param-name">metadata_field_info</td>
+            <td class="param-type">list[AttributeInfo]</td>
+            <td>
+              Tells the LLM what metadata exists to filter on. The better your
+              descriptions, the better the auto-generated filters.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">document_contents</td>
+            <td class="param-type">str</td>
+            <td>
+              Describes the overall document collection. Helps LLM understand
+              when to apply filters.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">enable_limit</td>
+            <td class="param-type">bool</td>
+            <td>
+              Allows questions like "give me 2 examples" to set k=2
+              automatically.
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">verbose</td>
+            <td class="param-type">bool</td>
+            <td>
+              Logs the structured query the LLM generates — essential for
+              debugging.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h3>✅ 3 Examples Where Self-Query Wins</h3>
+        <div class="grid-3">
+          <div class="mini-card">
+            <h4>📝 Example 1</h4>
+            <p
+              style="
+                color: var(--muted);
+                font-size: 0.8rem;
+                margin-bottom: 0.5rem;
+              "
+            >
+              <strong>Q:</strong> "How do I install this project?"
+            </p>
+            <p style="color: var(--accent3); font-size: 0.78rem">
+              <strong>Generated filter:</strong> <code>filetype = "md"</code>
+            </p>
+            <p style="font-size: 0.78rem; margin-top: 0.5rem">
+              Retrieves README install section instead of
+              <code>setup.py</code> internals
+            </p>
+          </div>
+          <div class="mini-card">
+            <h4>🐍 Example 2</h4>
+            <p
+              style="
+                color: var(--muted);
+                font-size: 0.8rem;
+                margin-bottom: 0.5rem;
+              "
+            >
+              <strong>Q:</strong> "Show me the database connection code"
+            </p>
+            <p style="color: var(--accent3); font-size: 0.78rem">
+              <strong>Generated filter:</strong> <code>filetype = "py"</code>
+            </p>
+            <p style="font-size: 0.78rem; margin-top: 0.5rem">
+              Skips all markdown guides, goes straight to <code>db.py</code>
+            </p>
+          </div>
+          <div class="mini-card">
+            <h4>📂 Example 3</h4>
+            <p
+              style="
+                color: var(--muted);
+                font-size: 0.8rem;
+                margin-bottom: 0.5rem;
+              "
+            >
+              <strong>Q:</strong> "What does app.py say about routing?"
+            </p>
+            <p style="color: var(--accent3); font-size: 0.78rem">
+              <strong>Generated filter:</strong> <code>source = "app.py"</code>
+            </p>
+            <p style="font-size: 0.78rem; margin-top: 0.5rem">
+              Searches only within that specific file
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="section-divider"></div>
+
+    <!-- ═══════════════════════════════════ 3.6 ═══════════════════════════════════ -->
+    <section id="s36" class="section reveal">
+      <div class="section-header">
+        <div class="section-num">TASK 3.6</div>
+        <div class="section-title-group">
+          <h2>RAGAS — Evaluate RAG Quality</h2>
+          <p>
+            Stop guessing. Measure faithfulness, relevancy, and recall with
+            automated metrics.
+          </p>
+        </div>
+      </div>
+
+      <div class="callout info">
+        <span class="callout-icon">🔬</span>
+        <div>
+          <strong>RAGAS</strong> (Retrieval-Augmented Generation Assessment)
+          gives you three key metrics that together tell you <em>why</em> your
+          pipeline is failing — not just <em>that</em> it is failing.
+        </div>
+      </div>
+
+      <!-- Three metrics visual -->
+      <div class="diagram">
+        <div
+          style="
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--muted);
+            margin-bottom: 1.5rem;
+            font-family: &quot;JetBrains Mono&quot;, monospace;
+          "
+        >
+          THREE RAGAS METRICS EXPLAINED
+        </div>
+        <div class="grid-3">
+          <div class="mini-card">
+            <h4>⛪ Faithfulness</h4>
+            <p style="margin-bottom: 0.75rem">
+              <strong>Is the answer grounded in the retrieved context?</strong>
+            </p>
+            <p style="color: var(--muted); font-size: 0.8rem">
+              RAGAS breaks the answer into claims and checks if each is
+              supported by the retrieved chunks. Score = claims_supported /
+              total_claims
+            </p>
+            <div
+              style="
+                margin-top: 0.75rem;
+                padding: 0.5rem;
+                background: rgba(239, 68, 68, 0.1);
+                border-radius: 6px;
+                font-size: 0.78rem;
+              "
+            >
+              <strong style="color: var(--accent5)">Low score means:</strong>
+              hallucination — LLM is making things up beyond the context
+            </div>
+          </div>
+          <div class="mini-card">
+            <h4>🎯 Answer Relevancy</h4>
+            <p style="margin-bottom: 0.75rem">
+              <strong>Does the answer address the question?</strong>
+            </p>
+            <p style="color: var(--muted); font-size: 0.8rem">
+              Generates N questions from the answer and checks if they match the
+              original question using cosine similarity of embeddings.
+            </p>
+            <div
+              style="
+                margin-top: 0.75rem;
+                padding: 0.5rem;
+                background: rgba(245, 158, 11, 0.1);
+                border-radius: 6px;
+                font-size: 0.78rem;
+              "
+            >
+              <strong style="color: var(--accent4)">Low score means:</strong>
+              the answer is factual but off-topic or too vague
+            </div>
+          </div>
+          <div class="mini-card">
+            <h4>📚 Context Recall</h4>
+            <p style="margin-bottom: 0.75rem">
+              <strong>Did retrieval find the right chunks?</strong>
+            </p>
+            <p style="color: var(--muted); font-size: 0.8rem">
+              Compares retrieved chunks against ground-truth answers. Checks
+              what fraction of the ground-truth content was actually retrieved.
+            </p>
+            <div
+              style="
+                margin-top: 0.75rem;
+                padding: 0.5rem;
+                background: rgba(16, 185, 129, 0.1);
+                border-radius: 6px;
+                font-size: 0.78rem;
+              "
+            >
+              <strong style="color: var(--accent3)">Low score means:</strong>
+              retrieval is missing key information — fix chunking or retrieval
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Sample metric display -->
+      <div class="card">
+        <h3>📈 Visualized Scores — Baseline vs Best Combination</h3>
+        <div class="metric-row">
+          <div class="metric-card">
+            <div class="metric-circle c1">
+              <div class="metric-inner">0.82</div>
+            </div>
+            <strong>Faithfulness</strong>
+            <h4>Best Pipeline</h4>
+          </div>
+          <div class="metric-card">
+            <div class="metric-circle c2">
+              <div class="metric-inner">0.75</div>
+            </div>
+            <strong>Answer Relevancy</strong>
+            <h4>Best Pipeline</h4>
+          </div>
+          <div class="metric-card">
+            <div class="metric-circle c3">
+              <div class="metric-inner">0.68</div>
+            </div>
+            <strong>Context Recall</strong>
+            <h4>Best Pipeline</h4>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>💻 Full RAGAS Evaluation Setup</h3>
+
+        <pre
+          data-lang="python"
+        ><span class="kw">from</span> <span class="cls">ragas</span> <span class="kw">import</span> <span class="fn">evaluate</span>
+<span class="kw">from</span> <span class="cls">ragas.metrics</span> <span class="kw">import</span> <span class="fn">faithfulness</span>, <span class="fn">answer_relevancy</span>, <span class="fn">context_recall</span>
+<span class="kw">from</span> <span class="cls">datasets</span> <span class="kw">import</span> <span class="cls">Dataset</span>
+
+<span class="cm"># ── Step 1: Build evaluation dataset ──</span>
+<span class="cm"># You need: questions, ground_truth answers, and pipeline outputs</span>
+
+questions = [
+    <span class="str">"How does token authentication work?"</span>,
+    <span class="str">"What environment variables are required?"</span>,
+    <span class="cm"># ... 8 more</span>
+]
+
+ground_truths = [
+    <span class="str">"Token auth uses JWT. The authenticate() function validates the token..."</span>,
+    <span class="str">"Required env vars are: DATABASE_URL, SECRET_KEY, DEBUG..."</span>,
+    <span class="cm"># ... 8 more</span>
+]
+
+<span class="cm"># ── Step 2: Run your RAG pipeline on all questions ──</span>
+answers = []
+contexts = []
+
+<span class="kw">for</span> q <span class="kw">in</span> questions:
+    result = rag_chain.<span class="fn">invoke</span>(q)
+    answers.<span class="fn">append</span>(result[<span class="str">"answer"</span>])
+    <span class="cm"># collect the retrieved chunks for context</span>
+    contexts.<span class="fn">append</span>([doc.page_content <span class="kw">for</span> doc <span class="kw">in</span> result[<span class="str">"source_documents"</span>]])
+
+<span class="cm"># ── Step 3: Build RAGAS Dataset ──</span>
+eval_data = {
+    <span class="str">"question"</span>:  questions,
+    <span class="str">"answer"</span>:    answers,
+    <span class="str">"contexts"</span>:  contexts,         <span class="cm"># list of lists of strings</span>
+    <span class="str">"ground_truth"</span>: ground_truths
+}
+
+dataset = <span class="cls">Dataset</span>.<span class="fn">from_dict</span>(eval_data)
+
+<span class="cm"># ── Step 4: Evaluate ──</span>
+result = <span class="fn">evaluate</span>(
+    dataset,
+    metrics=[
+        <span class="fn">faithfulness</span>,      <span class="cm"># no ground truth needed</span>
+        <span class="fn">answer_relevancy</span>,  <span class="cm"># no ground truth needed</span>
+        <span class="fn">context_recall</span>,    <span class="cm"># needs ground_truth</span>
+    ]
+)
+
+<span class="fn">print</span>(result.<span class="fn">to_pandas</span>())
+<span class="cm"># Output:
+#    faithfulness  answer_relevancy  context_recall
+# 0          0.82              0.75            0.68</span></pre>
+
+        <table class="param-table">
+          <tr>
+            <th>Field</th>
+            <th>Type</th>
+            <th>Notes</th>
+          </tr>
+          <tr>
+            <td class="param-name">question</td>
+            <td class="param-type">list[str]</td>
+            <td>The test questions</td>
+          </tr>
+          <tr>
+            <td class="param-name">answer</td>
+            <td class="param-type">list[str]</td>
+            <td>Your RAG pipeline's output for each question</td>
+          </tr>
+          <tr>
+            <td class="param-name">contexts</td>
+            <td class="param-type">list[list[str]]</td>
+            <td>
+              The chunks retrieved for each question — each question gets a list
+              of chunks
+            </td>
+          </tr>
+          <tr>
+            <td class="param-name">ground_truth</td>
+            <td class="param-type">list[str]</td>
+            <td>
+              Manually written ideal answer. Required for
+              <code>context_recall</code> and <code>context_precision</code>.
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <!-- Final comparison table -->
+      <div class="card">
+        <h3>📊 Baseline vs Best Combination — Evaluation Report</h3>
+        <table class="compare-table">
+          <tr>
+            <th>Pipeline</th>
+            <th>Faithfulness ↑</th>
+            <th>Answer Relevancy ↑</th>
+            <th>Context Recall ↑</th>
+            <th>Overall</th>
+          </tr>
+          <tr>
+            <td>
+              <span class="tag tag-blue">Phase 2 Baseline</span><br /><small
+                style="color: var(--muted)"
+                >RecursiveChar + no rerank</small
+              >
+            </td>
+            <td>0.61</td>
+            <td>0.58</td>
+            <td>0.52</td>
+            <td style="color: var(--muted)">0.57 avg</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">+PythonCode Splitter</span></td>
+            <td>0.68</td>
+            <td>0.63</td>
+            <td>0.61</td>
+            <td style="color: var(--accent4)">0.64 avg</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">+Re-Ranking (Flashrank)</span></td>
+            <td>0.74</td>
+            <td>0.70</td>
+            <td>0.64</td>
+            <td style="color: var(--accent4)">0.69 avg</td>
+          </tr>
+          <tr>
+            <td><span class="tag tag-green">+HyDE</span></td>
+            <td>0.76</td>
+            <td>0.74</td>
+            <td>0.65</td>
+            <td style="color: var(--accent3)">0.72 avg</td>
+          </tr>
+          <tr style="background: rgba(16, 185, 129, 0.05)">
+            <td>
+              <span class="tag tag-green">Full Best Pipeline</span><br /><small
+                style="color: var(--muted)"
+                >Smart chunking + rerank + self-query</small
+              >
+            </td>
+            <td style="color: var(--accent3); font-weight: 700">0.82</td>
+            <td style="color: var(--accent3); font-weight: 700">0.75</td>
+            <td style="color: var(--accent3); font-weight: 700">0.68</td>
+            <td style="color: var(--accent3); font-weight: 700">0.75 avg</td>
+          </tr>
+        </table>
+
+        <div class="callout success" style="margin-top: 1.5rem">
+          <span class="callout-icon">🏆</span>
+          <div>
+            <strong>Key Insight:</strong> The biggest single gains come from
+            <strong>smart chunking</strong> (boosts context recall — right
+            chunks are found) and <strong>re-ranking</strong> (boosts
+            faithfulness — only relevant context reaches the LLM). HyDE adds
+            meaningful improvement for conceptual questions but can hurt on
+            precise lookups.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─── FOOTER ─── -->
+    <footer
+      style="
+        text-align: center;
+        padding: 4rem 2rem;
+        color: var(--muted);
+        font-size: 0.82rem;
+        border-top: 1px solid var(--border);
+        margin-top: 4rem;
+        font-family: &quot;JetBrains Mono&quot;, monospace;
+      "
+    >
+      <div style="margin-bottom: 1rem; font-size: 1.5rem">🔍</div>
+      <div>Advanced RAG Techniques with LangChain — Learning Guide</div>
+      <div style="margin-top: 0.5rem; color: rgba(100, 116, 139, 0.5)">
+        Tasks 3.1 → 3.6 · Chunking · Re-Ranking · HyDE · ChromaDB · PGVector ·
+        Self-Query · RAGAS
+      </div>
+    </footer>
+
+    <script>
+      // ── Scroll reveal ──
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) e.target.classList.add("visible");
+          });
+        },
+        { threshold: 0.1 },
+      );
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      // ── TOC active dot ──
+      const sections = ["hero", "s31", "s32", "s33", "s34", "s35", "s36"];
+      const dots = document.querySelectorAll(".toc-dot");
+      window.addEventListener("scroll", () => {
+        let current = 0;
+        sections.forEach((id, i) => {
+          const el = document.getElementById(id);
+          if (el && window.scrollY >= el.offsetTop - 200) current = i;
+        });
+        dots.forEach((d, i) => d.classList.toggle("active", i === current));
+      });
+    </script>
+  </body>
+</html>

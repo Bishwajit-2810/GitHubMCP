@@ -1,0 +1,956 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Ecosystem Docs — Home</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      /* NAV */
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+        white-space: nowrap;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      nav .spacer {
+        flex: 1;
+      }
+      .badge {
+        background: var(--primary);
+        color: #000;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 2px 7px;
+        border-radius: 20px;
+        margin-left: 4px;
+      }
+      /* HERO */
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #0d1117 0%,
+          #161b22 50%,
+          #0d1117 100%
+        );
+        padding: 5rem 2rem 4rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border);
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle at 60% 40%,
+          rgba(88, 166, 255, 0.07) 0%,
+          transparent 60%
+        );
+      }
+      .hero h1 {
+        font-size: 3rem;
+        font-weight: 800;
+        background: linear-gradient(90deg, var(--primary), var(--purple));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 1rem;
+      }
+      .hero p {
+        font-size: 1.2rem;
+        color: var(--muted);
+        max-width: 640px;
+        margin: 0 auto 2rem;
+      }
+      .hero-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+        margin-bottom: 2.5rem;
+      }
+      .tag {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        color: var(--text);
+      }
+      .tag.green {
+        border-color: var(--green);
+        color: var(--green);
+      }
+      .tag.blue {
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+      .tag.purple {
+        border-color: var(--purple);
+        color: var(--purple);
+      }
+      .tag.orange {
+        border-color: var(--orange);
+        color: var(--orange);
+      }
+      /* SECTIONS */
+      .section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 3rem 2rem;
+      }
+      h2.section-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+      }
+      .section-sub {
+        color: var(--muted);
+        margin-bottom: 2rem;
+      }
+      /* CARDS */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 1.5rem;
+      }
+      .card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 1.5rem;
+        text-decoration: none;
+        color: var(--text);
+        transition:
+          border-color 0.2s,
+          transform 0.2s,
+          box-shadow 0.2s;
+        display: block;
+      }
+      .card:hover {
+        border-color: var(--primary);
+        transform: translateY(-3px);
+        box-shadow: 0 8px 32px rgba(88, 166, 255, 0.15);
+      }
+      .card-icon {
+        font-size: 2.2rem;
+        margin-bottom: 0.8rem;
+      }
+      .card h3 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+      }
+      .card p {
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      .card .card-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+        margin-top: 1rem;
+      }
+      .card .chip {
+        background: var(--surface2);
+        border: 1px solid var(--border);
+        padding: 2px 8px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+      }
+      /* ECOSYSTEM DIAGRAM */
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 2rem;
+        overflow-x: auto;
+      }
+      .mermaid {
+        margin: 0 auto;
+      }
+      /* TASK CARDS */
+      .task-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.2rem;
+        margin-top: 1.5rem;
+      }
+      .task-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-left: 4px solid var(--primary);
+        border-radius: 8px;
+        padding: 1.2rem;
+      }
+      .task-card h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 0.4rem;
+      }
+      .task-card ol {
+        padding-left: 1.2rem;
+        font-size: 0.88rem;
+        color: var(--muted);
+      }
+      .task-card ol li {
+        margin-bottom: 0.3rem;
+      }
+      /* QUICK START */
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.85rem;
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      /* FOOTER */
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      /* STACK DIAGRAM */
+      .stack {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        max-width: 500px;
+        margin: 0 auto;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+      }
+      .stack-layer {
+        padding: 1rem 1.5rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 0.95rem;
+      }
+      .stack-layer small {
+        display: block;
+        font-weight: 400;
+        font-size: 0.78rem;
+        opacity: 0.7;
+        margin-top: 2px;
+      }
+      .layer1 {
+        background: rgba(188, 140, 255, 0.15);
+        border-bottom: 1px solid var(--border);
+      }
+      .layer2 {
+        background: rgba(88, 166, 255, 0.15);
+        border-bottom: 1px solid var(--border);
+      }
+      .layer3 {
+        background: rgba(63, 185, 80, 0.15);
+        border-bottom: 1px solid var(--border);
+      }
+      .layer4 {
+        background: rgba(227, 179, 65, 0.15);
+        border-bottom: 1px solid var(--border);
+      }
+      .layer5 {
+        background: rgba(248, 81, 73, 0.15);
+      }
+      .arrow-down {
+        text-align: center;
+        font-size: 1.4rem;
+        color: var(--muted);
+        line-height: 1.2;
+        margin: 0 auto;
+      }
+      /* responsive */
+      @media (max-width: 900px) {
+        .hero h1 {
+          font-size: 2.4rem;
+        }
+      }
+      @media (max-width: 768px) {
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+          gap: 0;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          height: 56px;
+          line-height: normal;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a,
+        .nav-links span {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        .hero {
+          padding: 3rem 1.5rem;
+        }
+        .hero h1 {
+          font-size: 2rem;
+        }
+        .hero p {
+          font-size: 1rem;
+        }
+        .section {
+          padding: 2rem 1.5rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+      @media (max-width: 480px) {
+        .hero h1 {
+          font-size: 1.6rem;
+        }
+        .task-grid {
+          grid-template-columns: 1fr;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <nav>
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html">LangChain</a>
+        <a href="langgraph.html">LangGraph</a>
+        <a href="mcp.html">MCP</a>
+        <a href="fastmcp.html">FastMCP</a>
+        <a href="rag.html">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+      <h1>RAG with LangChain — Step by Step</h1>
+      <p>
+        A complete, hands-on guide to building Retrieval-Augmented Generation
+        systems using LangChain. From embeddings to full production pipelines —
+        learn why RAG exists, how it works, and how to build it yourself.
+      </p>
+      <div class="hero-tags">
+        <span class="tag orange">RAG</span>
+        <span class="tag blue">LangChain</span>
+        <span class="tag green">ChromaDB</span>
+        <span class="tag purple">LangGraph</span>
+        <span class="tag">Groq</span>
+        <span class="tag">Multi-Agent</span>
+        <span class="tag">PGVector</span>
+        <span class="tag">FastMCP</span>
+      </div>
+    </section>
+
+    <!-- Learning Path -->
+    <section class="section">
+      <h2 class="section-title">Learning Path</h2>
+      <p class="section-sub">
+        Three phases — each building on the last. Start at Phase 1 and work your
+        way through.
+      </p>
+      <div
+        class="task-grid"
+        style="grid-template-columns: repeat(auto-fill, minmax(340px, 1fr))"
+      >
+        <div class="task-card" style="border-left-color: var(--green)">
+          <h4>🟢 Phase 1 — RAG Foundations</h4>
+          <p
+            style="
+              font-size: 0.85rem;
+              color: var(--muted);
+              margin-bottom: 0.6rem;
+            "
+          >
+            Understand <em>why</em> RAG exists and how it works at a conceptual
+            level. Build your first pipeline end-to-end.
+          </p>
+          <ol>
+            <li>What is RAG? Non-technical explanation</li>
+            <li>LLM limitations: hallucinations, stale data, context limits</li>
+            <li>The Ingestion → Retrieval → Generation pipeline</li>
+            <li>Embeddings &amp; semantic similarity</li>
+            <li>Build a ChromaDB-backed RAG chain with ChatGroq</li>
+          </ol>
+          <div style="margin-top: 0.8rem">
+            <a
+              href="rag.html"
+              style="
+                color: var(--green);
+                font-size: 0.85rem;
+                text-decoration: none;
+              "
+            >
+              → Start with RAG Architecture
+            </a>
+          </div>
+        </div>
+
+        <div class="task-card" style="border-left-color: var(--primary)">
+          <h4>🔵 Phase 2 — Vector Stores &amp; Advanced Retrieval</h4>
+          <p
+            style="
+              font-size: 0.85rem;
+              color: var(--muted);
+              margin-bottom: 0.6rem;
+            "
+          >
+            Go deeper: compare storage backends, explore retrieval strategies,
+            and tune relevance.
+          </p>
+          <ol>
+            <li>ChromaDB in depth — HNSW index, metadata, persistence</li>
+            <li>PGVector — PostgreSQL-backed production vector store</li>
+            <li>Similarity search vs MMR vs metadata filtering</li>
+            <li>Chunking strategies for long documents</li>
+            <li>Evaluating retrieval quality</li>
+          </ol>
+          <div style="margin-top: 0.8rem">
+            <a
+              href="rag_concept_docs.html"
+              style="
+                color: var(--primary);
+                font-size: 0.85rem;
+                text-decoration: none;
+              "
+            >
+              → RAG Concept Deep Dive
+            </a>
+          </div>
+        </div>
+
+        <div class="task-card" style="border-left-color: var(--purple)">
+          <h4>🟣 Phase 3 — Agents, MCP &amp; Production RAG</h4>
+          <p
+            style="
+              font-size: 0.85rem;
+              color: var(--muted);
+              margin-bottom: 0.6rem;
+            "
+          >
+            Compose RAG into multi-agent LangGraph pipelines, expose it as an
+            MCP tool, and deploy with FastMCP.
+          </p>
+          <ol>
+            <li>RAG as a LangChain agent tool</li>
+            <li>LangGraph state machine with RAG nodes</li>
+            <li>Multi-agent RAG: research + retrieval + generation agents</li>
+            <li>Wrap RAG in a FastMCP server</li>
+            <li>Observability &amp; logging with Loguru</li>
+          </ol>
+          <div style="margin-top: 0.8rem">
+            <a
+              href="multi_agent.html"
+              style="
+                color: var(--purple);
+                font-size: 0.85rem;
+                text-decoration: none;
+              "
+            >
+              → Multi-Agent Systems
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Ecosystem Diagram -->
+    <section class="section">
+      <h2 class="section-title">The Full Ecosystem</h2>
+      <p class="section-sub">
+        How all components fit together to form a production AI stack.
+      </p>
+      <div class="diagram-wrap">
+        <div id="merChart_0"></div>
+      </div>
+    </section>
+
+    <!-- Stack Layers -->
+    <section class="section" style="padding-top: 0">
+      <h2 class="section-title">Architecture Stack</h2>
+      <p class="section-sub">Each layer builds on the one below it.</p>
+      <div class="stack">
+        <div class="stack-layer layer1">
+          🤖 Multi-Agent Orchestration (LangGraph)
+          <small>Nodes · Edges · State Graphs · Supervisors</small>
+        </div>
+        <div class="stack-layer layer2">
+          🔗 Chains & Prompts (LangChain LCEL)
+          <small
+            >PromptTemplate · ChatPrompt · StrOutputParser · Callbacks</small
+          >
+        </div>
+        <div class="stack-layer layer3">
+          🔌 Tools & Protocols (MCP / FastMCP)
+          <small>@mcp.tool · stdio · HTTP transport · Resource · Prompt</small>
+        </div>
+        <div class="stack-layer layer4">
+          📚 Knowledge Retrieval (RAG)
+          <small>Embeddings · ChromaDB · PGVector · Similarity Search</small>
+        </div>
+        <div class="stack-layer layer5">
+          ⚡ LLM Inference (Groq)
+          <small>ChatGroq · openai/gpt-oss-120b · Low-latency inference</small>
+        </div>
+      </div>
+    </section>
+
+    <!-- Topic Cards -->
+    <section class="section" style="padding-top: 0">
+      <h2 class="section-title">Documentation Topics</h2>
+      <p class="section-sub">Click any card to dive deep into that topic.</p>
+      <div class="card-grid">
+        <a class="card" href="langchain.html">
+          <div class="card-icon">🔗</div>
+          <h3>LangChain</h3>
+          <p>
+            Build chains of LLM calls using LCEL. Connect prompts, models, and
+            output parsers. Master ChatGroq, PromptTemplate, and callback
+            handlers.
+          </p>
+          <div class="card-tags">
+            <span class="chip">ChatGroq</span><span class="chip">LCEL</span
+            ><span class="chip">PromptTemplate</span
+            ><span class="chip">Callbacks</span>
+          </div>
+        </a>
+
+        <a class="card" href="langgraph.html">
+          <div class="card-icon">🕸️</div>
+          <h3>LangGraph</h3>
+          <p>
+            Create stateful multi-step agents using graph-based workflows.
+            Define nodes, edges, and conditional routing for complex agent
+            behaviours.
+          </p>
+          <div class="card-tags">
+            <span class="chip">StateGraph</span><span class="chip">Nodes</span
+            ><span class="chip">Edges</span
+            ><span class="chip">create_agent</span>
+          </div>
+        </a>
+
+        <a class="card" href="mcp.html">
+          <div class="card-icon">🔌</div>
+          <h3>MCP Server</h3>
+          <p>
+            Model Context Protocol — the universal standard for connecting AI
+            models to tools. Build and connect stdio/HTTP MCP servers with tool
+            registries.
+          </p>
+          <div class="card-tags">
+            <span class="chip">stdio</span><span class="chip">HTTP</span
+            ><span class="chip">ClientSession</span
+            ><span class="chip">StdioServerParameters</span>
+          </div>
+        </a>
+
+        <a class="card" href="fastmcp.html">
+          <div class="card-icon">⚡</div>
+          <h3>FastMCP</h3>
+          <p>
+            Build MCP servers in minutes with the Pythonic FastMCP framework.
+            Decorate functions with @mcp.tool, run HTTP or stdio servers, and
+            connect clients instantly.
+          </p>
+          <div class="card-tags">
+            <span class="chip">@mcp.tool</span
+            ><span class="chip">FastMCP()</span><span class="chip">Client</span
+            ><span class="chip">GitHub MCP</span>
+          </div>
+        </a>
+
+        <a class="card" href="rag.html">
+          <div class="card-icon">📚</div>
+          <h3>RAG — Retrieval Augmented Generation</h3>
+          <p>
+            Ground LLM responses in real documents. Learn embeddings, ChromaDB,
+            PGVector, similarity search, and how to build full RAG pipelines.
+          </p>
+          <div class="card-tags">
+            <span class="chip">Embeddings</span
+            ><span class="chip">ChromaDB</span><span class="chip">PGVector</span
+            ><span class="chip">Cosine Similarity</span>
+          </div>
+        </a>
+
+        <a
+          class="card"
+          href="rag_learning_path.html"
+          style="border-left: 3px solid var(--orange)"
+        >
+          <div class="card-icon">🗺️</div>
+          <h3>Complete RAG Learning Path</h3>
+          <p>
+            13 hands-on tasks across 3 phases. From RAG foundations and
+            embeddings through advanced chunking, re-ranking, HyDE, SelfQuery,
+            and RAGAS evaluation.
+          </p>
+          <div class="card-tags">
+            <span class="chip">Phase 1–3</span><span class="chip">RAGAS</span
+            ><span class="chip">HyDE</span><span class="chip">Re-Ranking</span>
+          </div>
+        </a>
+
+        <a class="card" href="multi_agent.html">
+          <div class="card-icon">🤖</div>
+          <h3>Multi-Agent Systems</h3>
+          <p>
+            Compose multiple specialised agents that collaborate via tools.
+            Covers tool definition, agent creation, logging with Loguru, and
+            real-world multi-agent patterns.
+          </p>
+          <div class="card-tags">
+            <span class="chip">@tool</span><span class="chip">create_agent</span
+            ><span class="chip">Loguru</span
+            ><span class="chip">AgentLogger</span>
+          </div>
+        </a>
+
+        <a class="card" href="fastApi.html">
+          <div class="card-icon">⚡</div>
+          <h3>FastAPI</h3>
+          <p>
+            Complete production reference — REST, schemas, SQLAlchemy, JWT auth,
+            file uploads, PostgreSQL, MongoDB, and deployment with uv.
+          </p>
+          <div class="card-tags">
+            <span class="chip">FastAPI 0.115+</span
+            ><span class="chip">SQLAlchemy</span
+            ><span class="chip">JWT Auth</span><span class="chip">uv</span>
+          </div>
+        </a>
+
+        <a class="card" href="pgAndPgVector.html">
+          <div class="card-icon">🐘</div>
+          <h3>PostgreSQL + pgvector</h3>
+          <p>
+            Complete PostgreSQL reference with pgvector extension — SQL,
+            schemas, indexes, CRUD, joins, transactions, and vector similarity
+            search for RAG.
+          </p>
+          <div class="card-tags">
+            <span class="chip">PostgreSQL</span
+            ><span class="chip">pgvector</span><span class="chip">HNSW</span
+            ><span class="chip">Embeddings</span>
+          </div>
+        </a>
+
+        <a class="card" href="rag_concept_docs.html">
+          <div class="card-icon">🔬</div>
+          <h3>Advanced RAG Concepts</h3>
+          <p>
+            Deep-dive into advanced RAG — chunking strategies, re-ranking, HyDE,
+            vector DB internals, self-query retrieval, and RAGAS evaluation.
+          </p>
+          <div class="card-tags">
+            <span class="chip">Chunking</span
+            ><span class="chip">Re-Ranking</span><span class="chip">HyDE</span
+            ><span class="chip">RAGAS</span>
+          </div>
+        </a>
+      </div>
+    </section>
+
+    <!-- Task Overview -->
+    <section class="section" style="padding-top: 0">
+      <h2 class="section-title">Hands-On Tasks</h2>
+      <p class="section-sub">
+        Each task builds on the previous one. Complete them in order to go from
+        zero to a production-ready RAG system.
+      </p>
+      <div class="task-grid">
+        <div class="task-card">
+          <h4>📘 Task 1 — LangChain Foundations</h4>
+          <ol>
+            <li>Set up LangChain with ChatGroq</li>
+            <li>Create a <code>PromptTemplate</code> chain</li>
+            <li>Add a <code>StrOutputParser</code></li>
+            <li>Chain two prompts together (multi-chain)</li>
+          </ol>
+        </div>
+        <div class="task-card" style="border-left-color: var(--orange)">
+          <h4>📙 Task 2 — RAG Pipeline</h4>
+          <ol>
+            <li>Embed documents with <code>HuggingFaceEmbeddings</code></li>
+            <li>Store &amp; query with ChromaDB</li>
+            <li>Build a retriever + RAG prompt chain</li>
+            <li>Ground LLM answers in your documents</li>
+          </ol>
+        </div>
+        <div class="task-card" style="border-left-color: var(--green)">
+          <h4>📗 Task 3 — Agents &amp; Tools</h4>
+          <ol>
+            <li>Define a custom <code>@tool</code> function</li>
+            <li>Build a basic agent with <code>create_agent</code></li>
+            <li>Add RAG as an agent tool</li>
+            <li>Enable logging with <code>AgentLogger</code></li>
+          </ol>
+        </div>
+        <div class="task-card" style="border-left-color: var(--purple)">
+          <h4>📓 Task 4 — Full Ecosystem</h4>
+          <ol>
+            <li>Build a FastMCP server with custom tools</li>
+            <li>Connect an MCP client to the server</li>
+            <li>Compose a LangGraph multi-agent RAG pipeline</li>
+            <li>Add observability with Loguru</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Quick Start -->
+    <section class="section" style="padding-top: 0">
+      <h2 class="section-title">Quick Start</h2>
+      <p class="section-sub">Get up and running in under 2 minutes.</p>
+      <pre><code class="language-bash"># 1. Clone and enter the project
+git clone &lt;your-repo&gt; && cd groq_testing
+
+# 2. Create virtual environment
+python -m venv .venv && source .venv/bin/activate
+
+# 3. Install dependencies
+pip install langchain langchain-groq langchain-huggingface fastmcp groq mcp python-dotenv loguru
+
+# 4. Create .env file
+echo "GROQ_API_KEY=your_key_here" > .env
+
+# 5. Run your first chain
+python basic_langchain_groq.py
+
+# 6. Start the FastMCP server
+python fastmcp_server.py
+
+# 7. In another terminal, call the server
+python fastmcp_client.py</code></pre>
+    </section>
+
+    <footer>
+      <p>
+        AI Ecosystem Documentation · Built with LangChain, LangGraph, MCP,
+        FastMCP, and Groq
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          sectionBkgColor: "#21262d",
+          altSectionBkgColor: "#161b22",
+          sectionBkgColor2: "#21262d",
+          gridColor: "#30363d",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+          merChart_0: `graph TB
+  User(["👤 User / Application"])
+  subgraph Agents["🤖 Agent Layer (LangGraph)"]
+    AG1["Research Agent"]
+    AG2["Tool Agent"]
+    AG3["Multi-Agent Orchestrator"]
+  end
+  subgraph Tools["🔌 Tool & Protocol Layer (MCP / FastMCP)"]
+    MCP["MCP Server (stdio / HTTP)"]
+    FMCP["FastMCP Server (Pythonic API)"]
+    TOOL1["Weather Tool"]
+    TOOL2["Search Tool"]
+    TOOL3["GitHub Tool"]
+  end
+  subgraph RAG["📚 Knowledge Layer (RAG)"]
+    EMB["Embeddings (HuggingFace)"]
+    CHROMA["ChromaDB (Local Vector Store)"]
+    PG["PGVector (PostgreSQL)"]
+  end
+  subgraph LLM["⚡ LLM Layer (LangChain + Groq)"]
+    LC["LangChain LCEL Chains & Prompts"]
+    GROQ["Groq API openai/gpt-oss-120b"]
+  end
+  User --> AG3
+  AG3 --> AG1 & AG2
+  AG1 & AG2 --> LC
+  AG1 & AG2 --> MCP & FMCP
+  MCP --> TOOL1 & TOOL2
+  FMCP --> TOOL3
+  LC --> GROQ
+  AG1 --> RAG
+  RAG --> EMB
+  EMB --> CHROMA & PG
+  style User fill:#58a6ff,color:#000
+  style Agents fill:#1c2128,stroke:#bc8cff
+  style Tools fill:#1c2128,stroke:#3fb950
+  style RAG fill:#1c2128,stroke:#e3b341
+  style LLM fill:#1c2128,stroke:#58a6ff`,
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid
+              .render("svg_" + id, _diagrams[id])
+              .then(function (result) {
+                el.innerHTML = result.svg;
+              })
+              .catch(function (err) {
+                console.error("Mermaid [" + id + "]:", err);
+              });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

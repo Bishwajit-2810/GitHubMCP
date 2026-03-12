@@ -1,0 +1,4460 @@
+<!doctype html>
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>FastAPI Complete Reference</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mermaid/10.6.1/mermaid.min.js"></script>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap");
+
+      :root {
+        --bg: #0a0c10;
+        --bg2: #0e1117;
+        --bg3: #141820;
+        --card: #161b24;
+        --card2: #1c2333;
+        --border: #21293a;
+        --border2: #2a3449;
+        --accent: #00d9ff;
+        --green: #00e5a0;
+        --red: #ff4d6a;
+        --orange: #ff9500;
+        --purple: #b48eff;
+        --text: #e2e8f0;
+        --text2: #8899aa;
+        --text3: #5a6a7e;
+        --sw: 280px;
+        --topnav-h: 44px;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "DM Sans", sans-serif;
+        font-size: 15px;
+        line-height: 1.7;
+        display: flex;
+        flex-direction: column;
+      }
+
+      /* ── TOP NAV ──────────────────────────────────── */
+      .topnav {
+        width: 100%;
+        height: var(--topnav-h);
+        background: var(--bg2);
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        padding: 0 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 200;
+        overflow-x: auto;
+        flex-shrink: 0;
+      }
+      .topnav::-webkit-scrollbar {
+        height: 0;
+      }
+      .topnav .tl {
+        font-weight: 700;
+        font-size: 0.95rem;
+        color: var(--accent);
+        text-decoration: none;
+        white-space: nowrap;
+      }
+      .topnav a {
+        color: var(--text3);
+        text-decoration: none;
+        font-size: 0.82rem;
+        white-space: nowrap;
+        transition: color 0.2s;
+      }
+      .topnav a:hover,
+      .topnav a.active {
+        color: var(--accent);
+      }
+
+      /* ── PAGE BODY ────────────────────────────────── */
+      .page-body {
+        display: flex;
+        flex: 1;
+      }
+
+      /* ── SIDEBAR ───────────────────────────────────── */
+      .sidebar {
+        width: var(--sw);
+        height: calc(100vh - var(--topnav-h));
+        background: var(--bg2);
+        border-right: 1px solid var(--border);
+        position: sticky;
+        top: var(--topnav-h);
+        overflow-y: auto;
+        z-index: 100;
+        display: flex;
+        flex-direction: column;
+        flex-shrink: 0;
+        align-self: flex-start;
+      }
+      .sidebar::-webkit-scrollbar {
+        width: 4px;
+      }
+      .sidebar::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+      .sb-logo {
+        padding: 24px 20px 18px;
+        border-bottom: 1px solid var(--border);
+      }
+      .sb-logo h1 {
+        font-family: "Syne", sans-serif;
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--accent);
+      }
+      .sb-logo small {
+        font-size: 11px;
+        color: var(--text3);
+        font-family: "JetBrains Mono", monospace;
+        display: block;
+        margin-top: 2px;
+      }
+      .sb-badge {
+        display: inline-block;
+        background: rgba(0, 217, 255, 0.1);
+        border: 1px solid rgba(0, 217, 255, 0.25);
+        color: var(--accent);
+        font-size: 10px;
+        padding: 2px 8px;
+        border-radius: 100px;
+        margin-top: 8px;
+        font-family: "JetBrains Mono", monospace;
+      }
+      .sb-section {
+        padding: 10px 12px 4px;
+      }
+      .sb-label {
+        font-size: 9px;
+        font-weight: 600;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: var(--text3);
+        padding: 0 8px;
+        margin-bottom: 4px;
+      }
+      .sb-link {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 10px;
+        border-radius: 6px;
+        color: var(--text2);
+        text-decoration: none;
+        font-size: 13px;
+        transition: all 0.15s;
+        cursor: pointer;
+      }
+      .sb-link:hover,
+      .sb-link.active {
+        background: rgba(0, 217, 255, 0.07);
+        color: var(--accent);
+      }
+      .sb-link .dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: var(--border2);
+        flex-shrink: 0;
+        transition: background 0.15s;
+      }
+      .sb-link:hover .dot,
+      .sb-link.active .dot {
+        background: var(--accent);
+      }
+
+      /* ── MAIN ──────────────────────────────────────── */
+      .main {
+        flex: 1;
+        min-height: calc(100vh - var(--topnav-h));
+        padding-bottom: 80px;
+        overflow-x: hidden;
+      }
+
+      /* ── PROGRESS ──────────────────────────────────── */
+      .progress {
+        height: 2px;
+        background: var(--border);
+        position: sticky;
+        top: var(--topnav-h);
+        z-index: 50;
+      }
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(90deg, var(--accent), var(--green));
+        width: 0%;
+        transition: width 0.1s;
+      }
+
+      /* ── HERO ──────────────────────────────────────── */
+      .hero {
+        background: linear-gradient(
+          135deg,
+          #0e1117 0%,
+          #0a1628 50%,
+          #0e1117 100%
+        );
+        border-bottom: 1px solid var(--border);
+        padding: 60px 60px 50px;
+        position: relative;
+        overflow: hidden;
+      }
+      .hero::before {
+        content: "";
+        position: absolute;
+        top: -100px;
+        right: -100px;
+        width: 400px;
+        height: 400px;
+        background: radial-gradient(
+          circle,
+          rgba(0, 217, 255, 0.05) 0%,
+          transparent 70%
+        );
+        pointer-events: none;
+      }
+      .hero::after {
+        content: "";
+        position: absolute;
+        bottom: 0;
+        left: 40%;
+        width: 300px;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--accent),
+          transparent
+        );
+      }
+      .hero-eye {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--accent);
+        letter-spacing: 2px;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .hero-eye::before {
+        content: "";
+        display: inline-block;
+        width: 20px;
+        height: 1px;
+        background: var(--accent);
+      }
+      .hero h1 {
+        font-family: "Syne", sans-serif;
+        font-size: 48px;
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -1.5px;
+        margin-bottom: 16px;
+      }
+      .hero h1 span {
+        color: var(--accent);
+      }
+      .hero p {
+        color: var(--text2);
+        font-size: 16px;
+        max-width: 600px;
+        line-height: 1.7;
+        margin-bottom: 28px;
+      }
+      .hero-tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .tag {
+        font-size: 11px;
+        font-family: "JetBrains Mono", monospace;
+        padding: 4px 12px;
+        border-radius: 100px;
+        border: 1px solid var(--border2);
+        color: var(--text2);
+      }
+      .tag.blue {
+        border-color: rgba(0, 217, 255, 0.3);
+        color: var(--accent);
+      }
+      .tag.green {
+        border-color: rgba(0, 229, 160, 0.3);
+        color: var(--green);
+      }
+      .tag.orange {
+        border-color: rgba(255, 149, 0, 0.3);
+        color: var(--orange);
+      }
+
+      /* ── SECTIONS ──────────────────────────────────── */
+      .section {
+        padding: 50px 60px;
+        border-bottom: 1px solid var(--border);
+      }
+      .section:last-child {
+        border-bottom: none;
+      }
+      .sec-header {
+        display: flex;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 32px;
+      }
+      .sec-num {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        color: var(--accent);
+        background: rgba(0, 217, 255, 0.08);
+        border: 1px solid rgba(0, 217, 255, 0.2);
+        padding: 4px 10px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        margin-top: 6px;
+      }
+      .sec-header h2 {
+        font-family: "Syne", sans-serif;
+        font-size: 26px;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+        line-height: 1.2;
+      }
+      .sec-desc {
+        color: var(--text2);
+        margin-bottom: 24px;
+        max-width: 720px;
+        line-height: 1.7;
+      }
+
+      /* ── CODE BLOCKS ───────────────────────────────── */
+      .cb {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        overflow: hidden;
+        margin: 16px 0;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 13px;
+      }
+      .cb-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px 16px;
+        background: var(--card);
+        border-bottom: 1px solid var(--border);
+      }
+      .cb-lang {
+        font-size: 10px;
+        color: var(--text3);
+        letter-spacing: 1px;
+        text-transform: uppercase;
+      }
+      .cb-label {
+        font-size: 11px;
+        color: var(--text2);
+        font-weight: 500;
+      }
+      .cb-dots {
+        display: flex;
+        gap: 5px;
+      }
+      .cb-dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+      }
+      .cb-dots span:nth-child(1) {
+        background: #ff5f57;
+      }
+      .cb-dots span:nth-child(2) {
+        background: #ffbd2e;
+      }
+      .cb-dots span:nth-child(3) {
+        background: #28ca41;
+      }
+      .cb-body {
+        padding: 20px;
+        overflow-x: auto;
+        line-height: 1.75;
+        white-space: pre-wrap;
+        word-break: break-all;
+      }
+      .cb-body pre {
+        margin: 0;
+        padding: 0;
+        background: none;
+        border: none;
+        font-family: inherit;
+        font-size: inherit;
+        line-height: inherit;
+        white-space: pre;
+        overflow-x: auto;
+      }
+      .cb-body::-webkit-scrollbar {
+        height: 4px;
+      }
+      .cb-body::-webkit-scrollbar-thumb {
+        background: var(--border2);
+        border-radius: 2px;
+      }
+
+      /* syntax */
+      .kw {
+        color: #ff79c6;
+      }
+      .fn {
+        color: #50fa7b;
+      }
+      .str {
+        color: #f1fa8c;
+      }
+      .num {
+        color: var(--orange);
+      }
+      .cm {
+        color: var(--text3);
+        font-style: italic;
+      }
+      .dec {
+        color: var(--accent);
+      }
+      .cls {
+        color: #8be9fd;
+      }
+      .imp {
+        color: var(--purple);
+      }
+
+      /* ── HEADINGS ──────────────────────────────────── */
+      h3 {
+        font-family: "Syne", sans-serif;
+        font-size: 17px;
+        font-weight: 700;
+        margin: 30px 0 12px;
+        color: var(--text);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      h3::before {
+        content: "";
+        display: inline-block;
+        width: 3px;
+        height: 16px;
+        background: var(--accent);
+        border-radius: 2px;
+      }
+      h4 {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--text2);
+        margin: 18px 0 8px;
+        font-family: "Syne", sans-serif;
+      }
+
+      /* ── CARDS ─────────────────────────────────────── */
+      .grid2 {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .grid3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 16px;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 20px;
+        transition: border-color 0.2s;
+      }
+      .card:hover {
+        border-color: var(--border2);
+      }
+      .card h3 {
+        font-size: 15px;
+        margin: 0 0 8px;
+      }
+      .card h3::before {
+        display: none;
+      }
+      .card p {
+        color: var(--text2);
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      /* ── METHOD BADGES ─────────────────────────────── */
+      .method {
+        display: inline-block;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 3px 10px;
+        border-radius: 4px;
+        letter-spacing: 0.5px;
+      }
+      .GET {
+        background: rgba(0, 229, 160, 0.15);
+        color: var(--green);
+        border: 1px solid rgba(0, 229, 160, 0.3);
+      }
+      .POST {
+        background: rgba(0, 217, 255, 0.15);
+        color: var(--accent);
+        border: 1px solid rgba(0, 217, 255, 0.3);
+      }
+      .PUT {
+        background: rgba(255, 149, 0, 0.15);
+        color: var(--orange);
+        border: 1px solid rgba(255, 149, 0, 0.3);
+      }
+      .DELETE {
+        background: rgba(255, 77, 106, 0.15);
+        color: var(--red);
+        border: 1px solid rgba(255, 77, 106, 0.3);
+      }
+      .PATCH {
+        background: rgba(180, 142, 255, 0.15);
+        color: var(--purple);
+        border: 1px solid rgba(180, 142, 255, 0.3);
+      }
+
+      /* ── MERMAID ───────────────────────────────────── */
+      .mw {
+        background: var(--bg3);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 30px;
+        margin: 16px 0;
+        display: flex;
+        justify-content: center;
+        overflow-x: auto;
+      }
+
+      /* ── CALLOUTS ──────────────────────────────────── */
+      .callout {
+        border-radius: 8px;
+        padding: 14px 18px;
+        margin: 16px 0;
+        font-size: 13.5px;
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        border-left: 3px solid;
+      }
+      .callout.info {
+        background: rgba(0, 217, 255, 0.06);
+        border-color: var(--accent);
+      }
+      .callout.warn {
+        background: rgba(255, 149, 0, 0.06);
+        border-color: var(--orange);
+      }
+      .callout.tip {
+        background: rgba(0, 229, 160, 0.06);
+        border-color: var(--green);
+      }
+      .callout.danger {
+        background: rgba(255, 77, 106, 0.06);
+        border-color: var(--red);
+      }
+      .callout-icon {
+        font-size: 16px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+      .callout p {
+        color: var(--text2);
+        line-height: 1.6;
+      }
+      .callout strong {
+        color: var(--text);
+      }
+
+      /* ── TABLES ────────────────────────────────────── */
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 16px 0;
+        font-size: 13.5px;
+      }
+      th {
+        background: var(--card);
+        color: var(--text2);
+        font-weight: 600;
+        text-align: left;
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-family: "JetBrains Mono", monospace;
+      }
+      td {
+        padding: 10px 14px;
+        border: 1px solid var(--border);
+        color: var(--text2);
+        vertical-align: top;
+      }
+      tr:hover td {
+        background: rgba(255, 255, 255, 0.01);
+      }
+      td code,
+      th code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        background: var(--card);
+        padding: 1px 6px;
+        border-radius: 3px;
+        color: var(--accent);
+      }
+
+      /* ── INLINE CODE ───────────────────────────────── */
+      p code,
+      li code {
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12.5px;
+        background: var(--card2);
+        border: 1px solid var(--border);
+        padding: 1px 6px;
+        border-radius: 4px;
+        color: var(--accent);
+      }
+      ul,
+      ol {
+        padding-left: 20px;
+        color: var(--text2);
+      }
+      li {
+        margin: 6px 0;
+      }
+
+      /* ── STEPS ─────────────────────────────────────── */
+      .steps {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        position: relative;
+        margin: 20px 0;
+      }
+      .steps::before {
+        content: "";
+        position: absolute;
+        left: 19px;
+        top: 20px;
+        bottom: 20px;
+        width: 1px;
+        background: var(--border2);
+      }
+      .step {
+        display: flex;
+        gap: 16px;
+        padding: 0 0 20px;
+        position: relative;
+      }
+      .step-num {
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        background: var(--card);
+        border: 1px solid var(--border2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-family: "JetBrains Mono", monospace;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent);
+        flex-shrink: 0;
+        z-index: 1;
+      }
+      .step-body {
+        flex: 1;
+        padding-top: 8px;
+      }
+      .step-body h4 {
+        margin: 0 0 4px;
+        color: var(--text);
+        font-size: 14px;
+      }
+      .step-body p {
+        font-size: 13.5px;
+        color: var(--text2);
+        margin: 0;
+      }
+
+      /* ── DIVIDER ───────────────────────────────────── */
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 28px 0 20px;
+      }
+      .divider span {
+        font-family: "Syne", sans-serif;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text3);
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        white-space: nowrap;
+      }
+      .divider::before,
+      .divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--border);
+      }
+
+      @media (max-width: 1024px) {
+        .sidebar {
+          display: none;
+        }
+        .body-wrap {
+          margin-left: 0;
+        }
+      }
+      @media (max-width: 900px) {
+        .sidebar {
+          display: none;
+        }
+        .hero,
+        .section {
+          padding: 40px 24px;
+        }
+        .hero h1 {
+          font-size: 32px;
+        }
+        .grid2,
+        .grid3 {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 600px) {
+        .hero {
+          padding: 32px 16px;
+        }
+        .hero h1 {
+          font-size: 26px;
+        }
+        .section {
+          padding: 28px 16px;
+        }
+        pre,
+        .code-block {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          font-size: 0.82rem;
+        }
+        .topnav {
+          padding: 0 12px;
+          gap: 12px;
+          font-size: 0.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- ══════════════════ TOP NAV ══════════════════ -->
+    <nav class="topnav">
+      <a href="index.html" class="tl">⚡ AI Ecosystem Docs</a>
+      <a href="langchain.html">LangChain</a>
+      <a href="langgraph.html">LangGraph</a>
+      <a href="mcp.html">MCP</a>
+      <a href="fastmcp.html">FastMCP</a>
+      <a href="rag.html">RAG</a>
+      <a href="rag_concept_docs.html">RAG Concepts</a>
+      <a href="rag_learning_path.html">RAG Path</a>
+      <a href="multi_agent.html">Multi-Agent</a>
+      <a href="fastApi.html" class="active">FastAPI</a>
+      <a href="pgAndPgVector.html">PgVector</a>
+    </nav>
+    <div class="page-body">
+      <!-- ══════════════════ SIDEBAR ══════════════════ -->
+      <nav class="sidebar">
+        <div class="sb-logo">
+          <a
+            href="index.html"
+            style="
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              font-size: 11px;
+              color: var(--text3);
+              text-decoration: none;
+              margin-bottom: 10px;
+              font-family: &quot;JetBrains Mono&quot;, monospace;
+              letter-spacing: 0.5px;
+              transition: color 0.2s;
+            "
+            onmouseover="this.style.color = 'var(--accent)'"
+            onmouseout="this.style.color = 'var(--text3)'"
+            >← AI Ecosystem Docs</a
+          >
+          <h1>FastAPI Docs</h1>
+          <small>with uv · Production Ready</small>
+          <div class="sb-badge">v0.115+</div>
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Getting Started</div>
+          <a class="sb-link" href="#setup"
+            ><span class="dot"></span>Setup with uv</a
+          >
+          <a class="sb-link" href="#structure"
+            ><span class="dot"></span>Project Structure</a
+          >
+          <a class="sb-link" href="#flow"
+            ><span class="dot"></span>Request Flow</a
+          >
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Core Concepts</div>
+          <a class="sb-link" href="#rest"
+            ><span class="dot"></span>REST Operations</a
+          >
+          <a class="sb-link" href="#schemas-post-update"
+            ><span class="dot"></span>Schemas + POST &amp; UPDATE</a
+          >
+          <a class="sb-link" href="#sqlalchemy-deep"
+            ><span class="dot"></span>SQLAlchemy In Depth</a
+          >
+          <a class="sb-link" href="#schemas"
+            ><span class="dot"></span>Schema Patterns</a
+          >
+          <a class="sb-link" href="#dependency"
+            ><span class="dot"></span>Dependency Injection</a
+          >
+          <a class="sb-link" href="#middleware"
+            ><span class="dot"></span>Middleware</a
+          >
+          <a class="sb-link" href="#errors"
+            ><span class="dot"></span>Error Handling</a
+          >
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Authentication</div>
+          <a class="sb-link" href="#jwt"><span class="dot"></span>JWT Auth</a>
+          <a class="sb-link" href="#roles"
+            ><span class="dot"></span>Authorization &amp; Roles</a
+          >
+          <a class="sb-link" href="#oauth"
+            ><span class="dot"></span>OAuth2 Flow</a
+          >
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">File Handling</div>
+          <a class="sb-link" href="#upload"
+            ><span class="dot"></span>File &amp; Image Upload</a
+          >
+          <a class="sb-link" href="#static"
+            ><span class="dot"></span>Static Files</a
+          >
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Databases</div>
+          <a class="sb-link" href="#postgres"
+            ><span class="dot"></span>PostgreSQL + SQLAlchemy</a
+          >
+          <a class="sb-link" href="#mongo"
+            ><span class="dot"></span>MongoDB + Motor</a
+          >
+          <a class="sb-link" href="#db-compare"
+            ><span class="dot"></span>DB Comparison</a
+          >
+        </div>
+        <div class="sb-section">
+          <div class="sb-label">Advanced</div>
+          <a class="sb-link" href="#background"
+            ><span class="dot"></span>Background Tasks</a
+          >
+          <a class="sb-link" href="#websocket"
+            ><span class="dot"></span>WebSockets</a
+          >
+          <a class="sb-link" href="#cors"
+            ><span class="dot"></span>CORS &amp; Security</a
+          >
+          <a class="sb-link" href="#deploy"
+            ><span class="dot"></span>Production Deploy</a
+          >
+        </div>
+      </nav>
+      <div class="progress"><div class="progress-bar" id="pb"></div></div>
+      <!-- ══════════════════ MAIN ══════════════════ -->
+      <main class="main">
+        <!-- ── HERO ─────────────────────────────────── -->
+        <div class="hero">
+          <div class="hero-eye">Complete Reference</div>
+          <h1>FastAPI<br /><span>Production Guide</span></h1>
+          <p>
+            A comprehensive reference for building modern Python APIs with
+            FastAPI and uv — covering REST, schemas, SQLAlchemy, auth, file
+            handling, databases, and deployment.
+          </p>
+          <div class="hero-tags">
+            <span class="tag blue">FastAPI 0.115+</span>
+            <span class="tag green">Python 3.12+</span>
+            <span class="tag orange">uv Package Manager</span>
+            <span class="tag">PostgreSQL</span>
+            <span class="tag">MongoDB</span>
+            <span class="tag">JWT Auth</span>
+          </div>
+        </div>
+        <!-- ════════════════════════════════════════════
+     01 — SETUP WITH UV
+════════════════════════════════════════════ -->
+        <section class="section" id="setup">
+          <div class="sec-header">
+            <span class="sec-num">01</span>
+            <div><h2>Setup with uv</h2></div>
+          </div>
+          <p class="sec-desc">
+            uv is a blazing-fast Python package manager (written in Rust) that
+            replaces pip + venv + pip-tools in one tool. Always prefer it for
+            new projects.
+          </p>
+          <h3>Install uv &amp; Bootstrap</h3>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Terminal</span
+              ><span class="cb-lang">bash</span>
+            </div>
+            <div class="cb-body">
+              <span class="cm"># Install uv</span> curl -LsSf
+              https://astral.sh/uv/install.sh | sh
+              <span class="cm"># Linux/Mac</span>
+              <span class="cm"># pip install uv # or via pip</span>
+              <span class="cm"># Create + enter project</span>
+              uv init my-api &amp;&amp; cd my-api
+
+              <span class="cm"># Add core deps</span>
+              uv add fastapi "uvicorn[standard]"
+
+              <span class="cm"># Dev tools</span>
+              uv add --dev pytest pytest-asyncio httpx ruff
+
+              <span class="cm"># Run dev server</span>
+              uv run uvicorn app.main:app --reload --port 8000
+            </div>
+          </div>
+          <h3>Dependencies by Feature</h3>
+          <table>
+            <tr>
+              <th>Feature</th>
+              <th>Packages</th>
+              <th>Command</th>
+            </tr>
+            <tr>
+              <td>Core API</td>
+              <td><code>fastapi uvicorn[standard]</code></td>
+              <td><code>uv add fastapi "uvicorn[standard]"</code></td>
+            </tr>
+            <tr>
+              <td>PostgreSQL (async)</td>
+              <td><code>sqlalchemy asyncpg alembic</code></td>
+              <td><code>uv add sqlalchemy asyncpg alembic</code></td>
+            </tr>
+            <tr>
+              <td>MongoDB</td>
+              <td><code>motor beanie</code></td>
+              <td><code>uv add motor beanie</code></td>
+            </tr>
+            <tr>
+              <td>JWT Auth</td>
+              <td><code>python-jose[cryptography] passlib[bcrypt]</code></td>
+              <td>
+                <code
+                  >uv add "python-jose[cryptography]" "passlib[bcrypt]"</code
+                >
+              </td>
+            </tr>
+            <tr>
+              <td>File upload</td>
+              <td><code>python-multipart pillow</code></td>
+              <td><code>uv add python-multipart pillow</code></td>
+            </tr>
+            <tr>
+              <td>Config</td>
+              <td><code>pydantic-settings</code></td>
+              <td><code>uv add pydantic-settings</code></td>
+            </tr>
+            <tr>
+              <td>Testing</td>
+              <td><code>pytest httpx pytest-asyncio</code></td>
+              <td><code>uv add --dev pytest httpx pytest-asyncio</code></td>
+            </tr>
+          </table>
+        </section>
+        <!-- ════════════════════════════════════════════
+     02 — PROJECT STRUCTURE
+════════════════════════════════════════════ -->
+        <section class="section" id="structure">
+          <div class="sec-header">
+            <span class="sec-num">02</span>
+            <div><h2>Project Structure</h2></div>
+          </div>
+          <p class="sec-desc">
+            A scalable FastAPI project separates concerns cleanly. Here's the
+            recommended layout for production applications.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Folder layout</span
+              ><span class="cb-lang">tree</span>
+            </div>
+            <div class="cb-body">
+              <pre><span class="cls">my-api/</span>
+├── <span class="cls">app/</span>
+│   ├── <span class="fn">main.py</span>          <span class="cm"># App entry, middleware, routers</span>
+│   ├── <span class="fn">config.py</span>        <span class="cm"># Settings via pydantic-settings</span>
+│   ├── <span class="fn">dependencies.py</span>  <span class="cm"># Shared DI: get_db, get_current_user</span>
+│   ├── <span class="cls">models/</span>          <span class="cm"># SQLAlchemy ORM models (DB tables)</span>
+│   │   ├── <span class="fn">user.py</span>
+│   │   └── <span class="fn">product.py</span>
+│   ├── <span class="cls">schemas/</span>         <span class="cm"># Pydantic request/response contracts</span>
+│   │   ├── <span class="fn">user.py</span>
+│   │   └── <span class="fn">product.py</span>
+│   ├── <span class="cls">routers/</span>         <span class="cm"># APIRouter per domain</span>
+│   │   ├── <span class="fn">auth.py</span>
+│   │   ├── <span class="fn">users.py</span>
+│   │   └── <span class="fn">products.py</span>
+│   ├── <span class="cls">crud/</span>            <span class="cm"># All DB queries live here only</span>
+│   │   ├── <span class="fn">user_crud.py</span>
+│   │   └── <span class="fn">product_crud.py</span>
+│   ├── <span class="cls">services/</span>        <span class="cm"># Business logic (no direct DB calls)</span>
+│   │   └── <span class="fn">email_service.py</span>
+│   └── <span class="cls">core/</span>
+│       ├── <span class="fn">database.py</span>  <span class="cm"># Engine, session factory, Base</span>
+│       └── <span class="fn">security.py</span>  <span class="cm"># JWT, password hashing</span>
+├── <span class="cls">tests/</span>
+│   └── <span class="fn">test_products.py</span>
+├── <span class="fn">pyproject.toml</span>
+├── <span class="fn">uv.lock</span>          <span class="cm"># Commit this — reproducible builds</span>
+├── <span class="fn">.env</span>
+└── <span class="cls">alembic/</span>         <span class="cm"># DB migrations</span></pre>
+            </div>
+          </div>
+          <h3>app/main.py — Application Entry Point</h3>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/main.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">FastAPI</span>
+              <span class="kw">from</span>
+              <span class="imp">fastapi.middleware.cors</span>
+              <span class="kw">import</span>
+              <span class="cls">CORSMiddleware</span>
+              <span class="kw">from</span>
+              <span class="imp">contextlib</span>
+              <span class="kw">import</span> asynccontextmanager
+              <span class="kw">from</span> <span class="imp">app.routers</span>
+              <span class="kw">import</span> auth, users, products
+              <span class="kw">from</span>
+              <span class="imp">app.core.database</span>
+              <span class="kw">import</span> init_db
+
+              <span class="dec">@asynccontextmanager</span>
+              <span class="kw">async def</span>
+              <span class="fn">lifespan</span>(app:
+              <span class="cls">FastAPI</span>): <span class="kw">await</span>
+              <span class="fn">init_db</span>()
+              <span class="cm"># startup: create tables</span>
+              <span class="kw">yield</span>
+              <span class="cm"># app runs here</span>
+              <span class="cm"># shutdown cleanup if needed</span>
+
+              app = <span class="cls">FastAPI</span>( title=<span class="str"
+                >"My API"</span
+              >, version=<span class="str">"1.0.0"</span>, lifespan=lifespan,
+              docs_url=<span class="str">"/docs"</span>, redoc_url=<span
+                class="str"
+                >"/redoc"</span
+              >, ) app.<span class="fn">add_middleware</span>(
+              <span class="cls">CORSMiddleware</span>, allow_origins=[<span
+                class="str"
+                >"https://myapp.com"</span
+              >], allow_methods=[<span class="str">"*"</span>],
+              allow_headers=[<span class="str">"*"</span>],
+              allow_credentials=<span class="kw">True</span>, ) app.<span
+                class="fn"
+                >include_router</span
+              >(auth.router, prefix=<span class="str">"/auth"</span>,
+              tags=[<span class="str">"Auth"</span>]) app.<span class="fn"
+                >include_router</span
+              >(users.router, prefix=<span class="str">"/users"</span>,
+              tags=[<span class="str">"Users"</span>]) app.<span class="fn"
+                >include_router</span
+              >(products.router, prefix=<span class="str">"/products"</span>,
+              tags=[<span class="str">"Products"</span>])
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     03 — REQUEST FLOW
+════════════════════════════════════════════ -->
+        <section class="section" id="flow">
+          <div class="sec-header">
+            <span class="sec-num">03</span>
+            <div><h2>Request Flow Diagram</h2></div>
+          </div>
+          <p class="sec-desc">
+            Understanding how a request travels through FastAPI's layers is
+            essential for debugging and architecture decisions.
+          </p>
+          <div class="mw">
+            <div id="merChart_0"></div>
+          </div>
+          <div class="mw">
+            <div id="merChart_1"></div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     04 — REST OPERATIONS
+════════════════════════════════════════════ -->
+        <section class="section" id="rest">
+          <div class="sec-header">
+            <span class="sec-num">04</span>
+            <div><h2>REST Operations</h2></div>
+          </div>
+          <p class="sec-desc">
+            Full CRUD example for a <code>users</code> resource. Each HTTP
+            method has a specific semantic meaning — use them correctly.
+          </p>
+          <table>
+            <tr>
+              <th>Method</th>
+              <th>Path</th>
+              <th>Action</th>
+              <th>Body</th>
+              <th>Returns</th>
+            </tr>
+            <tr>
+              <td><span class="method GET">GET</span></td>
+              <td><code>/users</code></td>
+              <td>List all</td>
+              <td>—</td>
+              <td>200 + list</td>
+            </tr>
+            <tr>
+              <td><span class="method GET">GET</span></td>
+              <td><code>/users/{id}</code></td>
+              <td>Get one</td>
+              <td>—</td>
+              <td>200 / 404</td>
+            </tr>
+            <tr>
+              <td><span class="method POST">POST</span></td>
+              <td><code>/users</code></td>
+              <td>Create</td>
+              <td>JSON body</td>
+              <td>201 + created</td>
+            </tr>
+            <tr>
+              <td><span class="method PUT">PUT</span></td>
+              <td><code>/users/{id}</code></td>
+              <td>Full replace</td>
+              <td>Full JSON</td>
+              <td>200 / 404</td>
+            </tr>
+            <tr>
+              <td><span class="method PATCH">PATCH</span></td>
+              <td><code>/users/{id}</code></td>
+              <td>Partial update</td>
+              <td>Partial JSON</td>
+              <td>200 / 404</td>
+            </tr>
+            <tr>
+              <td><span class="method DELETE">DELETE</span></td>
+              <td><code>/users/{id}</code></td>
+              <td>Delete</td>
+              <td>—</td>
+              <td>204 No Content</td>
+            </tr>
+          </table>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/routers/users.py — Complete CRUD</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">APIRouter</span>,
+              <span class="cls">Depends</span>,
+              <span class="cls">HTTPException</span>, status
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSession</span>
+              <span class="kw">from</span>
+              <span class="imp">app.schemas.user</span>
+              <span class="kw">import</span>
+              <span class="cls">UserCreate</span>,
+              <span class="cls">UserUpdate</span>,
+              <span class="cls">UserResponse</span> <span class="kw">from</span>
+              <span class="imp">app.dependencies</span>
+              <span class="kw">import</span> get_db, get_current_user
+              <span class="kw">from</span> <span class="imp">app.crud</span>
+              <span class="kw">import</span> user_crud router =
+              <span class="cls">APIRouter</span>()
+
+              <span class="cm"># GET /users ─── list with pagination</span>
+              <span class="dec">@router.get</span>(<span class="str">"/"</span>,
+              response_model=<span class="fn">list</span>[<span class="cls"
+                >UserResponse</span
+              >]) <span class="kw">async def</span>
+              <span class="fn">list_users</span>(skip:
+              <span class="cls">int</span> = <span class="num">0</span>, limit:
+              <span class="cls">int</span> = <span class="num">100</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db)):
+              <span class="kw">return await</span> user_crud.<span class="fn"
+                >get_users</span
+              >(db, skip=skip, limit=limit)
+
+              <span class="cm"># GET /users/{user_id} ─── single resource</span>
+              <span class="dec">@router.get</span>(<span class="str"
+                >"/{user_id}"</span
+              >, response_model=<span class="cls">UserResponse</span>)
+              <span class="kw">async def</span>
+              <span class="fn">get_user</span>(user_id:
+              <span class="cls">int</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db)): user =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >get_user</span
+              >(db, user_id) <span class="kw">if not</span> user:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"User not found"</span>)
+              <span class="kw">return</span> user
+
+              <span class="cm"># POST /users ─── create (201)</span>
+              <span class="dec">@router.post</span>(<span class="str">"/"</span
+              >, response_model=<span class="cls">UserResponse</span>,
+              status_code=status.<span class="cls">HTTP_201_CREATED</span>)
+              <span class="kw">async def</span>
+              <span class="fn">create_user</span>(payload:
+              <span class="cls">UserCreate</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db)): existing =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >get_user_by_email</span
+              >(db, payload.email) <span class="kw">if</span> existing:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >409</span
+              >, detail=<span class="str">"Email already registered"</span>)
+              <span class="kw">return await</span> user_crud.<span class="fn"
+                >create_user</span
+              >(db, payload)
+
+              <span class="cm"
+                ># PUT /users/{user_id} ─── full replace (all fields
+                required)</span
+              >
+              <span class="dec">@router.put</span>(<span class="str"
+                >"/{user_id}"</span
+              >, response_model=<span class="cls">UserResponse</span>)
+              <span class="kw">async def</span>
+              <span class="fn">replace_user</span>(user_id:
+              <span class="cls">int</span>, payload:
+              <span class="cls">UserCreate</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db)): user =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >update_user</span
+              >(db, user_id, payload.<span class="fn">model_dump</span>())
+              <span class="kw">if not</span> user: <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"User not found"</span>)
+              <span class="kw">return</span> user
+
+              <span class="cm"
+                ># PATCH /users/{user_id} ─── partial update (only sent
+                fields)</span
+              >
+              <span class="dec">@router.patch</span>(<span class="str"
+                >"/{user_id}"</span
+              >, response_model=<span class="cls">UserResponse</span>)
+              <span class="kw">async def</span>
+              <span class="fn">patch_user</span>(user_id:
+              <span class="cls">int</span>, payload:
+              <span class="cls">UserUpdate</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db)): user =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >update_user</span
+              >(db, user_id, payload.<span class="fn">model_dump</span
+              >(exclude_unset=<span class="kw">True</span>))
+              <span class="kw">if not</span> user: <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"User not found"</span>)
+              <span class="kw">return</span> user
+
+              <span class="cm"
+                ># DELETE /users/{user_id} ─── 204 No Content</span
+              >
+              <span class="dec">@router.delete</span>(<span class="str"
+                >"/{user_id}"</span
+              >, status_code=status.<span class="cls">HTTP_204_NO_CONTENT</span
+              >)
+              <span class="kw">async def</span>
+              <span class="fn">delete_user</span>( user_id:
+              <span class="cls">int</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db), current_user =
+              <span class="cls">Depends</span>(get_current_user), ): deleted =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >delete_user</span
+              >(db, user_id) <span class="kw">if not</span> deleted:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"User not found"</span>)
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     04B — SCHEMAS + POST & UPDATE IN DEPTH
+════════════════════════════════════════════ -->
+        <section class="section" id="schemas-post-update">
+          <div class="sec-header">
+            <span class="sec-num">04B</span>
+            <div><h2>BaseModel Schemas + POST &amp; UPDATE in Depth</h2></div>
+          </div>
+          <p class="sec-desc">
+            This section walks the
+            <strong>complete end-to-end process</strong> — from defining
+            Pydantic schemas to wiring them into POST, PUT, and PATCH routes
+            with a full SQLAlchemy database layer. Every step is explicit so
+            nothing is hidden.
+          </p>
+          <!-- ── Overview flow ─────────────────────── -->
+          <div class="mw">
+            <div id="merChart_2"></div>
+          </div>
+          <!-- ── STEP 1 ─────────────────────────────── -->
+          <h3>Step 1 — The SQLAlchemy ORM Model</h3>
+          <p class="sec-desc">
+            The ORM model is the source of truth for your database columns,
+            types, constraints, and relationships. It lives in
+            <code>app/models/</code> and maps 1-to-1 with a database table.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/models/product.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">sqlalchemy</span>
+              <span class="kw">import</span> <span class="cls">String</span>,
+              <span class="cls">Integer</span>, <span class="cls">Float</span>,
+              <span class="cls">Boolean</span>, <span class="cls">Text</span>,
+              <span class="cls">DateTime</span>,
+              <span class="cls">ForeignKey</span>, func
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.orm</span>
+              <span class="kw">import</span> <span class="cls">Mapped</span>,
+              mapped_column, relationship <span class="kw">from</span>
+              <span class="imp">app.core.database</span>
+              <span class="kw">import</span> <span class="cls">Base</span>
+              <span class="kw">from</span> <span class="imp">datetime</span>
+              <span class="kw">import</span> datetime
+
+              <span class="kw">class</span>
+              <span class="cls">Product</span>(<span class="cls">Base</span>):
+              __tablename__ = <span class="str">"products"</span>
+              <span class="cm"># Auto-incrementing PK</span>
+              id: <span class="cls">Mapped</span>[<span class="cls">int</span>]
+              = <span class="fn">mapped_column</span>(<span class="cls"
+                >Integer</span
+              >, primary_key=<span class="kw">True</span>, index=<span
+                class="kw"
+                >True</span
+              >)
+
+              <span class="cm"
+                ># Text columns — String(n) = VARCHAR(n), Text = unlimited</span
+              >
+              name: <span class="cls">Mapped</span>[<span class="cls">str</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >String</span
+              >(<span class="num">200</span>), nullable=<span class="kw"
+                >False</span
+              >) description: <span class="cls">Mapped</span>[<span class="cls"
+                >str</span
+              >
+              | <span class="kw">None</span>] =
+              <span class="fn">mapped_column</span>(<span class="cls">Text</span
+              >, nullable=<span class="kw">True</span>) sku:
+              <span class="cls">Mapped</span>[<span class="cls">str</span>] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >String</span
+              >(<span class="num">100</span>), unique=<span class="kw"
+                >True</span
+              >, index=<span class="kw">True</span>)
+
+              <span class="cm"># Numeric</span>
+              price: <span class="cls">Mapped</span>[<span class="cls"
+                >float</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >Float</span
+              >, nullable=<span class="kw">False</span>) stock:
+              <span class="cls">Mapped</span>[<span class="cls">int</span>] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >Integer</span
+              >, default=<span class="num">0</span>)
+
+              <span class="cm"
+                ># Boolean — server_default writes "true" into DB DDL</span
+              >
+              is_active: <span class="cls">Mapped</span>[<span class="cls"
+                >bool</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >Boolean</span
+              >, default=<span class="kw">True</span>, server_default=<span
+                class="str"
+                >"true"</span
+              >)
+
+              <span class="cm"># Foreign key — links to users.id</span>
+              owner_id: <span class="cls">Mapped</span>[<span class="cls"
+                >int</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >ForeignKey</span
+              >(<span class="str">"users.id"</span>), nullable=<span class="kw"
+                >False</span
+              >)
+
+              <span class="cm"
+                ># Timestamps — server_default = set by DB on INSERT</span
+              >
+              <span class="cm"
+                ># onupdate = updated automatically on every UPDATE</span
+              >
+              created_at: <span class="cls">Mapped</span>[datetime] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >DateTime</span
+              >(timezone=<span class="kw">True</span>),
+              server_default=func.<span class="fn">now</span>()) updated_at:
+              <span class="cls">Mapped</span>[datetime] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >DateTime</span
+              >(timezone=<span class="kw">True</span>),
+              server_default=func.<span class="fn">now</span>(),
+              onupdate=func.<span class="fn">now</span>())
+
+              <span class="cm"
+                ># Relationship — lazy="selectin" auto-loads in same query</span
+              >
+              owner: <span class="cls">Mapped</span>[<span class="str"
+                >"User"</span
+              >] = <span class="fn">relationship</span>(<span class="str"
+                >"User"</span
+              >, back_populates=<span class="str">"products"</span>, lazy=<span
+                class="str"
+                >"selectin"</span
+              >)
+            </div>
+          </div>
+          <table>
+            <tr>
+              <th>Column Type</th>
+              <th>SQLAlchemy</th>
+              <th>Python Mapped[]</th>
+              <th>Use When</th>
+            </tr>
+            <tr>
+              <td>Short text</td>
+              <td><code>String(n)</code></td>
+              <td><code>Mapped[str]</code></td>
+              <td>Names, slugs, codes (max length known)</td>
+            </tr>
+            <tr>
+              <td>Long text</td>
+              <td><code>Text</code></td>
+              <td><code>Mapped[str]</code></td>
+              <td>Descriptions, bios, content (no max)</td>
+            </tr>
+            <tr>
+              <td>Integer</td>
+              <td><code>Integer</code></td>
+              <td><code>Mapped[int]</code></td>
+              <td>Counts, IDs, quantities</td>
+            </tr>
+            <tr>
+              <td>Decimal money</td>
+              <td><code>Numeric(10,2)</code></td>
+              <td><code>Mapped[Decimal]</code></td>
+              <td>Prices (avoid Float for money)</td>
+            </tr>
+            <tr>
+              <td>Float</td>
+              <td><code>Float</code></td>
+              <td><code>Mapped[float]</code></td>
+              <td>Scores, ratings, coordinates</td>
+            </tr>
+            <tr>
+              <td>Boolean</td>
+              <td><code>Boolean</code></td>
+              <td><code>Mapped[bool]</code></td>
+              <td>Flags, is_active, is_verified</td>
+            </tr>
+            <tr>
+              <td>Timestamp</td>
+              <td><code>DateTime(timezone=True)</code></td>
+              <td><code>Mapped[datetime]</code></td>
+              <td>created_at, updated_at</td>
+            </tr>
+            <tr>
+              <td>Nullable col</td>
+              <td><code>nullable=True</code></td>
+              <td><code>Mapped[str | None]</code></td>
+              <td>Optional fields</td>
+            </tr>
+            <tr>
+              <td>Unique + indexed</td>
+              <td><code>unique=True, index=True</code></td>
+              <td>—</td>
+              <td>Email, SKU, slug lookups</td>
+            </tr>
+            <tr>
+              <td>Foreign key</td>
+              <td><code>ForeignKey("table.col")</code></td>
+              <td><code>Mapped[int]</code></td>
+              <td>Linking to another table</td>
+            </tr>
+          </table>
+          <div class="callout info">
+            <span class="callout-icon">ℹ️</span>
+            <p>
+              <strong>Mapped[] vs Column():</strong> <code>Mapped[str]</code> +
+              <code>mapped_column()</code> is the modern SQLAlchemy 2.0 style —
+              it gives full type hints and IDE support. The old
+              <code>Column(String)</code> still works but avoid it in new code.
+            </p>
+          </div>
+          <!-- ── STEP 2 ─────────────────────────────── -->
+          <h3>Step 2 — Define Pydantic Schemas</h3>
+          <p class="sec-desc">
+            You need <strong>three distinct schemas</strong> per resource: one
+            for creation, one for updating, and one for responses. Never reuse
+            the ORM model as a schema — they serve completely different
+            purposes.
+          </p>
+          <div class="mw">
+            <div id="merChart_3"></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >app/schemas/product.py — All three schemas</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">pydantic</span>
+              <span class="kw">import</span> <span class="cls">BaseModel</span>,
+              <span class="cls">ConfigDict</span>,
+              <span class="cls">Field</span>,
+              <span class="fn">field_validator</span>,
+              <span class="fn">model_validator</span>
+              <span class="kw">from</span> <span class="imp">typing</span>
+              <span class="kw">import</span> <span class="cls">Optional</span>
+              <span class="kw">from</span>
+              <span class="imp">datetime</span>
+              <span class="kw">import</span> datetime
+
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────────
+                # 1. CREATE — body for POST requests. # Required fields have no
+                default (or Field(...)). # Client must NOT send: id, owner_id,
+                created_at, updated_at # Those are set by the server / DB
+                automatically. #
+                ────────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">class</span>
+              <span class="cls">ProductCreate</span>(<span class="cls"
+                >BaseModel</span
+              >): name: <span class="cls">str</span> =
+              <span class="cls">Field</span>(..., min_length=<span class="num"
+                >1</span
+              >, max_length=<span class="num">200</span>, examples=[<span
+                class="str"
+                >"Wireless Headphones"</span
+              >]) sku: <span class="cls">str</span> =
+              <span class="cls">Field</span>(..., pattern=<span class="str"
+                >r"^[A-Z0-9\-]+$"</span
+              >, examples=[<span class="str">"WH-1000XM5"</span>]) price:
+              <span class="cls">float</span> =
+              <span class="cls">Field</span>(..., gt=<span class="num">0</span>,
+              description=<span class="str">"Price in USD, must be &gt; 0"</span
+              >) description: <span class="cls">Optional</span>[<span
+                class="cls"
+                >str</span
+              >] = <span class="cls">Field</span>(<span class="kw">None</span>,
+              max_length=<span class="num">2000</span>) stock:
+              <span class="cls">int</span> =
+              <span class="cls">Field</span>(<span class="num">0</span>,
+              ge=<span class="num">0</span>)
+              <span class="cm"># ge = ≥ 0, default 0</span>
+              <span class="cm"
+                ># @field_validator: runs custom Python logic on a field after
+                type coercion</span
+              >
+              <span class="dec">@field_validator</span>(<span class="str"
+                >"name"</span
+              >)
+              <span class="dec">@classmethod</span>
+              <span class="kw">def</span>
+              <span class="fn">strip_name</span>(cls, v:
+              <span class="cls">str</span>) -&gt; <span class="cls">str</span>:
+              v = v.<span class="fn">strip</span>()
+              <span class="kw">if not</span> v: <span class="kw">raise</span>
+              <span class="cls">ValueError</span>(<span class="str"
+                >"Name cannot be blank"</span
+              >) <span class="kw">return</span> v
+
+              <span class="dec">@field_validator</span>(<span class="str"
+                >"sku"</span
+              >)
+              <span class="dec">@classmethod</span>
+              <span class="kw">def</span>
+              <span class="fn">sku_uppercase</span>(cls, v:
+              <span class="cls">str</span>) -&gt; <span class="cls">str</span>:
+              <span class="kw">return</span> v.<span class="fn">upper</span>()
+              <span class="cm"># normalise — always store uppercased</span>
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────────
+                # 2. UPDATE — body for PUT / PATCH requests. # Every single
+                field is Optional — the client sends ONLY # what they want to
+                change. Use model_dump(exclude_unset=True) # in the handler so
+                un-sent fields are not overwritten. #
+                ────────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">class</span>
+              <span class="cls">ProductUpdate</span>(<span class="cls"
+                >BaseModel</span
+              >): name: <span class="cls">Optional</span>[<span class="cls"
+                >str</span
+              >] = <span class="cls">Field</span>(<span class="kw">None</span>,
+              min_length=<span class="num">1</span>, max_length=<span
+                class="num"
+                >200</span
+              >) price: <span class="cls">Optional</span>[<span class="cls"
+                >float</span
+              >] = <span class="cls">Field</span>(<span class="kw">None</span>,
+              gt=<span class="num">0</span>) description:
+              <span class="cls">Optional</span>[<span class="cls">str</span>] =
+              <span class="cls">Field</span>(<span class="kw">None</span>,
+              max_length=<span class="num">2000</span>) stock:
+              <span class="cls">Optional</span>[<span class="cls">int</span>] =
+              <span class="cls">Field</span>(<span class="kw">None</span>,
+              ge=<span class="num">0</span>) is_active:
+              <span class="cls">Optional</span>[<span class="cls">bool</span>] =
+              <span class="kw">None</span>
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────────
+                # 3. RESPONSE — what the API returns to the client. #
+                from_attributes=True lets Pydantic read ORM objects directly. #
+                Never expose: hashed_password, internal flags, secret keys. #
+                ────────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">class</span>
+              <span class="cls">ProductResponse</span>(<span class="cls"
+                >BaseModel</span
+              >): model_config =
+              <span class="cls">ConfigDict</span>(from_attributes=<span
+                class="kw"
+                >True</span
+              >) <span class="cm"># REQUIRED for ORM → Pydantic</span>
+
+              id: <span class="cls">int</span> name:
+              <span class="cls">str</span> sku:
+              <span class="cls">str</span> price:
+              <span class="cls">float</span> description:
+              <span class="cls">Optional</span>[<span class="cls">str</span>]
+              stock: <span class="cls">int</span> is_active:
+              <span class="cls">bool</span> owner_id:
+              <span class="cls">int</span>
+              created_at: datetime updated_at: datetime
+
+              <span class="cm"
+                ># ── Nested response: product with owner details
+                ────────────</span
+              >
+              <span class="kw">class</span>
+              <span class="cls">OwnerBrief</span>(<span class="cls"
+                >BaseModel</span
+              >): model_config =
+              <span class="cls">ConfigDict</span>(from_attributes=<span
+                class="kw"
+                >True</span
+              >) id: <span class="cls">int</span> name:
+              <span class="cls">str</span> email: <span class="cls">str</span>
+              <span class="kw">class</span>
+              <span class="cls">ProductWithOwner</span>(<span class="cls"
+                >ProductResponse</span
+              >): owner: <span class="cls">OwnerBrief</span>
+              <span class="cm"
+                ># nested schema — Pydantic serializes automatically</span
+              >
+            </div>
+          </div>
+          <h4>Field() Constraint Reference</h4>
+          <table>
+            <tr>
+              <th>Constraint</th>
+              <th>Syntax</th>
+              <th>Meaning</th>
+            </tr>
+            <tr>
+              <td>Required</td>
+              <td><code>Field(...)</code> or no default</td>
+              <td>Client MUST provide this field</td>
+            </tr>
+            <tr>
+              <td>Optional with default</td>
+              <td><code>Field(None)</code> or <code>= None</code></td>
+              <td>OK to omit — defaults to None</td>
+            </tr>
+            <tr>
+              <td>Min/max string length</td>
+              <td><code>Field(..., min_length=1, max_length=200)</code></td>
+              <td>Guards string length</td>
+            </tr>
+            <tr>
+              <td>Numeric bounds</td>
+              <td><code>Field(..., gt=0, ge=0, lt=100, le=100)</code></td>
+              <td>gt=&gt;, ge=≥, lt=&lt;, le=≤</td>
+            </tr>
+            <tr>
+              <td>Regex pattern</td>
+              <td><code>Field(..., pattern=r"^[A-Z0-9]+")</code></td>
+              <td>String must match regex</td>
+            </tr>
+            <tr>
+              <td>Docs / Swagger</td>
+              <td>
+                <code>Field(..., description="...", examples=[...])</code>
+              </td>
+              <td>Shows up in /docs UI</td>
+            </tr>
+            <tr>
+              <td>Custom validation</td>
+              <td><code>@field_validator("field_name")</code></td>
+              <td>Any Python logic</td>
+            </tr>
+            <tr>
+              <td>Cross-field validation</td>
+              <td><code>@model_validator(mode="after")</code></td>
+              <td>Compare multiple fields</td>
+            </tr>
+          </table>
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <p>
+              <strong>Schema vs ORM model — never mix them.</strong> ORM models
+              define the database. Pydantic schemas define the API contract.
+              Even if 90% of fields are the same, always define both separately.
+              Mixing them leads to accidentally exposing
+              <code>hashed_password</code> or leaking internal fields.
+            </p>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     04C — SQLALCHEMY IN DEPTH
+════════════════════════════════════════════ -->
+        <section class="section" id="sqlalchemy-deep">
+          <div class="sec-header">
+            <span class="sec-num">04C</span>
+            <div><h2>SQLAlchemy Implementation In Depth</h2></div>
+          </div>
+          <p class="sec-desc">
+            Here we wire together the database engine, session management, CRUD
+            layer, and route handlers into a complete working stack — step by
+            step.
+          </p>
+          <!-- ── Database Setup ──────────────────────── -->
+          <h3>Database Engine &amp; Session Factory</h3>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/core/database.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span> create_async_engine,
+              <span class="cls">AsyncSession</span>, async_sessionmaker
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.orm</span>
+              <span class="kw">import</span>
+              <span class="cls">DeclarativeBase</span>
+              <span class="kw">from</span> <span class="imp">app.config</span>
+              <span class="kw">import</span> settings
+
+              <span class="cm"
+                ># Engine — the connection pool. Create ONCE at startup.</span
+              >
+              <span class="cm"
+                ># DATABASE_URL must use postgresql+asyncpg:// for async</span
+              >
+              engine = <span class="fn">create_async_engine</span>(
+              settings.DATABASE_URL,
+              <span class="cm"
+                ># e.g. "postgresql+asyncpg://user:pw@host/db"</span
+              >
+              pool_size=<span class="num">10</span>,
+              <span class="cm"># connections kept open</span> max_overflow=<span
+                class="num"
+                >20</span
+              >,
+              <span class="cm"># extra connections under high load</span>
+              pool_pre_ping=<span class="kw">True</span>,
+              <span class="cm"># verify connection alive before use</span>
+              echo=<span class="kw">False</span>,
+              <span class="cm"># set True to log all SQL for debugging</span>
+              )
+
+              <span class="cm"
+                ># Session factory — call this to get a new async session</span
+              >
+              AsyncSessionLocal = <span class="fn">async_sessionmaker</span>(
+              engine, class_=<span class="cls">AsyncSession</span>,
+              expire_on_commit=<span class="kw">False</span>,
+              <span class="cm"
+                ># keep ORM attributes accessible after commit</span
+              >
+              autoflush=<span class="kw">False</span>,
+              <span class="cm"># we flush manually inside CRUD</span>
+              )
+
+              <span class="cm"># Base — all ORM models inherit from this</span>
+              <span class="kw">class</span> <span class="cls">Base</span>(<span
+                class="cls"
+                >DeclarativeBase</span
+              >): <span class="kw">pass</span>
+              <span class="cm"># Called at startup via lifespan</span>
+              <span class="kw">async def</span>
+              <span class="fn">init_db</span>():
+              <span class="kw">async with</span> engine.<span class="fn"
+                >begin</span
+              >() <span class="kw">as</span> conn:
+              <span class="kw">await</span> conn.<span class="fn">run_sync</span
+              >(<span class="cls">Base</span>.metadata.<span class="fn"
+                >create_all</span
+              >)
+              <span class="cm"
+                ># In production use Alembic migrations instead of
+                create_all</span
+              >
+            </div>
+          </div>
+          <h3>Session Dependency (get_db)</h3>
+          <p class="sec-desc">
+            The <code>get_db</code> dependency opens one session per request,
+            commits on success, and rolls back on any exception. The route
+            handler never touches commit/rollback directly.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/dependencies.py — get_db</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSession</span>
+              <span class="kw">from</span>
+              <span class="imp">app.core.database</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSessionLocal</span>
+              <span class="kw">from</span> <span class="imp">typing</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncGenerator</span>
+              <span class="kw">async def</span> <span class="fn">get_db</span>()
+              -&gt; <span class="cls">AsyncGenerator</span>[<span class="cls"
+                >AsyncSession</span
+              >, <span class="kw">None</span>]:
+              <span class="kw">async with</span>
+              <span class="cls">AsyncSessionLocal</span>()
+              <span class="kw">as</span> session: <span class="kw">try</span>:
+              <span class="kw">yield</span> session
+              <span class="cm"># handler runs here</span>
+              <span class="kw">await</span> session.<span class="fn"
+                >commit</span
+              >() <span class="cm"># success: persist everything</span>
+              <span class="kw">except</span> <span class="cls">Exception</span>:
+              <span class="kw">await</span> session.<span class="fn"
+                >rollback</span
+              >() <span class="cm"># failure: undo all changes</span>
+              <span class="kw">raise</span>
+              <span class="cm"># re-raise so FastAPI returns 500</span>
+              <span class="cm"
+                ># Session closes automatically via async context manager</span
+              >
+              <span class="cm"
+                ># Usage in any route: # db: AsyncSession =
+                Depends(get_db)</span
+              >
+            </div>
+          </div>
+          <!-- ── CRUD Layer ───────────────────────────── -->
+          <h3>Full Async CRUD Layer</h3>
+          <p class="sec-desc">
+            The CRUD module is the <strong>only place</strong> that writes SQL.
+            Route handlers call CRUD functions — they never call
+            <code>db.execute()</code> directly. This keeps handlers thin and
+            business logic testable.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >app/crud/product_crud.py — complete CRUD</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSession</span> <span class="kw">from</span>
+              <span class="imp">sqlalchemy</span>
+              <span class="kw">import</span> select, update, delete
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.orm</span>
+              <span class="kw">import</span> selectinload
+              <span class="kw">from</span>
+              <span class="imp">app.models.product</span>
+              <span class="kw">import</span> <span class="cls">Product</span>
+              <span class="kw">from</span>
+              <span class="imp">app.schemas.product</span>
+              <span class="kw">import</span>
+              <span class="cls">ProductCreate</span>,
+              <span class="cls">ProductUpdate</span>
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────── #
+                CREATE # model_dump() converts Pydantic schema → plain dict #
+                db.add() stages the INSERT (not committed yet) # flush() sends
+                INSERT to DB + gets auto-generated id back # refresh() re-reads
+                from DB so timestamps/defaults are populated #
+                ──────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">create_product</span>( db:
+              <span class="cls">AsyncSession</span>, payload:
+              <span class="cls">ProductCreate</span>, owner_id:
+              <span class="cls">int</span>, ) -&gt;
+              <span class="cls">Product</span>: product =
+              <span class="cls">Product</span>(**payload.<span class="fn"
+                >model_dump</span
+              >(), owner_id=owner_id) db.<span class="fn">add</span>(product)
+              <span class="kw">await</span> db.<span class="fn">flush</span>()
+              <span class="cm"># ← writes to DB within transaction</span>
+              <span class="kw">await</span> db.<span class="fn">refresh</span
+              >(product)
+              <span class="cm"># ← load id, created_at, updated_at</span>
+              <span class="kw">return</span> product
+
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────── #
+                READ ONE — scalar_one_or_none() returns obj or None #
+                ──────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_product</span>(db:
+              <span class="cls">AsyncSession</span>, product_id:
+              <span class="cls">int</span>) -&gt;
+              <span class="cls">Product</span> | <span class="kw">None</span>:
+              result = <span class="kw">await</span> db.<span class="fn"
+                >execute</span
+              >( <span class="fn">select</span>(<span class="cls">Product</span
+              >).<span class="fn">where</span>(<span class="cls">Product</span
+              >.id == product_id) ) <span class="kw">return</span> result.<span
+                class="fn"
+                >scalar_one_or_none</span
+              >()
+
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────── #
+                READ ONE with nested relationship (owner loaded in 1 query) #
+                ──────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_product_with_owner</span>(db:
+              <span class="cls">AsyncSession</span>, product_id:
+              <span class="cls">int</span>) -&gt;
+              <span class="cls">Product</span> | <span class="kw">None</span>:
+              result = <span class="kw">await</span> db.<span class="fn"
+                >execute</span
+              >( <span class="fn">select</span>(<span class="cls">Product</span
+              >) .<span class="fn">options</span>(<span class="fn"
+                >selectinload</span
+              >(<span class="cls">Product</span>.owner)) .<span class="fn"
+                >where</span
+              >(<span class="cls">Product</span>.id == product_id) )
+              <span class="kw">return</span> result.<span class="fn"
+                >scalar_one_or_none</span
+              >()
+
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────── #
+                READ MANY with filters + ordering + pagination #
+                ──────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_products</span>( db:
+              <span class="cls">AsyncSession</span>, skip:
+              <span class="cls">int</span> = <span class="num">0</span>, limit:
+              <span class="cls">int</span> = <span class="num">20</span>,
+              active_only: <span class="cls">bool</span> =
+              <span class="kw">True</span>, owner_id:
+              <span class="cls">int</span> | <span class="kw">None</span> =
+              <span class="kw">None</span>, ) -&gt;
+              <span class="fn">list</span>[<span class="cls">Product</span>]:
+              stmt = <span class="fn">select</span>(<span class="cls"
+                >Product</span
+              >) <span class="kw">if</span> active_only: stmt = stmt.<span
+                class="fn"
+                >where</span
+              >(<span class="cls">Product</span>.is_active ==
+              <span class="kw">True</span>) <span class="kw">if</span> owner_id
+              <span class="kw">is not None</span>: stmt = stmt.<span class="fn"
+                >where</span
+              >(<span class="cls">Product</span>.owner_id == owner_id) stmt =
+              stmt.<span class="fn">order_by</span>(<span class="cls"
+                >Product</span
+              >.created_at.<span class="fn">desc</span>()).<span class="fn"
+                >offset</span
+              >(skip).<span class="fn">limit</span>(limit) result =
+              <span class="kw">await</span> db.<span class="fn">execute</span
+              >(stmt) <span class="kw">return</span>
+              <span class="fn">list</span>(result.<span class="fn">scalars</span
+              >().<span class="fn">all</span>())
+
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────── #
+                UPDATE — accepts only the fields that were sent #
+                exclude_unset=True means "only fields the client included # in
+                the JSON body". Fields they didn't send are NOT in the # dict
+                and will NOT be overwritten in the DB. #
+                ──────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">update_product</span>( db:
+              <span class="cls">AsyncSession</span>, product_id:
+              <span class="cls">int</span>, update_data:
+              <span class="cls">dict</span>,
+              <span class="cm"># pre-dumped dict from caller</span> ) -&gt;
+              <span class="cls">Product</span> | <span class="kw">None</span>:
+              <span class="kw">if not</span> update_data:
+              <span class="kw">return await</span>
+              <span class="fn">get_product</span>(db, product_id)
+              <span class="cm"># nothing to change</span>
+              <span class="kw">await</span> db.<span class="fn">execute</span>(
+              <span class="fn">update</span>(<span class="cls">Product</span>)
+              .<span class="fn">where</span>(<span class="cls">Product</span>.id
+              == product_id) .<span class="fn">values</span>(**update_data)
+              .<span class="fn">execution_options</span
+              >(synchronize_session=<span class="str">"fetch"</span>) )
+              <span class="kw">await</span> db.<span class="fn">flush</span>()
+              <span class="kw">return await</span>
+              <span class="fn">get_product</span>(db, product_id)
+
+              <span class="cm"
+                ># ────────────────────────────────────────────────────────── #
+                DELETE — returns True if row existed, False if 404 #
+                ──────────────────────────────────────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">delete_product</span>(db:
+              <span class="cls">AsyncSession</span>, product_id:
+              <span class="cls">int</span>) -&gt; <span class="cls">bool</span>:
+              result = <span class="kw">await</span> db.<span class="fn"
+                >execute</span
+              >( <span class="fn">delete</span>(<span class="cls">Product</span
+              >).<span class="fn">where</span>(<span class="cls">Product</span
+              >.id == product_id) )
+              <span class="kw">return</span> result.rowcount &gt;
+              <span class="num">0</span>
+              <span class="cm"
+                ># ── Utility: duplicate check ───────────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_product_by_sku</span>(db:
+              <span class="cls">AsyncSession</span>, sku:
+              <span class="cls">str</span>) -&gt;
+              <span class="cls">Product</span> | <span class="kw">None</span>:
+              result = <span class="kw">await</span> db.<span class="fn"
+                >execute</span
+              >(<span class="fn">select</span>(<span class="cls">Product</span
+              >).<span class="fn">where</span>(<span class="cls">Product</span
+              >.sku == sku)) <span class="kw">return</span> result.<span
+                class="fn"
+                >scalar_one_or_none</span
+              >()
+            </div>
+          </div>
+          <div class="callout warn">
+            <span class="callout-icon">⚠️</span>
+            <p>
+              <strong>flush() vs commit():</strong> <code>flush()</code> sends
+              SQL to the DB within the open transaction and gives you back
+              auto-generated values (like <code>id</code>), but does NOT make it
+              permanent. <code>commit()</code> makes it permanent. Our
+              <code>get_db()</code> dependency commits on success — so CRUD
+              functions should only call <code>flush()</code>, never
+              <code>commit()</code> directly.
+            </p>
+          </div>
+          <!-- ── POST route ───────────────────────────── -->
+          <h3>The POST Route — Fully Annotated</h3>
+          <div class="mw">
+            <div id="merChart_4"></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >app/routers/products.py — POST handler fully commented</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">APIRouter</span>,
+              <span class="cls">Depends</span>,
+              <span class="cls">HTTPException</span>, status
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSession</span>
+              <span class="kw">from</span>
+              <span class="imp">app.schemas.product</span>
+              <span class="kw">import</span>
+              <span class="cls">ProductCreate</span>,
+              <span class="cls">ProductUpdate</span>,
+              <span class="cls">ProductResponse</span>,
+              <span class="cls">ProductWithOwner</span>
+              <span class="kw">from</span> <span class="imp">app.crud</span>
+              <span class="kw">import</span> product_crud
+              <span class="kw">from</span>
+              <span class="imp">app.dependencies</span>
+              <span class="kw">import</span> get_db, get_current_user
+              <span class="kw">from</span>
+              <span class="imp">app.models.user</span>
+              <span class="kw">import</span> <span class="cls">User</span>
+
+              router = <span class="cls">APIRouter</span>(prefix=<span
+                class="str"
+                >"/products"</span
+              >, tags=[<span class="str">"Products"</span>])
+
+              <span class="dec">@router.post</span>(
+              <span class="str">"/"</span>, response_model=<span class="cls"
+                >ProductResponse</span
+              >,
+              <span class="cm"># ← Pydantic schema for the JSON output</span>
+              status_code=status.<span class="cls">HTTP_201_CREATED</span>,
+              <span class="cm"># ← 201 = resource was created</span>
+              summary=<span class="str">"Create a new product"</span>,
+              responses={ <span class="num">409</span>: {<span class="str"
+                >"description"</span
+              >: <span class="str">"SKU already exists"</span>},
+              <span class="num">422</span>: {<span class="str"
+                >"description"</span
+              >:
+              <span class="str"
+                >"Validation error — check field constraints"</span
+              >}, }, ) <span class="kw">async def</span>
+              <span class="fn">create_product</span>( payload:
+              <span class="cls">ProductCreate</span>,
+              <span class="cm"># ← FastAPI reads + validates JSON body</span>
+              db: <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db),
+              <span class="cm"
+                ># ← injected DB session (auto commit/rollback)</span
+              >
+              current_user: <span class="cls">User</span> =
+              <span class="cls">Depends</span>(get_current_user),
+              <span class="cm"># ← requires valid JWT</span>
+              ):
+              <span class="cm"
+                ># ── 1. Business rule: SKU must be unique ──────────</span
+              >
+              existing = <span class="kw">await</span> product_crud.<span
+                class="fn"
+                >get_product_by_sku</span
+              >(db, payload.sku) <span class="kw">if</span> existing:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>( status_code=status.<span
+                class="cls"
+                >HTTP_409_CONFLICT</span
+              >, detail=<span class="fn">f</span
+              ><span class="str"
+                >"SKU '{payload.sku}' is already registered"</span
+              >, )
+
+              <span class="cm"
+                ># ── 2. Persist — owner_id injected from JWT user ──</span
+              >
+              product = <span class="kw">await</span> product_crud.<span
+                class="fn"
+                >create_product</span
+              >(db, payload, owner_id=current_user.id)
+
+              <span class="cm"
+                ># ── 3. Return ORM obj — response_model serializes it</span
+              >
+              <span class="kw">return</span> product
+              <span class="cm"
+                ># FastAPI: Product ORM obj → ProductResponse → JSON</span
+              >
+              <span class="cm"
+                ># Fields NOT in ProductResponse are automatically
+                excluded</span
+              >
+            </div>
+          </div>
+          <!-- ── PATCH vs PUT ──────────────────────────── -->
+          <h3>PATCH vs PUT — The Critical Difference</h3>
+          <p class="sec-desc">
+            <strong>PATCH</strong> updates only the fields the client sends.
+            <strong>PUT</strong> replaces the entire resource. The key is
+            <code>model_dump(exclude_unset=True)</code> — without it, un-sent
+            Optional fields become <code>None</code> and overwrite existing
+            data.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">exclude_unset=True — why it matters</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="cm"
+                ># ─── Scenario: Client sends ONLY {"price": 249.99} # They want
+                to lower the price. Nothing else should change. ───</span
+              >
+
+              payload = <span class="cls">ProductUpdate</span>(price=<span
+                class="num"
+                >249.99</span
+              >) <span class="cm"># only price was set</span>
+              <span class="cm"
+                ># ❌ WRONG — model_dump() includes ALL fields</span
+              >
+              payload.<span class="fn">model_dump</span>()
+              <span class="cm"
+                ># → {"name": None, "price": 249.99, "description": None, #
+                "stock": None, "is_active": None} # ↑ sending this to DB would
+                NULL OUT name, description, etc!</span
+              >
+              <span class="cm"
+                ># ✅ CORRECT — exclude_unset skips fields the client didn't
+                send</span
+              >
+              payload.<span class="fn">model_dump</span>(exclude_unset=<span
+                class="kw"
+                >True</span
+              >)
+              <span class="cm"
+                ># → {"price": 249.99} # ↑ only price is in the dict —
+                name/description stay unchanged in DB</span
+              >
+              <span class="cm"
+                ># ── exclude_unset vs exclude_none ────────────────────────── #
+                exclude_unset=True → skips fields not included in the JSON at
+                all # exclude_none=True → skips fields whose VALUE is None (even
+                if sent) # # For PATCH: always use exclude_unset=True # For PUT:
+                use model_dump() without exclude — full replacement</span
+              >
+            </div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >app/routers/products.py — PATCH + PUT + DELETE routes</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="cm"
+                ># ── GET /products/ ─── list all (with filters)
+                ────────────</span
+              >
+              <span class="dec">@router.get</span>(<span class="str">"/"</span>,
+              response_model=<span class="fn">list</span>[<span class="cls"
+                >ProductResponse</span
+              >]) <span class="kw">async def</span>
+              <span class="fn">list_products</span>( skip:
+              <span class="cls">int</span> = <span class="num">0</span>, limit:
+              <span class="cls">int</span> = <span class="num">20</span>,
+              active_only: <span class="cls">bool</span> =
+              <span class="kw">True</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db), ):
+              <span class="kw">return await</span> product_crud.<span class="fn"
+                >get_products</span
+              >(db, skip=skip, limit=limit, active_only=active_only)
+
+              <span class="cm"
+                ># ── GET /products/{id} ─── single with owner nested
+                ───────</span
+              >
+              <span class="dec">@router.get</span>(<span class="str"
+                >"/{product_id}"</span
+              >, response_model=<span class="cls">ProductWithOwner</span>)
+              <span class="kw">async def</span>
+              <span class="fn">get_product</span>(product_id:
+              <span class="cls">int</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db)): product =
+              <span class="kw">await</span> product_crud.<span class="fn"
+                >get_product_with_owner</span
+              >(db, product_id) <span class="kw">if not</span> product:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"Product not found"</span>)
+              <span class="kw">return</span> product
+
+              <span class="cm"
+                ># ── PATCH /products/{id} ─── partial update
+                ───────────────</span
+              >
+              <span class="dec">@router.patch</span>(<span class="str"
+                >"/{product_id}"</span
+              >, response_model=<span class="cls">ProductResponse</span>)
+              <span class="kw">async def</span>
+              <span class="fn">patch_product</span>( product_id:
+              <span class="cls">int</span>, payload:
+              <span class="cls">ProductUpdate</span>,
+              <span class="cm"># all fields Optional</span> db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db), current_user:
+              <span class="cls">User</span> =
+              <span class="cls">Depends</span>(get_current_user), ): product =
+              <span class="kw">await</span> product_crud.<span class="fn"
+                >get_product</span
+              >(db, product_id) <span class="kw">if not</span> product:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"Product not found"</span>)
+
+              <span class="cm"
+                ># Ownership check — only owner or admin may edit</span
+              >
+              <span class="kw">if</span> product.owner_id != current_user.id
+              <span class="kw">and</span> current_user.role !=
+              <span class="str">"admin"</span>: <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >403</span
+              >, detail=<span class="str">"Access denied"</span>)
+
+              <span class="cm"
+                ># exclude_unset=True ← THE key for correct PATCH
+                behaviour</span
+              >
+              update_data = payload.<span class="fn">model_dump</span
+              >(exclude_unset=<span class="kw">True</span>) updated =
+              <span class="kw">await</span> product_crud.<span class="fn"
+                >update_product</span
+              >(db, product_id, update_data)
+              <span class="kw">return</span> updated
+
+              <span class="cm"
+                ># ── PUT /products/{id} ─── full replacement
+                ────────────────</span
+              >
+              <span class="dec">@router.put</span>(<span class="str"
+                >"/{product_id}"</span
+              >, response_model=<span class="cls">ProductResponse</span>)
+              <span class="kw">async def</span>
+              <span class="fn">replace_product</span>( product_id:
+              <span class="cls">int</span>, payload:
+              <span class="cls">ProductCreate</span>,
+              <span class="cm"># ← all fields required for PUT</span> db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db), current_user:
+              <span class="cls">User</span> =
+              <span class="cls">Depends</span>(get_current_user), ): product =
+              <span class="kw">await</span> product_crud.<span class="fn"
+                >get_product</span
+              >(db, product_id) <span class="kw">if not</span> product:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"Product not found"</span>)
+
+              <span class="cm"
+                ># PUT = replace ALL fields — no exclude_unset</span
+              >
+              update_data = payload.<span class="fn">model_dump</span>()
+              <span class="kw">return await</span> product_crud.<span class="fn"
+                >update_product</span
+              >(db, product_id, update_data)
+
+              <span class="cm"
+                ># ── DELETE /products/{id} ─── 204 no body
+                ─────────────────</span
+              >
+              <span class="dec">@router.delete</span>(<span class="str"
+                >"/{product_id}"</span
+              >, status_code=status.<span class="cls">HTTP_204_NO_CONTENT</span
+              >)
+              <span class="kw">async def</span>
+              <span class="fn">delete_product</span>( product_id:
+              <span class="cls">int</span>, db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db), current_user:
+              <span class="cls">User</span> =
+              <span class="cls">Depends</span>(get_current_user), ):
+              <span class="kw">if</span> current_user.role !=
+              <span class="str">"admin"</span>: <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >403</span
+              >, detail=<span class="str">"Admins only"</span>) deleted =
+              <span class="kw">await</span> product_crud.<span class="fn"
+                >delete_product</span
+              >(db, product_id) <span class="kw">if not</span> deleted:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"Product not found"</span>)
+            </div>
+          </div>
+          <!-- ── Relationships ───────────────────────── -->
+          <h3>Relationships &amp; Loading Strategies</h3>
+          <p class="sec-desc">
+            SQLAlchemy relationships let you traverse across tables. Always
+            specify a loading strategy — the default <code>lazy</code> mode
+            breaks inside async sessions.
+          </p>
+          <table>
+            <tr>
+              <th>Strategy</th>
+              <th>How</th>
+              <th>Queries</th>
+              <th>Use When</th>
+            </tr>
+            <tr>
+              <td><code>selectinload</code></td>
+              <td><code>.options(selectinload(Product.owner))</code></td>
+              <td>2 queries (SELECT + IN)</td>
+              <td>Lists — most efficient for collections</td>
+            </tr>
+            <tr>
+              <td><code>joinedload</code></td>
+              <td><code>.options(joinedload(Product.owner))</code></td>
+              <td>1 JOIN query</td>
+              <td>Single records with one related object</td>
+            </tr>
+            <tr>
+              <td><code>lazy="selectin"</code></td>
+              <td>Set on the relationship definition</td>
+              <td>Auto — 2 queries</td>
+              <td>
+                Always needed for async — never use plain <code>lazy</code>
+              </td>
+            </tr>
+            <tr>
+              <td><code>noload</code></td>
+              <td><code>.options(noload(Product.owner))</code></td>
+              <td>0 — skips the relation</td>
+              <td>When you explicitly don't need related data</td>
+            </tr>
+          </table>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Relationship loading examples</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.orm</span>
+              <span class="kw">import</span> selectinload, joinedload, noload
+
+              <span class="cm"
+                ># ── Load list of products WITH owner each ───────────────── #
+                Issues: SELECT * FROM products + SELECT * FROM users WHERE id IN
+                (...) # Best for lists where multiple products share
+                owners</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_products_with_owners</span>(db:
+              <span class="cls">AsyncSession</span>): result =
+              <span class="kw">await</span> db.<span class="fn">execute</span>(
+              <span class="fn">select</span>(<span class="cls">Product</span>)
+              .<span class="fn">options</span>(<span class="fn"
+                >selectinload</span
+              >(<span class="cls">Product</span>.owner)) .<span class="fn"
+                >where</span
+              >(<span class="cls">Product</span>.is_active ==
+              <span class="kw">True</span>) .<span class="fn">order_by</span
+              >(<span class="cls">Product</span>.created_at.<span class="fn"
+                >desc</span
+              >()) .<span class="fn">limit</span>(<span class="num">50</span>) )
+              <span class="kw">return</span> result.<span class="fn"
+                >scalars</span
+              >().<span class="fn">all</span>()
+
+              <span class="cm"
+                ># ── Load single product WITH owner (JOIN) ───────────────── #
+                Issues: SELECT products JOIN users ON ... WHERE products.id =
+                ?</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_product_detail</span>(db:
+              <span class="cls">AsyncSession</span>, product_id:
+              <span class="cls">int</span>): result =
+              <span class="kw">await</span> db.<span class="fn">execute</span>(
+              <span class="fn">select</span>(<span class="cls">Product</span>)
+              .<span class="fn">options</span>(<span class="fn">joinedload</span
+              >(<span class="cls">Product</span>.owner)) .<span class="fn"
+                >where</span
+              >(<span class="cls">Product</span>.id == product_id) )
+              <span class="kw">return</span> result.<span class="fn"
+                >unique</span
+              >().<span class="fn">scalar_one_or_none</span>()
+              <span class="cm"
+                ># .unique() required with joinedload to deduplicate JOIN
+                rows</span
+              >
+              <span class="cm"
+                ># ── Load user with ALL their products
+                ─────────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">get_user_with_products</span>(db:
+              <span class="cls">AsyncSession</span>, user_id:
+              <span class="cls">int</span>): result =
+              <span class="kw">await</span> db.<span class="fn">execute</span>(
+              <span class="fn">select</span>(<span class="cls">User</span>)
+              .<span class="fn">options</span>(<span class="fn"
+                >selectinload</span
+              >(<span class="cls">User</span>.products)) .<span class="fn"
+                >where</span
+              >(<span class="cls">User</span>.id == user_id) )
+              <span class="kw">return</span> result.<span class="fn"
+                >scalar_one_or_none</span
+              >()
+            </div>
+          </div>
+          <!-- ── Alembic Migrations ──────────────────── -->
+          <h3>Alembic Migrations</h3>
+          <p class="sec-desc">
+            Never use <code>create_all()</code> in production. Use Alembic for
+            versioned, reversible migrations.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Migration workflow</span
+              ><span class="cb-lang">bash</span>
+            </div>
+            <div class="cb-body">
+              <span class="cm"># One-time setup</span>
+              uv run alembic init alembic
+
+              <span class="cm"># In alembic/env.py — add these two lines:</span>
+              <span class="cm"># from app.core.database import Base</span>
+              <span class="cm"># target_metadata = Base.metadata</span>
+              <span class="cm"># Generate migration from model changes</span>
+              uv run alembic revision --autogenerate -m
+              <span class="str">"add products table"</span>
+              <span class="cm"
+                ># Review the generated file in alembic/versions/ before
+                applying!</span
+              >
+              <span class="cm"># Apply to DB</span>
+              uv run alembic upgrade head
+
+              <span class="cm"># Rollback one step</span>
+              uv run alembic downgrade -1
+
+              <span class="cm"># Show current migration state</span>
+              uv run alembic current
+
+              <span class="cm"># Show full history</span>
+              uv run alembic history --verbose
+            </div>
+          </div>
+          <!-- ── Complete flow summary ──────────────── -->
+          <h3>Complete End-to-End Flow Summary</h3>
+          <div class="mw">
+            <div id="merChart_5"></div>
+          </div>
+          <div class="callout tip">
+            <span class="callout-icon">✅</span>
+            <p>
+              <strong>The golden rules:</strong> Use
+              <code>ProductCreate</code> (all required) for POST and PUT. Use
+              <code>ProductUpdate</code> (all Optional) for PATCH. Call
+              <code>model_dump(exclude_unset=True)</code> in PATCH — never
+              without it. Always set <code>response_model=</code> to control
+              serialization. Keep DB calls in the CRUD layer, not in route
+              handlers.
+            </p>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     05 — SCHEMA PATTERNS
+════════════════════════════════════════════ -->
+        <section class="section" id="schemas">
+          <div class="sec-header">
+            <span class="sec-num">05</span>
+            <div><h2>Schema Patterns Reference</h2></div>
+          </div>
+          <p class="sec-desc">
+            Pydantic schemas define what comes <strong>in</strong> (validation)
+            and what goes <strong>out</strong> (serialization). This is the
+            quick-reference for all schema types.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >app/schemas/user.py — Full user schema set</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">pydantic</span>
+              <span class="kw">import</span> <span class="cls">BaseModel</span>,
+              <span class="cls">EmailStr</span>,
+              <span class="fn">field_validator</span>,
+              <span class="cls">ConfigDict</span> <span class="kw">from</span>
+              <span class="imp">datetime</span>
+              <span class="kw">import</span> datetime
+              <span class="kw">from</span> <span class="imp">typing</span>
+              <span class="kw">import</span> <span class="cls">Optional</span>
+              <span class="kw">from</span> <span class="imp">enum</span>
+              <span class="kw">import</span>
+              <span class="cls">Enum</span>
+              <span class="kw">class</span> <span class="cls">Role</span>(<span
+                class="cls"
+                >str</span
+              >, <span class="cls">Enum</span>): admin =
+              <span class="str">"admin"</span> user =
+              <span class="str">"user"</span> guest =
+              <span class="str">"guest"</span>
+              <span class="kw">class</span>
+              <span class="cls">UserCreate</span>(<span class="cls"
+                >BaseModel</span
+              >): name: <span class="cls">str</span> email:
+              <span class="cls">EmailStr</span> password:
+              <span class="cls">str</span> role: <span class="cls">Role</span> =
+              <span class="cls">Role</span>.user
+
+              <span class="dec">@field_validator</span>(<span class="str"
+                >"password"</span
+              >)
+              <span class="dec">@classmethod</span>
+              <span class="kw">def</span>
+              <span class="fn">password_strength</span>(cls, v:
+              <span class="cls">str</span>) -&gt; <span class="cls">str</span>:
+              <span class="kw">if len</span>(v) &lt; <span class="num">8</span>:
+              <span class="kw">raise</span>
+              <span class="cls">ValueError</span>(<span class="str"
+                >"Password must be 8+ characters"</span
+              >) <span class="kw">return</span> v
+
+              <span class="kw">class</span>
+              <span class="cls">UserUpdate</span>(<span class="cls"
+                >BaseModel</span
+              >): name: <span class="cls">Optional</span>[<span class="cls"
+                >str</span
+              >] = <span class="kw">None</span> email:
+              <span class="cls">Optional</span>[<span class="cls">EmailStr</span
+              >] = <span class="kw">None</span>
+              <span class="kw">class</span>
+              <span class="cls">UserResponse</span>(<span class="cls"
+                >BaseModel</span
+              >): model_config =
+              <span class="cls">ConfigDict</span>(from_attributes=<span
+                class="kw"
+                >True</span
+              >) id: <span class="cls">int</span> name:
+              <span class="cls">str</span> email:
+              <span class="cls">EmailStr</span> role:
+              <span class="cls">Role</span>
+              created_at: datetime
+
+              <span class="kw">class</span>
+              <span class="cls">UserWithItems</span>(<span class="cls"
+                >UserResponse</span
+              >): items: <span class="fn">list</span>[<span class="str"
+                >"ItemResponse"</span
+              >] = []
+            </div>
+          </div>
+          <table>
+            <tr>
+              <th>Schema Type</th>
+              <th>Purpose</th>
+              <th>Password?</th>
+              <th>from_attributes?</th>
+            </tr>
+            <tr>
+              <td><code>XCreate</code></td>
+              <td>POST body — all required fields</td>
+              <td>Yes (raw)</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td><code>XUpdate</code></td>
+              <td>PATCH body — all Optional</td>
+              <td>Maybe</td>
+              <td>No</td>
+            </tr>
+            <tr>
+              <td><code>XResponse</code></td>
+              <td>API output — never expose secrets</td>
+              <td>Never</td>
+              <td>Yes ✅</td>
+            </tr>
+            <tr>
+              <td><code>XInDB</code></td>
+              <td>Internal representation with hashed_password</td>
+              <td>Hashed</td>
+              <td>Yes ✅</td>
+            </tr>
+          </table>
+        </section>
+        <!-- ════════════════════════════════════════════
+     06 — DEPENDENCY INJECTION
+════════════════════════════════════════════ -->
+        <section class="section" id="dependency">
+          <div class="sec-header">
+            <span class="sec-num">06</span>
+            <div><h2>Dependency Injection</h2></div>
+          </div>
+          <p class="sec-desc">
+            FastAPI's <code>Depends()</code> is the backbone of clean
+            architecture — use it for DB sessions, auth, pagination, rate
+            limiting, and more.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/dependencies.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">Depends</span>,
+              <span class="cls">HTTPException</span>, status
+              <span class="kw">from</span>
+              <span class="imp">fastapi.security</span>
+              <span class="kw">import</span>
+              <span class="cls">OAuth2PasswordBearer</span>
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSession</span>
+              <span class="kw">from</span>
+              <span class="imp">app.core.database</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSessionLocal</span>
+              <span class="kw">from</span>
+              <span class="imp">app.core.security</span>
+              <span class="kw">import</span> decode_token
+              <span class="kw">from</span> <span class="imp">app.crud</span>
+              <span class="kw">import</span> user_crud oauth2_scheme =
+              <span class="cls">OAuth2PasswordBearer</span>(tokenUrl=<span
+                class="str"
+                >"/auth/token"</span
+              >)
+
+              <span class="kw">async def</span>
+              <span class="fn">get_db</span>():
+              <span class="kw">async with</span>
+              <span class="cls">AsyncSessionLocal</span>()
+              <span class="kw">as</span> session: <span class="kw">try</span>:
+              <span class="kw">yield</span> session
+              <span class="kw">await</span> session.<span class="fn"
+                >commit</span
+              >() <span class="kw">except</span>:
+              <span class="kw">await</span> session.<span class="fn"
+                >rollback</span
+              >()
+              <span class="kw">raise</span>
+              <span class="kw">async def</span>
+              <span class="fn">get_current_user</span>( token:
+              <span class="cls">str</span> =
+              <span class="cls">Depends</span>(oauth2_scheme), db:
+              <span class="cls">AsyncSession</span> =
+              <span class="cls">Depends</span>(get_db), ): payload =
+              <span class="fn">decode_token</span>(token)
+              <span class="kw">if not</span> payload:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>( status_code=status.<span
+                class="cls"
+                >HTTP_401_UNAUTHORIZED</span
+              >, detail=<span class="str">"Invalid or expired token"</span>,
+              headers={<span class="str">"WWW-Authenticate"</span>:
+              <span class="str">"Bearer"</span>}, ) user =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >get_user</span
+              >(db, payload[<span class="str">"sub"</span>])
+              <span class="kw">if not</span> user: <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >404</span
+              >, detail=<span class="str">"User not found"</span>)
+              <span class="kw">return</span> user
+
+              <span class="kw">class</span> <span class="cls">Pagination</span>:
+              <span class="kw">def</span> <span class="fn">__init__</span>(self,
+              page: <span class="cls">int</span> = <span class="num">1</span>,
+              size: <span class="cls">int</span> = <span class="num">20</span>):
+              self.offset = (page - <span class="num">1</span>) * size
+              self.limit = <span class="fn">min</span>(size,
+              <span class="num">100</span>)
+              <span class="cm"
+                ># Usage: paginate: Pagination = Depends(Pagination)</span
+              >
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     07 — MIDDLEWARE
+════════════════════════════════════════════ -->
+        <section class="section" id="middleware">
+          <div class="sec-header">
+            <span class="sec-num">07</span>
+            <div><h2>Middleware</h2></div>
+          </div>
+          <p class="sec-desc">
+            Middleware wraps every request/response. Use it for logging, request
+            IDs, rate limiting, and security headers.
+          </p>
+          <div class="callout info">
+            <span class="callout-icon">ℹ️</span>
+            <p>
+              <strong>Execution order:</strong> Middleware runs in
+              <em>reverse registration order</em> on the way in, and forward on
+              the way out. Register your most important middleware last so it
+              executes first.
+            </p>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/middleware.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">import</span> <span class="imp">time</span>,
+              uuid, logging <span class="kw">from</span>
+              <span class="imp">fastapi</span> <span class="kw">import</span>
+              <span class="cls">Request</span>,
+              <span class="cls">Response</span>,
+              <span class="cls">HTTPException</span>
+              <span class="kw">from</span>
+              <span class="imp">starlette.middleware.base</span>
+              <span class="kw">import</span>
+              <span class="cls">BaseHTTPMiddleware</span>
+              <span class="kw">from</span> <span class="imp">collections</span>
+              <span class="kw">import</span> defaultdict logger = logging.<span
+                class="fn"
+                >getLogger</span
+              >(<span class="str">"api"</span>)
+
+              <span class="cm"
+                ># ── Request ID + Timing + Structured Logging ───────────</span
+              >
+              <span class="kw">class</span>
+              <span class="cls">RequestLogMiddleware</span>(<span class="cls"
+                >BaseHTTPMiddleware</span
+              >): <span class="kw">async def</span>
+              <span class="fn">dispatch</span>(self, request:
+              <span class="cls">Request</span>, call_next): request_id =
+              str(uuid.<span class="fn">uuid4</span>())[:<span class="num"
+                >8</span
+              >] request.state.request_id = request_id start = time.<span
+                class="fn"
+                >perf_counter</span
+              >() response: <span class="cls">Response</span> =
+              <span class="kw">await</span>
+              <span class="fn">call_next</span>(request) ms = (time.<span
+                class="fn"
+                >perf_counter</span
+              >() - start) *
+              <span class="num">1000</span> response.headers[<span class="str"
+                >"X-Request-ID"</span
+              >] = request_id response.headers[<span class="str"
+                >"X-Process-Time-ms"</span
+              >] = <span class="fn">f</span
+              ><span class="str">"{ms:.2f}"</span> logger.<span class="fn"
+                >info</span
+              >(<span class="fn">f</span
+              ><span class="str"
+                >"{request_id} {request.method} {request.url.path}
+                {response.status_code} {ms:.1f}ms"</span
+              >) <span class="kw">return</span> response
+
+              <span class="cm"
+                ># ── In-memory Rate Limiter ─────────────────────────────</span
+              >
+              _counts: dict = defaultdict(<span class="fn">list</span>)
+
+              <span class="kw">class</span>
+              <span class="cls">RateLimitMiddleware</span>(<span class="cls"
+                >BaseHTTPMiddleware</span
+              >): <span class="kw">def</span>
+              <span class="fn">__init__</span>(self, app, max_req:
+              <span class="cls">int</span> = <span class="num">100</span>,
+              window: <span class="cls">int</span> =
+              <span class="num">60</span>):
+              <span class="fn">super()</span>.<span class="fn">__init__</span
+              >(app) self.max_req = max_req self.window = window
+
+              <span class="kw">async def</span>
+              <span class="fn">dispatch</span>(self, request:
+              <span class="cls">Request</span>, call_next): ip =
+              request.client.host now = time.<span class="fn">time</span>()
+              _counts[ip] = [t <span class="kw">for</span> t
+              <span class="kw">in</span> _counts[ip]
+              <span class="kw">if</span> t &gt; now - self.window]
+              <span class="kw">if len</span>(_counts[ip]) &gt;= self.max_req:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >429</span
+              >, detail=<span class="str">"Too Many Requests"</span>)
+              _counts[ip].<span class="fn">append</span>(now)
+              <span class="kw">return await</span>
+              <span class="fn">call_next</span>(request)
+
+              <span class="cm"
+                ># Register in main.py: #
+                app.add_middleware(RequestLogMiddleware) #
+                app.add_middleware(RateLimitMiddleware, max_req=60,
+                window=60)</span
+              >
+            </div>
+          </div>
+          <div class="mw">
+            <div id="merChart_6"></div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     08 — ERROR HANDLING
+════════════════════════════════════════════ -->
+        <section class="section" id="errors">
+          <div class="sec-header">
+            <span class="sec-num">08</span>
+            <div><h2>Error Handling</h2></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/core/exceptions.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">FastAPI</span>,
+              <span class="cls">Request</span>,
+              <span class="cls">HTTPException</span>
+              <span class="kw">from</span>
+              <span class="imp">fastapi.responses</span>
+              <span class="kw">import</span>
+              <span class="cls">JSONResponse</span>
+              <span class="kw">from</span>
+              <span class="imp">fastapi.exceptions</span>
+              <span class="kw">import</span>
+              <span class="cls">RequestValidationError</span>
+              <span class="kw">def</span>
+              <span class="fn">register_exception_handlers</span>(app:
+              <span class="cls">FastAPI</span>):
+
+              <span class="dec">@app.exception_handler</span>(<span class="cls"
+                >HTTPException</span
+              >) <span class="kw">async def</span>
+              <span class="fn">http_handler</span>(request:
+              <span class="cls">Request</span>, exc:
+              <span class="cls">HTTPException</span>):
+              <span class="kw">return</span>
+              <span class="cls">JSONResponse</span>(
+              status_code=exc.status_code, content={<span class="str"
+                >"error"</span
+              >: exc.detail, <span class="str">"status"</span>: exc.status_code,
+              <span class="str">"path"</span>:
+              <span class="fn">str</span>(request.url)} )
+
+              <span class="dec">@app.exception_handler</span>(<span class="cls"
+                >RequestValidationError</span
+              >) <span class="kw">async def</span>
+              <span class="fn">validation_handler</span>(request:
+              <span class="cls">Request</span>, exc:
+              <span class="cls">RequestValidationError</span>): errors = [{<span
+                class="str"
+                >"field"</span
+              >: <span class="str">" → "</span>.<span class="fn">join</span
+              >(<span class="fn">str</span>(l) <span class="kw">for</span> l
+              <span class="kw">in</span> e[<span class="str">"loc"</span>][<span
+                class="num"
+                >1</span
+              >:]), <span class="str">"message"</span>: e[<span class="str"
+                >"msg"</span
+              >]} <span class="kw">for</span> e
+              <span class="kw">in</span> exc.<span class="fn">errors</span>()]
+              <span class="kw">return</span>
+              <span class="cls">JSONResponse</span>(status_code=<span
+                class="num"
+                >422</span
+              >, content={<span class="str">"errors"</span>: errors})
+
+              <span class="dec">@app.exception_handler</span>(<span class="cls"
+                >Exception</span
+              >) <span class="kw">async def</span>
+              <span class="fn">catch_all</span>(request:
+              <span class="cls">Request</span>, exc:
+              <span class="cls">Exception</span>):
+              <span class="cm"># Log to Sentry here</span>
+              <span class="kw">return</span>
+              <span class="cls">JSONResponse</span>(status_code=<span
+                class="num"
+                >500</span
+              >, content={<span class="str">"error"</span>:
+              <span class="str">"Internal server error"</span>})
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     09 — JWT AUTH
+════════════════════════════════════════════ -->
+        <section class="section" id="jwt">
+          <div class="sec-header">
+            <span class="sec-num">09</span>
+            <div><h2>JWT Authentication</h2></div>
+          </div>
+          <p class="sec-desc">
+            Access tokens are short-lived (30 min). Refresh tokens are
+            long-lived (30 days) and stored client-side securely. Never store
+            access tokens in localStorage.
+          </p>
+          <div class="mw">
+            <div id="merChart_7"></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/core/security.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">datetime</span>
+              <span class="kw">import</span> datetime, timedelta, timezone
+              <span class="kw">from</span> <span class="imp">jose</span>
+              <span class="kw">import</span> jwt,
+              <span class="cls">JWTError</span> <span class="kw">from</span>
+              <span class="imp">passlib.context</span>
+              <span class="kw">import</span>
+              <span class="cls">CryptContext</span> <span class="kw">from</span>
+              <span class="imp">app.config</span>
+              <span class="kw">import</span> settings pwd_ctx =
+              <span class="cls">CryptContext</span>(schemes=[<span class="str"
+                >"bcrypt"</span
+              >], deprecated=<span class="str">"auto"</span>)
+
+              <span class="kw">def</span>
+              <span class="fn">hash_password</span>(plain:
+              <span class="cls">str</span>) -&gt; <span class="cls">str</span>:
+              <span class="kw">return</span> pwd_ctx.<span class="fn">hash</span
+              >(plain) <span class="kw">def</span>
+              <span class="fn">verify_password</span>(plain:
+              <span class="cls">str</span>, hashed:
+              <span class="cls">str</span>) -&gt; <span class="cls">bool</span>:
+              <span class="kw">return</span> pwd_ctx.<span class="fn"
+                >verify</span
+              >(plain, hashed)
+
+              <span class="kw">def</span>
+              <span class="fn">create_access_token</span>(subject:
+              <span class="cls">str</span>, extra: dict = {}) -&gt;
+              <span class="cls">str</span>: expire = datetime.<span class="fn"
+                >now</span
+              >(timezone.utc) +
+              timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+              <span class="kw">return</span> jwt.<span class="fn">encode</span
+              >({<span class="str">"sub"</span>: subject,
+              <span class="str">"exp"</span>: expire,
+              <span class="str">"type"</span>:
+              <span class="str">"access"</span>, **extra}, settings.SECRET_KEY,
+              algorithm=<span class="str">"HS256"</span>)
+
+              <span class="kw">def</span>
+              <span class="fn">create_refresh_token</span>(subject:
+              <span class="cls">str</span>) -&gt; <span class="cls">str</span>:
+              expire = datetime.<span class="fn">now</span>(timezone.utc) +
+              timedelta(days=<span class="num">30</span>)
+              <span class="kw">return</span> jwt.<span class="fn">encode</span
+              >({<span class="str">"sub"</span>: subject,
+              <span class="str">"exp"</span>: expire,
+              <span class="str">"type"</span>:
+              <span class="str">"refresh"</span>}, settings.SECRET_KEY,
+              algorithm=<span class="str">"HS256"</span>)
+
+              <span class="kw">def</span>
+              <span class="fn">decode_token</span>(token:
+              <span class="cls">str</span>) -&gt; dict |
+              <span class="kw">None</span>: <span class="kw">try</span>:
+              <span class="kw">return</span> jwt.<span class="fn">decode</span
+              >(token, settings.SECRET_KEY, algorithms=[<span class="str"
+                >"HS256"</span
+              >]) <span class="kw">except</span>
+              <span class="cls">JWTError</span>:
+              <span class="kw">return None</span>
+            </div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/routers/auth.py — Login + Refresh</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">APIRouter</span>,
+              <span class="cls">Depends</span>,
+              <span class="cls">HTTPException</span>, status
+              <span class="kw">from</span>
+              <span class="imp">fastapi.security</span>
+              <span class="kw">import</span>
+              <span class="cls">OAuth2PasswordRequestForm</span>
+              <span class="kw">from</span>
+              <span class="imp">app.core.security</span>
+              <span class="kw">import</span> verify_password,
+              create_access_token, create_refresh_token, decode_token
+              <span class="kw">from</span>
+              <span class="imp">app.dependencies</span>
+              <span class="kw">import</span> get_db <span class="kw">from</span>
+              <span class="imp">app.crud</span>
+              <span class="kw">import</span> user_crud router =
+              <span class="cls">APIRouter</span>()
+
+              <span class="dec">@router.post</span>(<span class="str"
+                >"/token"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">login</span>(form:
+              <span class="cls">OAuth2PasswordRequestForm</span> =
+              <span class="cls">Depends</span>(), db =
+              <span class="cls">Depends</span>(get_db)): user =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >get_user_by_email</span
+              >(db, form.username) <span class="kw">if not</span> user
+              <span class="kw">or not</span>
+              <span class="fn">verify_password</span>(form.password,
+              user.hashed_password): <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >401</span
+              >, detail=<span class="str">"Invalid credentials"</span>,
+              headers={<span class="str">"WWW-Authenticate"</span>:
+              <span class="str">"Bearer"</span>})
+              <span class="kw">return</span> {
+              <span class="str">"access_token"</span>:
+              <span class="fn">create_access_token</span>(<span class="fn"
+                >str</span
+              >(user.id), {<span class="str">"role"</span>: user.role}),
+              <span class="str">"refresh_token"</span>:
+              <span class="fn">create_refresh_token</span>(<span class="fn"
+                >str</span
+              >(user.id)), <span class="str">"token_type"</span>:
+              <span class="str">"bearer"</span>, }
+
+              <span class="dec">@router.post</span>(<span class="str"
+                >"/refresh"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">refresh</span>(refresh_token:
+              <span class="cls">str</span>): payload =
+              <span class="fn">decode_token</span>(refresh_token)
+              <span class="kw">if not</span> payload
+              <span class="kw">or</span> payload.<span class="fn">get</span
+              >(<span class="str">"type"</span>) !=
+              <span class="str">"refresh"</span>:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >401</span
+              >, detail=<span class="str">"Invalid refresh token"</span>)
+              <span class="kw">return</span> {
+              <span class="str">"access_token"</span>:
+              <span class="fn">create_access_token</span>(payload[<span
+                class="str"
+                >"sub"</span
+              >]), <span class="str">"refresh_token"</span>:
+              <span class="fn">create_refresh_token</span>(payload[<span
+                class="str"
+                >"sub"</span
+              >]), <span class="str">"token_type"</span>:
+              <span class="str">"bearer"</span>, }
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     10 — AUTHORIZATION & ROLES
+════════════════════════════════════════════ -->
+        <section class="section" id="roles">
+          <div class="sec-header">
+            <span class="sec-num">10</span>
+            <div><h2>Authorization &amp; Role-Based Access</h2></div>
+          </div>
+          <div class="mw">
+            <div id="merChart_8"></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Role guards via Depends()</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">Depends</span>,
+              <span class="cls">HTTPException</span>, status
+
+              <span class="kw">def</span>
+              <span class="fn">require_roles</span>(*roles:
+              <span class="cls">str</span>): <span class="kw">async def</span>
+              <span class="fn">_check</span>(current_user =
+              <span class="cls">Depends</span>(get_current_user)):
+              <span class="kw">if</span> current_user.role
+              <span class="kw">not in</span> roles:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >403</span
+              >, detail=<span class="fn">f</span
+              ><span class="str">"Requires role: {', '.join(roles)}"</span>)
+              <span class="kw">return</span> current_user
+              <span class="kw">return</span> _check require_admin =
+              <span class="fn">require_roles</span>(<span class="str"
+                >"admin"</span
+              >) require_staff = <span class="fn">require_roles</span>(<span
+                class="str"
+                >"admin"</span
+              >, <span class="str">"staff"</span>)
+
+              <span class="kw">async def</span>
+              <span class="fn">is_owner_or_admin</span>(resource_owner_id:
+              <span class="cls">int</span>, current_user =
+              <span class="cls">Depends</span>(get_current_user)):
+              <span class="kw">if</span> current_user.role !=
+              <span class="str">"admin"</span>
+              <span class="kw">and</span> current_user.id != resource_owner_id:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(status_code=<span
+                class="num"
+                >403</span
+              >, detail=<span class="str">"Access denied"</span>)
+              <span class="kw">return</span> current_user
+
+              <span class="cm"
+                ># Usage: # @router.delete("/{id}",
+                dependencies=[Depends(require_admin)]) #
+                @router.get("/admin/stats",
+                dependencies=[Depends(require_staff)])</span
+              >
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     11 — OAUTH2
+════════════════════════════════════════════ -->
+        <section class="section" id="oauth">
+          <div class="sec-header">
+            <span class="sec-num">11</span>
+            <div><h2>OAuth2 Flow</h2></div>
+          </div>
+          <div class="mw">
+            <div id="merChart_9"></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Google OAuth2 with authlib</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="cm"># uv add authlib</span>
+              <span class="kw">from</span>
+              <span class="imp">authlib.integrations.starlette_client</span>
+              <span class="kw">import</span> <span class="cls">OAuth</span>
+              <span class="kw">from</span>
+              <span class="imp">starlette.config</span>
+              <span class="kw">import</span> <span class="cls">Config</span>
+
+              oauth = <span class="cls">OAuth</span>(<span class="cls"
+                >Config</span
+              >(<span class="str">".env"</span>)) oauth.<span class="fn"
+                >register</span
+              >( name=<span class="str">"google"</span>,
+              server_metadata_url=<span class="str"
+                >"https://accounts.google.com/.well-known/openid-configuration"</span
+              >, client_kwargs={<span class="str">"scope"</span>:
+              <span class="str">"openid email profile"</span>}, )
+
+              <span class="dec">@router.get</span>(<span class="str"
+                >"/google/login"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">google_login</span>(request:
+              <span class="cls">Request</span>): redirect_uri = request.<span
+                class="fn"
+                >url_for</span
+              >(<span class="str">"google_callback"</span>)
+              <span class="kw">return await</span> oauth.google.<span class="fn"
+                >authorize_redirect</span
+              >(request, redirect_uri)
+
+              <span class="dec">@router.get</span>(<span class="str"
+                >"/google/callback"</span
+              >, name=<span class="str">"google_callback"</span>)
+              <span class="kw">async def</span>
+              <span class="fn">google_callback</span>(request:
+              <span class="cls">Request</span>, db =
+              <span class="cls">Depends</span>(get_db)): token =
+              <span class="kw">await</span> oauth.google.<span class="fn"
+                >authorize_access_token</span
+              >(request) userinfo = token[<span class="str">"userinfo"</span>]
+              user = <span class="kw">await</span> user_crud.<span class="fn"
+                >get_or_create_oauth_user</span
+              >(db, userinfo) <span class="kw">return</span> {<span class="str"
+                >"access_token"</span
+              >: <span class="fn">create_access_token</span>(<span class="fn"
+                >str</span
+              >(user.id)), <span class="str">"token_type"</span>:
+              <span class="str">"bearer"</span>}
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     12 — FILE & IMAGE UPLOAD
+════════════════════════════════════════════ -->
+        <section class="section" id="upload">
+          <div class="sec-header">
+            <span class="sec-num">12</span>
+            <div><h2>File &amp; Image Upload</h2></div>
+          </div>
+          <p class="sec-desc">
+            FastAPI handles multipart uploads via <code>UploadFile</code>.
+            Always validate type, size, and sanitize filenames. In production,
+            stream files to S3/R2 — never store on the app server.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">File upload with validation</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">import</span> <span class="imp">uuid</span>
+              <span class="kw">from</span> <span class="imp">pathlib</span>
+              <span class="kw">import</span> <span class="cls">Path</span>
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">APIRouter</span>,
+              <span class="cls">UploadFile</span>,
+              <span class="cls">File</span>,
+              <span class="cls">HTTPException</span>
+
+              UPLOAD_DIR = <span class="cls">Path</span>(<span class="str"
+                >"uploads"</span
+              >) MAX_SIZE = <span class="num">10</span> *
+              <span class="num">1024</span> * <span class="num">1024</span>
+              <span class="cm"># 10 MB</span> ALLOWED_TYPES = {<span class="str"
+                >"image/jpeg"</span
+              >, <span class="str">"image/png"</span>,
+              <span class="str">"image/webp"</span>,
+              <span class="str">"application/pdf"</span>}
+
+              <span class="dec">@router.post</span>(<span class="str"
+                >"/upload"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">upload_file</span>(file:
+              <span class="cls">UploadFile</span> =
+              <span class="cls">File</span>(...)):
+              <span class="kw">if</span> file.content_type
+              <span class="kw">not in</span> ALLOWED_TYPES:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(<span class="num">400</span
+              >, <span class="fn">f</span
+              ><span class="str">"Type {file.content_type!r} not allowed"</span
+              >) contents = <span class="kw">await</span> file.<span class="fn"
+                >read</span
+              >() <span class="kw">if len</span>(contents) &gt; MAX_SIZE:
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(<span class="num">413</span
+              >, <span class="str">"File exceeds 10 MB limit"</span>) ext =
+              <span class="cls">Path</span>(file.filename).<span class="fn"
+                >suffix</span
+              >.<span class="fn">lower</span>() safe_name =
+              <span class="fn">f</span
+              ><span class="str">"{uuid.uuid4()}{ext}"</span>
+              <span class="cm"># never trust original filename</span> dest =
+              UPLOAD_DIR / safe_name UPLOAD_DIR.<span class="fn">mkdir</span
+              >(exist_ok=<span class="kw">True</span>) dest.<span class="fn"
+                >write_bytes</span
+              >(contents) <span class="kw">return</span> {<span class="str"
+                >"filename"</span
+              >: safe_name, <span class="str">"size"</span>:
+              <span class="fn">len</span>(contents)}
+
+              <span class="cm"
+                ># ── Image resize + convert to WebP ─────────────────────</span
+              >
+              <span class="kw">from</span> <span class="imp">PIL</span>
+              <span class="kw">import</span> <span class="cls">Image</span>
+              <span class="kw">import</span> <span class="imp">io</span>
+              <span class="dec">@router.post</span>(<span class="str"
+                >"/upload/avatar"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">upload_avatar</span>(file:
+              <span class="cls">UploadFile</span> =
+              <span class="cls">File</span>(...), current_user =
+              <span class="cls">Depends</span>(get_current_user)):
+              <span class="kw">if not</span> file.content_type.<span class="fn"
+                >startswith</span
+              >(<span class="str">"image/"</span>):
+              <span class="kw">raise</span>
+              <span class="cls">HTTPException</span>(<span class="num">400</span
+              >, <span class="str">"Images only"</span>) contents =
+              <span class="kw">await</span> file.<span class="fn">read</span>()
+              img = <span class="cls">Image</span>.<span class="fn">open</span
+              >(io.<span class="cls">BytesIO</span>(contents)).<span class="fn"
+                >convert</span
+              >(<span class="str">"RGB"</span>) img.<span class="fn"
+                >thumbnail</span
+              >((<span class="num">256</span>, <span class="num">256</span>),
+              <span class="cls">Image</span>.<span class="cls">LANCZOS</span>)
+              buf = io.<span class="cls">BytesIO</span>() img.<span class="fn"
+                >save</span
+              >(buf, format=<span class="str">"WEBP"</span>, quality=<span
+                class="num"
+                >85</span
+              >)
+              <span class="cm"
+                ># In production: upload buf.getvalue() to S3 here</span
+              >
+              <span class="kw">return</span> {<span class="str"
+                >"avatar_url"</span
+              >: <span class="fn">f</span
+              ><span class="str"
+                >"/static/avatars/avatar_{current_user.id}.webp"</span
+              >}
+
+              <span class="cm"
+                ># ── Multiple files
+                ──────────────────────────────────────</span
+              >
+              <span class="dec">@router.post</span>(<span class="str"
+                >"/upload/bulk"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">upload_bulk</span>(files:
+              <span class="fn">list</span>[<span class="cls">UploadFile</span>]
+              = <span class="cls">File</span>(...)): results = []
+              <span class="kw">for</span> f <span class="kw">in</span> files:
+              contents = <span class="kw">await</span> f.<span class="fn"
+                >read</span
+              >() results.<span class="fn">append</span>({<span class="str"
+                >"name"</span
+              >: f.filename, <span class="str">"size"</span>:
+              <span class="fn">len</span>(contents),
+              <span class="str">"type"</span>: f.content_type})
+              <span class="kw">return</span> results
+            </div>
+          </div>
+          <div class="callout tip">
+            <span class="callout-icon">🚀</span>
+            <p>
+              <strong>Production storage:</strong> Never store uploads on the
+              app server — use <code>boto3</code> for AWS S3 or Cloudflare R2
+              (<code>uv add boto3</code>). Generate pre-signed URLs for private
+              files and serve public assets via CDN.
+            </p>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     13 — POSTGRESQL + SQLALCHEMY
+════════════════════════════════════════════ -->
+        <section class="section" id="postgres">
+          <div class="sec-header">
+            <span class="sec-num">13</span>
+            <div><h2>PostgreSQL with SQLAlchemy (Full Setup)</h2></div>
+          </div>
+          <p class="sec-desc">
+            Use async SQLAlchemy 2.0 with <code>asyncpg</code> for non-blocking
+            I/O. Alembic manages schema migrations.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >app/models/user.py — Full User model with relationship</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">sqlalchemy</span>
+              <span class="kw">import</span> <span class="cls">String</span>,
+              <span class="cls">Boolean</span>,
+              <span class="cls">DateTime</span>, func
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.orm</span>
+              <span class="kw">import</span> <span class="cls">Mapped</span>,
+              mapped_column, relationship <span class="kw">from</span>
+              <span class="imp">app.core.database</span>
+              <span class="kw">import</span> <span class="cls">Base</span>
+              <span class="kw">from</span> <span class="imp">datetime</span>
+              <span class="kw">import</span> datetime
+
+              <span class="kw">class</span> <span class="cls">User</span>(<span
+                class="cls"
+                >Base</span
+              >): __tablename__ = <span class="str">"users"</span>
+
+              id: <span class="cls">Mapped</span>[<span class="cls">int</span>]
+              = <span class="fn">mapped_column</span>(primary_key=<span
+                class="kw"
+                >True</span
+              >) name: <span class="cls">Mapped</span>[<span class="cls"
+                >str</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >String</span
+              >(<span class="num">100</span>)) email:
+              <span class="cls">Mapped</span>[<span class="cls">str</span>] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >String</span
+              >(<span class="num">255</span>), unique=<span class="kw"
+                >True</span
+              >, index=<span class="kw">True</span>) hashed_password:
+              <span class="cls">Mapped</span>[<span class="cls">str</span>] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >String</span
+              >) role: <span class="cls">Mapped</span>[<span class="cls"
+                >str</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >String</span
+              >(<span class="num">20</span>), default=<span class="str"
+                >"user"</span
+              >) is_active: <span class="cls">Mapped</span>[<span class="cls"
+                >bool</span
+              >] = <span class="fn">mapped_column</span>(<span class="cls"
+                >Boolean</span
+              >, default=<span class="kw">True</span>) created_at:
+              <span class="cls">Mapped</span>[datetime] =
+              <span class="fn">mapped_column</span>(<span class="cls"
+                >DateTime</span
+              >(timezone=<span class="kw">True</span>),
+              server_default=func.<span class="fn">now</span>()) products:
+              <span class="cls">Mapped</span>[<span class="fn">list</span>[<span
+                class="str"
+                >"Product"</span
+              >]] = <span class="fn">relationship</span>(<span class="str"
+                >"Product"</span
+              >, back_populates=<span class="str">"owner"</span>, lazy=<span
+                class="str"
+                >"selectin"</span
+              >)
+            </div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/crud/user_crud.py</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">sqlalchemy.ext.asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncSession</span> <span class="kw">from</span>
+              <span class="imp">sqlalchemy</span>
+              <span class="kw">import</span> select <span class="kw">from</span>
+              <span class="imp">app.models.user</span>
+              <span class="kw">import</span> <span class="cls">User</span>
+              <span class="kw">from</span>
+              <span class="imp">app.schemas.user</span>
+              <span class="kw">import</span> <span class="cls">UserCreate</span>
+              <span class="kw">from</span>
+              <span class="imp">app.core.security</span>
+              <span class="kw">import</span> hash_password
+
+              <span class="kw">async def</span>
+              <span class="fn">get_user</span>(db:
+              <span class="cls">AsyncSession</span>, user_id:
+              <span class="cls">int</span>): result =
+              <span class="kw">await</span> db.<span class="fn">execute</span
+              >(<span class="fn">select</span>(<span class="cls">User</span
+              >).<span class="fn">where</span>(<span class="cls">User</span>.id
+              == user_id)) <span class="kw">return</span> result.<span
+                class="fn"
+                >scalar_one_or_none</span
+              >()
+
+              <span class="kw">async def</span>
+              <span class="fn">get_user_by_email</span>(db:
+              <span class="cls">AsyncSession</span>, email:
+              <span class="cls">str</span>): result =
+              <span class="kw">await</span> db.<span class="fn">execute</span
+              >(<span class="fn">select</span>(<span class="cls">User</span
+              >).<span class="fn">where</span>(<span class="cls">User</span
+              >.email == email)) <span class="kw">return</span> result.<span
+                class="fn"
+                >scalar_one_or_none</span
+              >()
+
+              <span class="kw">async def</span>
+              <span class="fn">get_users</span>(db:
+              <span class="cls">AsyncSession</span>, skip:
+              <span class="cls">int</span> = <span class="num">0</span>, limit:
+              <span class="cls">int</span> = <span class="num">100</span>):
+              result = <span class="kw">await</span> db.<span class="fn"
+                >execute</span
+              >(<span class="fn">select</span>(<span class="cls">User</span
+              >).<span class="fn">offset</span>(skip).<span class="fn"
+                >limit</span
+              >(limit)) <span class="kw">return</span> result.<span class="fn"
+                >scalars</span
+              >().<span class="fn">all</span>()
+
+              <span class="kw">async def</span>
+              <span class="fn">create_user</span>(db:
+              <span class="cls">AsyncSession</span>, payload:
+              <span class="cls">UserCreate</span>) -&gt;
+              <span class="cls">User</span>: user =
+              <span class="cls">User</span>(name=payload.name,
+              email=payload.email, hashed_password=<span class="fn"
+                >hash_password</span
+              >(payload.password), role=payload.role) db.<span class="fn"
+                >add</span
+              >(user) <span class="kw">await</span> db.<span class="fn"
+                >flush</span
+              >() <span class="kw">await</span> db.<span class="fn"
+                >refresh</span
+              >(user) <span class="kw">return</span> user
+
+              <span class="kw">async def</span>
+              <span class="fn">update_user</span>(db:
+              <span class="cls">AsyncSession</span>, user_id:
+              <span class="cls">int</span>, data: dict) -&gt;
+              <span class="cls">User</span> | <span class="kw">None</span>:
+              <span class="kw">from</span> <span class="imp">sqlalchemy</span>
+              <span class="kw">import</span> update
+              <span class="kw">await</span> db.<span class="fn">execute</span
+              >(<span class="fn">update</span>(<span class="cls">User</span
+              >).<span class="fn">where</span>(<span class="cls">User</span>.id
+              == user_id).<span class="fn">values</span>(**data).<span
+                class="fn"
+                >execution_options</span
+              >(synchronize_session=<span class="str">"fetch"</span>))
+              <span class="kw">await</span> db.<span class="fn">flush</span>()
+              <span class="kw">return await</span>
+              <span class="fn">get_user</span>(db, user_id)
+
+              <span class="kw">async def</span>
+              <span class="fn">delete_user</span>(db:
+              <span class="cls">AsyncSession</span>, user_id:
+              <span class="cls">int</span>) -&gt; <span class="cls">bool</span>:
+              <span class="kw">from</span> <span class="imp">sqlalchemy</span>
+              <span class="kw">import</span> delete r =
+              <span class="kw">await</span> db.<span class="fn">execute</span
+              >(<span class="fn">delete</span>(<span class="cls">User</span
+              >).<span class="fn">where</span>(<span class="cls">User</span>.id
+              == user_id)) <span class="kw">return</span> r.rowcount &gt;
+              <span class="num">0</span>
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     14 — MONGODB
+════════════════════════════════════════════ -->
+        <section class="section" id="mongo">
+          <div class="sec-header">
+            <span class="sec-num">14</span>
+            <div><h2>MongoDB with Motor &amp; Beanie</h2></div>
+          </div>
+          <p class="sec-desc">
+            Motor is the async MongoDB driver. Beanie is an async ODM that
+            integrates with Pydantic v2 — think of it as SQLAlchemy for MongoDB.
+          </p>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label"
+                >MongoDB setup + Beanie document + CRUD</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="cm"># uv add motor beanie</span>
+              <span class="kw">from</span>
+              <span class="imp">motor.motor_asyncio</span>
+              <span class="kw">import</span>
+              <span class="cls">AsyncIOMotorClient</span>
+              <span class="kw">from</span> <span class="imp">beanie</span>
+              <span class="kw">import</span> init_beanie,
+              <span class="cls">Document</span>,
+              <span class="cls">Indexed</span> <span class="kw">from</span>
+              <span class="imp">pydantic</span> <span class="kw">import</span>
+              <span class="cls">EmailStr</span> <span class="kw">from</span>
+              <span class="imp">datetime</span>
+              <span class="kw">import</span> datetime
+              <span class="kw">from</span> <span class="imp">typing</span>
+              <span class="kw">import</span>
+              <span class="cls">Optional</span>
+              <span class="cm"
+                ># ── Document model (= collection) ──────────────────────</span
+              >
+              <span class="kw">class</span> <span class="cls">User</span>(<span
+                class="cls"
+                >Document</span
+              >): name: <span class="cls">str</span> email:
+              <span class="cls">Indexed</span>(<span class="cls">EmailStr</span
+              >, unique=<span class="kw">True</span>) hashed_password:
+              <span class="cls">str</span> role: <span class="cls">str</span> =
+              <span class="str">"user"</span> is_active:
+              <span class="cls">bool</span> =
+              <span class="kw">True</span> created_at: datetime = datetime.<span
+                class="fn"
+                >utcnow</span
+              >() avatar_url: <span class="cls">Optional</span>[<span
+                class="cls"
+                >str</span
+              >] = <span class="kw">None</span> <span class="kw">class</span>
+              <span class="cls">Settings</span>: name =
+              <span class="str">"users"</span>
+              <span class="cm"># collection name</span>
+              <span class="cm"
+                ># ── Init at startup (inside lifespan) ──────────────────</span
+              >
+              <span class="kw">async def</span>
+              <span class="fn">init_db</span>(): client =
+              <span class="cls">AsyncIOMotorClient</span>(<span class="str"
+                >"mongodb://localhost:27017"</span
+              >) <span class="kw">await</span>
+              <span class="fn">init_beanie</span>(database=client.myapp,
+              document_models=[<span class="cls">User</span>])
+
+              <span class="cm"
+                ># ── CRUD
+                ────────────────────────────────────────────────</span
+              >
+              <span class="cm"># Create</span>
+              user = <span class="cls">User</span>(name=<span class="str"
+                >"Alice"</span
+              >, email=<span class="str">"alice@ex.com"</span>,
+              hashed_password=<span class="str">"..."</span>)
+              <span class="kw">await</span> user.<span class="fn">insert</span
+              >()
+
+              <span class="cm"># Find one</span>
+              user = <span class="kw">await</span>
+              <span class="cls">User</span>.<span class="fn">find_one</span
+              >(<span class="cls">User</span>.email ==
+              <span class="str">"alice@ex.com"</span>)
+
+              <span class="cm"># Find many with filter + pagination</span>
+              users = <span class="kw">await</span>
+              <span class="cls">User</span>.<span class="fn">find</span>(<span
+                class="cls"
+                >User</span
+              >.role == <span class="str">"admin"</span>).<span class="fn"
+                >skip</span
+              >(<span class="num">0</span>).<span class="fn">limit</span>(<span
+                class="num"
+                >20</span
+              >).<span class="fn">to_list</span>()
+
+              <span class="cm"># Partial update (patch)</span>
+              <span class="kw">await</span> user.<span class="fn">set</span
+              >({<span class="cls">User</span>.name:
+              <span class="str">"Alice Smith"</span>})
+
+              <span class="cm"># Delete</span>
+              <span class="kw">await</span> user.<span class="fn">delete</span
+              >()
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     15 — DB COMPARISON
+════════════════════════════════════════════ -->
+        <section class="section" id="db-compare">
+          <div class="sec-header">
+            <span class="sec-num">15</span>
+            <div><h2>Database Choice Guide</h2></div>
+          </div>
+          <div class="mw">
+            <div id="merChart_10"></div>
+          </div>
+          <table>
+            <tr>
+              <th>Database</th>
+              <th>Best For</th>
+              <th>Stack</th>
+              <th>Async Driver</th>
+            </tr>
+            <tr>
+              <td><strong>PostgreSQL</strong></td>
+              <td>Relational, ACID, complex joins, money</td>
+              <td>SQLAlchemy 2 + asyncpg + Alembic</td>
+              <td><code>asyncpg</code></td>
+            </tr>
+            <tr>
+              <td><strong>MongoDB</strong></td>
+              <td>Flexible schema, nested docs, rapid iteration</td>
+              <td>Motor + Beanie ODM</td>
+              <td><code>motor</code></td>
+            </tr>
+            <tr>
+              <td><strong>Redis</strong></td>
+              <td>Cache, sessions, rate limits, pub/sub</td>
+              <td>redis-py</td>
+              <td><code>redis.asyncio</code></td>
+            </tr>
+            <tr>
+              <td><strong>SQLite</strong></td>
+              <td>Dev, testing, small embedded apps</td>
+              <td>SQLAlchemy + aiosqlite</td>
+              <td><code>aiosqlite</code></td>
+            </tr>
+          </table>
+        </section>
+        <!-- ════════════════════════════════════════════
+     16 — BACKGROUND TASKS
+════════════════════════════════════════════ -->
+        <section class="section" id="background">
+          <div class="sec-header">
+            <span class="sec-num">16</span>
+            <div><h2>Background Tasks</h2></div>
+          </div>
+          <div class="grid2">
+            <div class="card">
+              <h3>📬 Built-in BackgroundTasks</h3>
+              <p>
+                Runs after response is sent. Good for emails, webhooks, audit
+                logs. No retry, no queue — not for heavy or long-running work.
+              </p>
+            </div>
+            <div class="card">
+              <h3>🔄 Celery / ARQ</h3>
+              <p>
+                For heavy jobs, scheduled tasks, retries, fan-out. Requires
+                Redis/RabbitMQ broker. Use <code>arq</code> for a simpler
+                async-native option.
+              </p>
+            </div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">BackgroundTasks usage</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span>
+              <span class="cls">BackgroundTasks</span>
+              <span class="kw">async def</span>
+              <span class="fn">send_welcome_email</span>(email:
+              <span class="cls">str</span>, name: <span class="cls">str</span>):
+              <span class="cm"
+                ># runs AFTER response is sent — use real email lib in
+                prod</span
+              >
+              <span class="kw">pass</span>
+              <span class="kw">async def</span>
+              <span class="fn">log_signup</span>(user_id:
+              <span class="cls">int</span>):
+              <span class="kw">pass</span>
+              <span class="dec">@router.post</span>(<span class="str"
+                >"/users"</span
+              >, status_code=<span class="num">201</span>)
+              <span class="kw">async def</span>
+              <span class="fn">create_user</span>(payload:
+              <span class="cls">UserCreate</span>, background_tasks:
+              <span class="cls">BackgroundTasks</span>, db =
+              <span class="cls">Depends</span>(get_db)): user =
+              <span class="kw">await</span> user_crud.<span class="fn"
+                >create_user</span
+              >(db, payload) background_tasks.<span class="fn">add_task</span
+              >(send_welcome_email, user.email, user.name)
+              background_tasks.<span class="fn">add_task</span>(log_signup,
+              user.id) <span class="kw">return</span> user
+              <span class="cm"># ← response goes out now; tasks run after</span>
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     17 — WEBSOCKETS
+════════════════════════════════════════════ -->
+        <section class="section" id="websocket">
+          <div class="sec-header">
+            <span class="sec-num">17</span>
+            <div><h2>WebSockets</h2></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Real-time chat room</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span> <span class="imp">fastapi</span>
+              <span class="kw">import</span> <span class="cls">WebSocket</span>,
+              <span class="cls">WebSocketDisconnect</span>
+              <span class="kw">class</span>
+              <span class="cls">ConnectionManager</span>:
+              <span class="kw">def</span>
+              <span class="fn">__init__</span>(self): self.rooms: dict[<span
+                class="cls"
+                >str</span
+              >, <span class="fn">list</span>[<span class="cls">WebSocket</span
+              >]] = {}
+
+              <span class="kw">async def</span>
+              <span class="fn">connect</span>(self, ws:
+              <span class="cls">WebSocket</span>, room:
+              <span class="cls">str</span>):
+              <span class="kw">await</span> ws.<span class="fn">accept</span>()
+              self.rooms.<span class="fn">setdefault</span>(room, []).<span
+                class="fn"
+                >append</span
+              >(ws)
+
+              <span class="kw">def</span>
+              <span class="fn">disconnect</span>(self, ws:
+              <span class="cls">WebSocket</span>, room:
+              <span class="cls">str</span>): self.rooms.<span class="fn"
+                >get</span
+              >(room, []).<span class="fn">remove</span>(ws)
+
+              <span class="kw">async def</span>
+              <span class="fn">broadcast</span>(self, room:
+              <span class="cls">str</span>, msg: <span class="cls">str</span>):
+              <span class="kw">for</span> conn
+              <span class="kw">in</span> self.rooms.<span class="fn">get</span
+              >(room, []): <span class="kw">await</span> conn.<span class="fn"
+                >send_text</span
+              >(msg) manager = <span class="cls">ConnectionManager</span>()
+
+              <span class="dec">@app.websocket</span>(<span class="str"
+                >"/ws/{room}/{username}"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">ws_endpoint</span>(ws:
+              <span class="cls">WebSocket</span>, room:
+              <span class="cls">str</span>, username:
+              <span class="cls">str</span>):
+              <span class="kw">await</span> manager.<span class="fn"
+                >connect</span
+              >(ws, room) <span class="kw">await</span> manager.<span class="fn"
+                >broadcast</span
+              >(room, <span class="fn">f</span
+              ><span class="str">"{username} joined"</span>)
+              <span class="kw">try</span>: <span class="kw">while True</span>:
+              data = <span class="kw">await</span> ws.<span class="fn"
+                >receive_text</span
+              >() <span class="kw">await</span> manager.<span class="fn"
+                >broadcast</span
+              >(room, <span class="fn">f</span
+              ><span class="str">"{username}: {data}"</span>)
+              <span class="kw">except</span>
+              <span class="cls">WebSocketDisconnect</span>: manager.<span
+                class="fn"
+                >disconnect</span
+              >(ws, room) <span class="kw">await</span> manager.<span class="fn"
+                >broadcast</span
+              >(room, <span class="fn">f</span
+              ><span class="str">"{username} left"</span>)
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     18 — CORS & SECURITY HEADERS
+════════════════════════════════════════════ -->
+        <section class="section" id="cors">
+          <div class="sec-header">
+            <span class="sec-num">18</span>
+            <div><h2>CORS &amp; Security Headers</h2></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Production CORS + Security middleware</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">fastapi.middleware.cors</span>
+              <span class="kw">import</span>
+              <span class="cls">CORSMiddleware</span>
+              <span class="kw">from</span>
+              <span class="imp">fastapi.middleware.trustedhost</span>
+              <span class="kw">import</span>
+              <span class="cls">TrustedHostMiddleware</span>
+
+              app.<span class="fn">add_middleware</span>(
+              <span class="cls">CORSMiddleware</span>, allow_origins=[<span
+                class="str"
+                >"https://myapp.com"</span
+              >, <span class="str">"https://www.myapp.com"</span>],
+              allow_credentials=<span class="kw">True</span>,
+              allow_methods=[<span class="str">"GET"</span>,
+              <span class="str">"POST"</span>, <span class="str">"PUT"</span>,
+              <span class="str">"PATCH"</span>,
+              <span class="str">"DELETE"</span>], allow_headers=[<span
+                class="str"
+                >"Authorization"</span
+              >, <span class="str">"Content-Type"</span>], max_age=<span
+                class="num"
+                >3600</span
+              >, ) app.<span class="fn">add_middleware</span>(<span class="cls"
+                >TrustedHostMiddleware</span
+              >, allowed_hosts=[<span class="str">"myapp.com"</span>,
+              <span class="str">"*.myapp.com"</span>])
+
+              <span class="dec">@app.middleware</span>(<span class="str"
+                >"http"</span
+              >) <span class="kw">async def</span>
+              <span class="fn">security_headers</span>(request, call_next):
+              response = <span class="kw">await</span>
+              <span class="fn">call_next</span>(request) response.headers[<span
+                class="str"
+                >"X-Content-Type-Options"</span
+              >] = <span class="str">"nosniff"</span> response.headers[<span
+                class="str"
+                >"X-Frame-Options"</span
+              >] = <span class="str">"DENY"</span> response.headers[<span
+                class="str"
+                >"X-XSS-Protection"</span
+              >] =
+              <span class="str">"1; mode=block"</span> response.headers[<span
+                class="str"
+                >"Strict-Transport-Security"</span
+              >] =
+              <span class="str">"max-age=31536000; includeSubDomains"</span>
+              response.headers[<span class="str">"Referrer-Policy"</span>] =
+              <span class="str">"strict-origin-when-cross-origin"</span>
+              <span class="kw">return</span> response
+            </div>
+          </div>
+        </section>
+        <!-- ════════════════════════════════════════════
+     19 — PRODUCTION DEPLOY
+════════════════════════════════════════════ -->
+        <section class="section" id="deploy">
+          <div class="sec-header">
+            <span class="sec-num">19</span>
+            <div><h2>Production Deployment</h2></div>
+          </div>
+          <div class="mw">
+            <div id="merChart_11"></div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">Dockerfile (uv + Gunicorn)</span
+              ><span class="cb-lang">dockerfile</span>
+            </div>
+            <div class="cb-body">
+              FROM python:3.12-slim COPY --from=ghcr.io/astral-sh/uv:latest /uv
+              /usr/local/bin/uv WORKDIR /app COPY pyproject.toml uv.lock ./ RUN
+              uv sync --frozen --no-dev COPY . . EXPOSE 8000 CMD ["uv", "run",
+              "gunicorn", "-k", "uvicorn.workers.UvicornWorker", \ "-w", "4",
+              "--bind", "0.0.0.0:8000", "app.main:app"]
+            </div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">docker-compose.yml</span
+              ><span class="cb-lang">yaml</span>
+            </div>
+            <div class="cb-body">
+              services: api: build: . ports: ["8000:8000"] env_file: .env
+              depends_on: db: { condition: service_healthy } restart:
+              unless-stopped db: image: postgres:16-alpine environment:
+              POSTGRES_USER: myapp POSTGRES_PASSWORD: ${DB_PASSWORD}
+              POSTGRES_DB: myapp volumes: [pgdata:/var/lib/postgresql/data]
+              healthcheck: test: ["CMD-SHELL", "pg_isready -U myapp"] interval:
+              5s retries: 5 redis: image: redis:7-alpine volumes:
+              [redisdata:/data] volumes: { pgdata: {}, redisdata: {} }
+            </div>
+          </div>
+          <div class="cb">
+            <div class="cb-head">
+              <div class="cb-dots"><span></span><span></span><span></span></div>
+              <span class="cb-label">app/config.py — pydantic-settings</span
+              ><span class="cb-lang">python</span>
+            </div>
+            <div class="cb-body">
+              <span class="kw">from</span>
+              <span class="imp">pydantic_settings</span>
+              <span class="kw">import</span>
+              <span class="cls">BaseSettings</span>,
+              <span class="cls">SettingsConfigDict</span>
+              <span class="kw">class</span>
+              <span class="cls">Settings</span>(<span class="cls"
+                >BaseSettings</span
+              >): model_config =
+              <span class="cls">SettingsConfigDict</span>(env_file=<span
+                class="str"
+                >".env"</span
+              >) APP_NAME: <span class="cls">str</span> =
+              <span class="str">"My API"</span> DEBUG:
+              <span class="cls">bool</span> =
+              <span class="kw">False</span> SECRET_KEY:
+              <span class="cls">str</span>
+              <span class="cm"># required — no default</span> DATABASE_URL:
+              <span class="cls">str</span>
+              <span class="cm"># postgresql+asyncpg://...</span> REDIS_URL:
+              <span class="cls">str</span> =
+              <span class="str">"redis://localhost:6379"</span>
+              ACCESS_TOKEN_EXPIRE_MINUTES: <span class="cls">int</span> =
+              <span class="num">30</span> ALLOWED_HOSTS:
+              <span class="fn">list</span>[<span class="cls">str</span>] =
+              [<span class="str">"*"</span>] settings =
+              <span class="cls">Settings</span>()
+              <span class="cm"># import this singleton everywhere</span>
+            </div>
+          </div>
+          <div class="callout tip">
+            <span class="callout-icon">✅</span>
+            <p>
+              <strong>Worker count rule:</strong> Set Gunicorn workers to
+              <code>(2 × CPU cores) + 1</code>. On a 4-core box:
+              <code>-w 9</code>. Add <code>--timeout 120</code> for endpoints
+              doing heavy I/O. Use <code>--graceful-timeout 30</code> for
+              zero-downtime deploys.
+            </p>
+          </div>
+        </section>
+      </main>
+    </div>
+    <!-- /page-body -->
+    <script>
+      // Normalise code-block indentation so white-space:pre-wrap renders correctly
+      document.querySelectorAll(".cb-body").forEach(function (el) {
+        var lines = el.innerHTML.split("\n");
+        var indents = lines
+          .filter(function (l) {
+            return l.trim().length > 0;
+          })
+          .map(function (l) {
+            return l.match(/^(\s*)/)[1].length;
+          });
+        var minIndent = indents.length ? Math.min.apply(null, indents) : 0;
+        el.innerHTML = lines
+          .map(function (l) {
+            return l.slice(minIndent);
+          })
+          .join("\n")
+          .replace(/^\n+|\n+$/g, "");
+      });
+      // Scroll progress bar
+      window.addEventListener("scroll", () => {
+        const pct =
+          (window.scrollY / (document.body.scrollHeight - window.innerHeight)) *
+          100;
+        document.getElementById("pb").style.width = pct + "%";
+      });
+
+      // Active sidebar link via IntersectionObserver
+      const sections = document.querySelectorAll(".section");
+      const links = document.querySelectorAll(".sb-link");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `.sb-link[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { threshold: 0.3 },
+      );
+      sections.forEach((s) => obs.observe(s));
+
+      // Mermaid
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          background: "#141820",
+          primaryColor: "#1c2333",
+          primaryTextColor: "#e2e8f0",
+          primaryBorderColor: "#2a3449",
+          lineColor: "#00d9ff",
+          secondaryColor: "#161b24",
+          tertiaryColor: "#0e1117",
+          actorBkg: "#1c2333",
+          actorBorder: "#00d9ff",
+          actorTextColor: "#e2e8f0",
+          actorLineColor: "#2a3449",
+          signalColor: "#00d9ff",
+          signalTextColor: "#e2e8f0",
+          labelBoxBkgColor: "#0e1117",
+          labelBoxBorderColor: "#2a3449",
+          labelTextColor: "#e2e8f0",
+          noteBorderColor: "#2a3449",
+          noteBkgColor: "#161b24",
+          noteTextColor: "#e2e8f0",
+          activationBorderColor: "#00d9ff",
+          activationBkgColor: "#1c2333",
+          fontFamily: "JetBrains Mono, monospace",
+          fontSize: "13px",
+          edgeLabelBackground: "#141820",
+          clusterBkg: "#161b24",
+          titleColor: "#e2e8f0",
+        },
+        flowchart: { curve: "basis", htmlLabels: true },
+        sequence: { useMaxWidth: false },
+      });
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `sequenceDiagram
+  participant C as Client
+  participant MW as Middleware Stack
+  participant R as Router
+  participant D as Dependencies
+  participant H as Handler
+  participant DB as Database
+  C->>MW: HTTP Request
+  MW->>MW: CORS Check
+  MW->>MW: Rate Limit / Auth Header Read
+  MW->>R: Forwarded Request
+  R->>R: Path Match
+  R->>D: Resolve Dependencies
+  D->>DB: get_db() open session
+  DB-->>D: AsyncSession
+  D->>D: get_current_user() decode JWT
+  D-->>H: (db, current_user, ...)
+  H->>DB: Query / Mutation via CRUD layer
+  DB-->>H: ORM result
+  H-->>R: return ORM object
+  R-->>MW: Pydantic serialize to JSONResponse
+  MW-->>C: Final HTTP Response`,
+      merChart_1: `flowchart TD
+  A[Request In] --> B{Middleware}
+  B --> C{Route Match?}
+  C -- No --> E[404 Not Found]
+  C -- Yes --> F{Dependencies OK?}
+  F -- Auth Failed --> G[401 / 403]
+  F -- Validation Error --> H[422 Unprocessable]
+  F -- OK --> I[Handler Function]
+  I --> J[CRUD Layer]
+  J --> K[(Database)]
+  K --> J
+  J --> I
+  I --> L{response_model}
+  L --> M[Pydantic Serialize]
+  M --> N[JSONResponse Out]`,
+      merChart_10: `flowchart TD
+  Q1{"Clear relationships\nbetween data?"} -->|Yes| Q2{"Need ACID\ntransactions?"}
+  Q2 -->|Yes| PG[PostgreSQL + SQLAlchemy]
+  Q2 -->|Partial| Q3{"Need full-text\nsearch?"}
+  Q3 -->|Yes| ES[Elasticsearch + PG]
+  Q3 -->|No| PG
+  Q1 -->|"No/Flexible schema"| Q4{"Document or\nkey-value?"}
+  Q4 -->|Documents| MG[MongoDB + Motor]
+  Q4 -->|"Cache / Sessions"| RD[Redis]
+  Q4 -->|"Time series"| TS[TimescaleDB]`,
+      merChart_11: `flowchart LR
+  C[Client] --> N["Nginx / Caddy\nReverse Proxy + TLS"]
+  N --> G[Gunicorn Process Manager]
+  G --> W1[Uvicorn Worker 1]
+  G --> W2[Uvicorn Worker 2]
+  G --> W3[Uvicorn Worker N]
+  W1 --> DB[(PostgreSQL)]
+  W1 --> R[(Redis)]`,
+      merChart_2: `flowchart LR
+  subgraph Client
+    A["POST /products\n{name, sku, price}"]
+    B["PATCH /products/1\n{price: 249}"]
+    C["PUT /products/1\n{name, sku, price, stock}"]
+  end
+  subgraph Schemas
+    D["ProductCreate\nAll required"]
+    E["ProductUpdate\nAll Optional"]
+  end
+  subgraph Handler
+    F["CRUD Layer\n+ DB Session"]
+  end
+  subgraph Response
+    G["ProductResponse\nid, name, price\ncreated_at, updated_at"]
+  end
+  A --> D --> F --> G
+  B --> E --> F
+  C --> D --> F`,
+      merChart_3: `flowchart LR
+  subgraph RequestIn["Request In"]
+    A["ProductCreate\nname required\nsku required\nprice required\ndescription optional\nstock optional=0"]
+    B["ProductUpdate\nname Optional\nprice Optional\ndescription Optional\nstock Optional\nis_active Optional"]
+  end
+  subgraph ResponseOut["Response Out"]
+    C["ProductResponse\nid\nname, sku, price\ndescription, stock\nis_active, owner_id\ncreated_at, updated_at"]
+  end
+  A -->|POST / PUT| H[Handler]
+  B -->|PATCH| H
+  H --> C`,
+      merChart_4: `sequenceDiagram
+  participant C as Client
+  participant FW as FastAPI
+  participant SC as ProductCreate
+  participant CR as product_crud
+  participant DB as PostgreSQL
+  C->>FW: POST /products name=Headphones sku=WH1 price=299
+  FW->>SC: Pydantic validates + coerces body
+  SC-->>FW: typed ProductCreate obj or 422 if invalid
+  FW->>CR: create_product(db, payload, owner_id)
+  CR->>DB: INSERT INTO products RETURNING id
+  DB-->>CR: Row with id=1 created_at updated_at
+  CR->>CR: db.refresh(product) - loads all DB-set fields
+  CR-->>FW: Product ORM object
+  FW->>SC: Serialize via ProductResponse
+  FW-->>C: 201 Created with id name and headphones data`,
+      merChart_5: `flowchart TD
+  A["POST /products\nJSON body"] --> B["FastAPI reads body"]
+  B --> C{"Pydantic validates\nProductCreate"}
+  C -->|"field error"| D["422 Unprocessable\nerrors list"]
+  C -->|"valid"| E["Route handler called\nwith typed payload obj"]
+  E --> F["Check SKU duplicate\nproduct_crud.get_by_sku()"]
+  F -->|"exists"| G["409 Conflict\nSKU already registered"]
+  F -->|"unique"| H["product_crud.create_product(db, payload, owner_id)"]
+  H --> I["Product from payload\ndb.add(product)\nawait db.flush()"]
+  I --> J[("PostgreSQL\nINSERT INTO products\nRETURNING id")]
+  J --> K["await db.refresh(product)\nloads id, created_at, updated_at"]
+  K --> L["return product ORM object"]
+  L --> M["get_db() commits transaction\nsession closes"]
+  M --> N["FastAPI serializes via response_model=ProductResponse"]
+  N --> O["201 JSON Response\nid, name, sku, price..."]
+  style D fill:#2a1020,stroke:#ff4d6a,color:#ff4d6a
+  style G fill:#2a1020,stroke:#ff4d6a,color:#ff4d6a
+  style O fill:#0a2a1a,stroke:#00e5a0,color:#00e5a0`,
+      merChart_6: `flowchart LR
+  R[Request] --> MW3[RateLimitMiddleware]
+  MW3 --> MW2[RequestLogMiddleware]
+  MW2 --> MW1[CORSMiddleware]
+  MW1 --> H[Handler]
+  H --> MW1R[CORSMiddleware]
+  MW1R --> MW2R[RequestLogMiddleware]
+  MW2R --> MW3R[RateLimitMiddleware]
+  MW3R --> Resp[Response]`,
+      merChart_7: `sequenceDiagram
+  participant U as User
+  participant API as FastAPI
+  participant DB as Database
+  U->>API: POST /auth/token email + password
+  API->>DB: Lookup user by email
+  DB-->>API: User record
+  API->>API: verify_password(plain, hashed)
+  API-->>U: access_token, refresh_token, token_type
+  Note over U,API: Subsequent requests
+  U->>API: GET /me Authorization Bearer token
+  API->>API: decode_token() payload
+  API->>DB: get_user(payload sub)
+  DB-->>API: User obj
+  API-->>U: UserResponse JSON`,
+      merChart_8: `flowchart TD
+  A[JWT Token] --> B[decode_token]
+  B --> C{payload.role}
+  C -->|admin| D["✅ Full Access"]
+  C -->|user| E{Resource Owner?}
+  E -->|Yes| F["✅ Own Resources"]
+  E -->|No| G["❌ 403 Forbidden"]
+  C -->|guest| H["❌ Read-Only Public"]`,
+      merChart_9: `sequenceDiagram
+  participant U as Browser
+  participant API as FastAPI
+  U->>API: GET /oauth2/authorize
+  API-->>U: Redirect to Provider Google or GitHub
+  U->>API: Callback with code=AUTH_CODE
+  API->>API: Exchange code for access_token
+  API->>API: Fetch user profile from provider
+  API->>API: Find or create user in DB
+  API-->>U: Set-Cookie session or Return JWT`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+  </body>
+</html>

@@ -1,0 +1,1162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LangChain — AI Ecosystem Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+        flex-wrap: wrap;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      nav .spacer {
+        flex: 1;
+      }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      aside {
+        width: 240px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 72px;
+        align-self: flex-start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+      aside ul {
+        list-style: none;
+        padding: 0;
+      }
+      aside li a {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.87rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 4px 4px 0;
+      }
+      aside li a:hover,
+      aside li a.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+      }
+      aside .group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.8rem 0.8rem 0.3rem;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding-left: 3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 2.5rem 0 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.6rem;
+        color: var(--primary);
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1.2rem 0 0.4rem;
+        color: var(--orange);
+      }
+      p {
+        color: var(--text);
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.84rem;
+        margin: 1rem 0;
+      }
+      code:not(pre code) {
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: var(--orange);
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      .callout {
+        border-left: 4px solid var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+        padding: 1rem 1.2rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+      .callout.green {
+        border-left-color: var(--green);
+        background: rgba(63, 185, 80, 0.07);
+      }
+      .callout.yellow {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.07);
+      }
+      .callout.red {
+        border-left-color: var(--red);
+        background: rgba(248, 81, 73, 0.07);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+      th {
+        background: var(--surface2);
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td code {
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.82em;
+      }
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.75rem;
+        font-weight: 700;
+        margin-left: 6px;
+      }
+      .badge-blue {
+        background: rgba(88, 166, 255, 0.2);
+        color: var(--primary);
+      }
+      .badge-green {
+        background: rgba(63, 185, 80, 0.2);
+        color: var(--green);
+      }
+      .badge-purple {
+        background: rgba(188, 140, 255, 0.2);
+        color: var(--purple);
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 2rem;
+        height: 2rem;
+        background: var(--primary);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+      .step-content h4 {
+        margin-top: 0;
+      }
+      .section-anchor {
+        scroll-margin-top: 80px;
+      }
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav .logo {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding-left: 0;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          height: 56px;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+          overflow-x: visible;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .layout {
+          padding: 1rem;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html" class="active">LangChain</a>
+        <a href="langgraph.html">LangGraph</a>
+        <a href="mcp.html">MCP</a>
+        <a href="fastmcp.html">FastMCP</a>
+        <a href="rag.html">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="group-label">Getting Started</div>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#install">Installation</a></li>
+          <li><a href="#groq">ChatGroq Setup</a></li>
+        </ul>
+        <div class="group-label">Core Concepts</div>
+        <ul>
+          <li><a href="#lcel">LCEL — The | Operator</a></li>
+          <li><a href="#prompts">Prompt Templates</a></li>
+          <li><a href="#parsers">Output Parsers</a></li>
+          <li><a href="#chains">Building Chains</a></li>
+        </ul>
+        <div class="group-label">Advanced</div>
+        <ul>
+          <li><a href="#multi-chain">Multi-Chain</a></li>
+          <li><a href="#callbacks">Callbacks</a></li>
+          <li><a href="#runnable-config">RunnableConfig</a></li>
+        </ul>
+        <div class="group-label">Tasks</div>
+        <ul>
+          <li><a href="#task1">Task 1 — Basic Chain</a></li>
+          <li><a href="#task2">Task 2 — Multi-Chain</a></li>
+          <li><a href="#task3">Task 3 — Callbacks</a></li>
+        </ul>
+      </aside>
+
+      <main>
+        <h1>🔗 LangChain</h1>
+        <p class="lead">
+          LangChain is the foundational framework for building LLM-powered
+          applications. It provides composable building blocks — prompts,
+          models, parsers, and chains — that you connect together using the LCEL
+          pipe operator.
+        </p>
+
+        <div class="callout green">
+          <strong>✅ What you'll learn</strong>
+          How to create prompt templates, connect them to ChatGroq, parse
+          outputs, compose multi-step chains, and instrument them with callbacks
+          — from zero to production.
+        </div>
+
+        <!-- Overview -->
+        <h2 id="overview" class="section-anchor">Overview</h2>
+        <p>
+          LangChain follows a simple mental model: everything is a
+          <strong>Runnable</strong>. A Runnable accepts an input and produces an
+          output. You compose Runnables using the pipe operator
+          <code>|</code> to form chains.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_0"></div>
+        </div>
+
+        <h3>Key Components</h3>
+        <table>
+          <tr>
+            <th>Component</th>
+            <th>Class</th>
+            <th>Role</th>
+          </tr>
+          <tr>
+            <td>LLM / Chat Model</td>
+            <td><code>ChatGroq</code></td>
+            <td>Sends prompts to Groq and returns AI responses</td>
+          </tr>
+          <tr>
+            <td>Prompt Template</td>
+            <td>
+              <code>ChatPromptTemplate</code>, <code>PromptTemplate</code>
+            </td>
+            <td>Formats dynamic input variables into a prompt string</td>
+          </tr>
+          <tr>
+            <td>Output Parser</td>
+            <td><code>StrOutputParser</code></td>
+            <td>Converts the raw AI response object to a plain string</td>
+          </tr>
+          <tr>
+            <td>Chain</td>
+            <td><code>Runnable</code> (via <code>|</code>)</td>
+            <td>Composes steps into a pipeline</td>
+          </tr>
+          <tr>
+            <td>Callback Handler</td>
+            <td><code>BaseCallbackHandler</code></td>
+            <td>Hooks into chain execution for logging / monitoring</td>
+          </tr>
+        </table>
+
+        <!-- Installation -->
+        <h2 id="install" class="section-anchor">Installation</h2>
+        <pre><code class="language-bash">pip install langchain langchain-groq langchain-core langchain-community python-dotenv</code></pre>
+        <p>Create a <code>.env</code> file with your Groq API key:</p>
+        <pre><code class="language-bash">GROQ_API_KEY=your_api_key_here</code></pre>
+
+        <!-- ChatGroq -->
+        <h2 id="groq" class="section-anchor">ChatGroq — Model Setup</h2>
+        <p>
+          <code>ChatGroq</code> is the LangChain integration for Groq's
+          ultra-fast inference API. It behaves exactly like any other LangChain
+          chat model.
+        </p>
+
+        <pre><code class="language-python">from langchain_groq import ChatGroq
+from langchain_core.messages import HumanMessage
+from dotenv import load_dotenv
+
+load_dotenv()  # loads GROQ_API_KEY from .env
+
+llm = ChatGroq(
+    model="openai/gpt-oss-120b",  # model identifier on Groq
+    temperature=0.7,              # 0 = deterministic, 1 = creative
+)
+
+# Direct invocation with a message
+response = llm.invoke([HumanMessage(content="Explain AI in one sentence.")])
+print(response.content)</code></pre>
+
+        <h3>ChatGroq Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>model</code></td>
+            <td>str</td>
+            <td>required</td>
+            <td>
+              Groq model identifier, e.g. <code>"openai/gpt-oss-120b"</code>
+            </td>
+          </tr>
+          <tr>
+            <td><code>temperature</code></td>
+            <td>float</td>
+            <td>0.7</td>
+            <td>
+              Randomness: 0 = deterministic, 1 = very creative. Lower for
+              factual tasks.
+            </td>
+          </tr>
+          <tr>
+            <td><code>max_tokens</code></td>
+            <td>int</td>
+            <td>None</td>
+            <td>Maximum tokens in the response. Useful for limiting costs.</td>
+          </tr>
+          <tr>
+            <td><code>groq_api_key</code></td>
+            <td>str</td>
+            <td>from env</td>
+            <td>
+              Explicit API key. Prefer setting via <code>GROQ_API_KEY</code> env
+              var.
+            </td>
+          </tr>
+          <tr>
+            <td><code>streaming</code></td>
+            <td>bool</td>
+            <td>False</td>
+            <td>
+              Stream tokens as they are generated. Use
+              <code>.stream()</code> for this.
+            </td>
+          </tr>
+        </table>
+
+        <!-- LCEL -->
+        <h2 id="lcel" class="section-anchor">
+          LCEL — LangChain Expression Language
+        </h2>
+        <p>
+          LCEL is the pipe-based composition system. Each step in the pipe must
+          be a <strong>Runnable</strong>. The output of one step becomes the
+          input of the next.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_1"></div>
+        </div>
+
+        <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert AI tutor."),
+    ("human", "Explain {topic} in simple terms."),
+])
+
+llm = ChatGroq(model="openai/gpt-oss-120b")
+parser = StrOutputParser()
+
+# Build chain with the pipe operator
+chain = prompt | llm | parser
+
+# Invoke it
+result = chain.invoke({"topic": "machine learning"})
+print(result)  # plain string output</code></pre>
+
+        <div class="callout">
+          <strong>💡 How the pipe operator works</strong>
+          <code>chain = prompt | llm | parser</code> creates a
+          <code>RunnableSequence</code>. When you call
+          <code>chain.invoke({"topic": "..."}</code>, it:
+          <ol style="padding-left: 1.2rem; margin-top: 0.4rem">
+            <li>Formats the prompt with your variables</li>
+            <li>Sends the formatted prompt to ChatGroq</li>
+            <li>Extracts the text content from the response</li>
+          </ol>
+        </div>
+
+        <!-- Prompts -->
+        <h2 id="prompts" class="section-anchor">Prompt Templates</h2>
+        <p>
+          Prompt templates separate your instructions from runtime data. They
+          take a dict of variables and produce a formatted prompt.
+        </p>
+
+        <h3>ChatPromptTemplate</h3>
+        <p>
+          For chat models (recommended). Takes a list of
+          <code>(role, template)</code> tuples.
+        </p>
+        <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate
+
+# System + Human message structure
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a {role}. Always be concise."),
+    ("human", "{question}"),
+])
+
+# Gets formatted into a list of chat messages
+formatted = prompt.format_messages(role="historian", question="Who was Napoleon?")
+print(formatted)
+# [SystemMessage(content='You are a historian...'), HumanMessage(content='Who was Napoleon?')]</code></pre>
+
+        <h3>PromptTemplate (simple string)</h3>
+        <p>
+          For simpler, non-chat templates. Used when chaining the output of one
+          LLM into another.
+        </p>
+        <pre><code class="language-python">from langchain_core.prompts import PromptTemplate
+
+# Uses {variable} placeholders
+prompt = PromptTemplate.from_template(
+    "Simplify this explanation further for beginners:\n\n{simple_explanation}"
+)
+
+# Preview the prompt
+formatted = prompt.format(simple_explanation="AI learns from data using math...")
+print(formatted)</code></pre>
+
+        <h3>Prompt Template Parameters</h3>
+        <table>
+          <tr>
+            <th>Method</th>
+            <th>Use Case</th>
+          </tr>
+          <tr>
+            <td><code>from_messages([...])</code></td>
+            <td>Chat models — list of <code>(role, template)</code> tuples</td>
+          </tr>
+          <tr>
+            <td><code>from_template("...")</code></td>
+            <td>
+              Simple text template with <code>{variable}</code> placeholders
+            </td>
+          </tr>
+          <tr>
+            <td><code>.format_messages(**vars)</code></td>
+            <td>Preview the formatted messages</td>
+          </tr>
+          <tr>
+            <td><code>.input_variables</code></td>
+            <td>List of variable names expected by the template</td>
+          </tr>
+        </table>
+
+        <!-- Output Parsers -->
+        <h2 id="parsers" class="section-anchor">Output Parsers</h2>
+        <p>
+          The LLM returns an <code>AIMessage</code> object. Parsers convert it
+          into a more useful format.
+        </p>
+
+        <table>
+          <tr>
+            <th>Parser</th>
+            <th>Output Type</th>
+            <th>Best For</th>
+          </tr>
+          <tr>
+            <td><code>StrOutputParser()</code></td>
+            <td>str</td>
+            <td>Plain text — most common</td>
+          </tr>
+          <tr>
+            <td><code>JsonOutputParser()</code></td>
+            <td>dict</td>
+            <td>Structured JSON responses</td>
+          </tr>
+          <tr>
+            <td><code>PydanticOutputParser()</code></td>
+            <td>Pydantic model</td>
+            <td>Typed, validated responses</td>
+          </tr>
+          <tr>
+            <td><code>CommaSeparatedListOutputParser()</code></td>
+            <td>list[str]</td>
+            <td>Bullet-list style outputs</td>
+          </tr>
+        </table>
+
+        <pre><code class="language-python">from langchain_core.output_parsers import StrOutputParser
+
+parser = StrOutputParser()
+
+# Inside a chain, it converts AIMessage → str automatically
+chain = prompt | llm | parser
+
+# You can also call it manually:
+from langchain_core.messages import AIMessage
+msg = AIMessage(content="Hello from the AI!")
+print(parser.invoke(msg))  # "Hello from the AI!"</code></pre>
+
+        <!-- Building Chains -->
+        <h2 id="chains" class="section-anchor">Building Chains</h2>
+        <p>
+          A chain is any combination of Runnables connected with <code>|</code>.
+          The simplest chain is <code>prompt | llm</code>. Add a parser for
+          clean output.
+        </p>
+
+        <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# Define each component
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert AI tutor."),
+    ("human", "Explain {topic} in simple terms."),
+])
+llm = ChatGroq(model="openai/gpt-oss-120b")
+parser = StrOutputParser()
+
+# Compose the chain
+chain = prompt | llm | parser
+
+# Run it
+response = chain.invoke({"topic": "neural networks"})
+print(response)  # ✅ clean string, no AIMessage wrapper</code></pre>
+
+        <!-- Multi-Chain -->
+        <h2 id="multi-chain" class="section-anchor">Multi-Chain Composition</h2>
+        <p>
+          You can chain the output of one LLM call directly into the next. This
+          is useful for progressive refinement, translation pipelines, or
+          multi-step reasoning.
+        </p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_2"></div>
+        </div>
+
+        <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+
+# Stage 1: Expert explains a topic
+prompt1 = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert AI tutor."),
+    ("human", "Explain {topic} in simple terms."),
+])
+llm = ChatGroq(model="openai/gpt-oss-120b")
+chain1 = prompt1 | llm  # output: AIMessage
+
+# Stage 2: Simplify even further
+# Note: the output of chain1 (AIMessage) is passed as the input — use {simple_explanation}
+prompt2 = PromptTemplate.from_template(
+    "Simplify this explanation further for beginners:\n\n{simple_explanation}"
+)
+parser = StrOutputParser()
+
+# Full pipeline: chain1 output feeds into prompt2
+chain2 = chain1 | prompt2 | llm | parser
+
+response = chain2.invoke({"topic": "machine learning"})
+print(response)</code></pre>
+
+        <div class="callout yellow">
+          <strong>⚠️ Variable naming in chained prompts</strong>
+          When the output of one chain feeds into a <code>PromptTemplate</code>,
+          the template variable name must match what the previous step produces.
+          Since <code>ChatGroq</code> returns an <code>AIMessage</code>, wrap it
+          with <code>StrOutputParser()</code> first and rename the variable to
+          match, or use <code>RunnablePassthrough</code> to restructure inputs.
+        </div>
+
+        <!-- Callbacks -->
+        <h2 id="callbacks" class="section-anchor">Callback Handlers</h2>
+        <p>
+          Callbacks let you hook into chain lifecycle events for logging,
+          monitoring, and debugging. Implement
+          <code>BaseCallbackHandler</code> and override the methods you need.
+        </p>
+
+        <h3>Available Callback Methods</h3>
+        <table>
+          <tr>
+            <th>Method</th>
+            <th>Triggered When</th>
+          </tr>
+          <tr>
+            <td><code>on_chain_start(serialized, inputs)</code></td>
+            <td>A chain begins execution</td>
+          </tr>
+          <tr>
+            <td><code>on_chain_end(outputs)</code></td>
+            <td>A chain completes successfully</td>
+          </tr>
+          <tr>
+            <td><code>on_llm_start(serialized, prompts)</code></td>
+            <td>An LLM call is about to be made</td>
+          </tr>
+          <tr>
+            <td><code>on_llm_end(response)</code></td>
+            <td>An LLM call completes</td>
+          </tr>
+          <tr>
+            <td><code>on_llm_error(error)</code></td>
+            <td>An LLM call fails</td>
+          </tr>
+          <tr>
+            <td><code>on_tool_start(serialized, input_str)</code></td>
+            <td>A tool is invoked by an agent</td>
+          </tr>
+          <tr>
+            <td><code>on_tool_end(output)</code></td>
+            <td>A tool returns a result</td>
+          </tr>
+        </table>
+
+        <pre><code class="language-python">from langchain_core.callbacks import BaseCallbackHandler
+from loguru import logger
+
+class LoguruHandler(BaseCallbackHandler):
+    """Custom callback handler that logs chain events via loguru."""
+
+    def on_chain_start(self, serialized, inputs, **kwargs):
+        logger.info(f"🚀 Chain started: {serialized['name']}, input: {inputs}")
+
+    def on_llm_start(self, serialized, prompts, **kwargs):
+        # Show only first 100 chars of the prompt to avoid log spam
+        logger.info(f"🤖 LLM started: {serialized['name']}, prompt: {prompts[0][:100]}...")
+
+    def on_llm_end(self, output, **kwargs):
+        logger.success(f"✅ LLM completed: {len(str(output))} chars")
+
+    def on_chain_end(self, output, **kwargs):
+        logger.success(f"✅ Chain completed: {len(str(output))} chars")</code></pre>
+
+        <!-- RunnableConfig -->
+        <h2 id="runnable-config" class="section-anchor">RunnableConfig</h2>
+        <p>
+          <code>RunnableConfig</code> is passed as a second argument to
+          <code>.invoke()</code>. It carries callbacks, tags, and metadata for a
+          single execution.
+        </p>
+
+        <pre><code class="language-python">from langchain_core.runnables import RunnableConfig
+import time
+
+handler = LoguruHandler()
+
+config = RunnableConfig(
+    callbacks=[handler],       # list of callback handlers
+    tags=["tutorial", "demo"], # labels for filtering in logs
+    metadata={"user": "alice"} # arbitrary key-value pairs
+)
+
+start = time.time()
+response = chain.invoke({"topic": "deep learning"}, config=config)
+logger.info(f"⏱️ Done in {time.time() - start:.2f}s")</code></pre>
+
+        <h3>RunnableConfig Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>callbacks</code></td>
+            <td>list</td>
+            <td>Callback handler instances to attach for this run</td>
+          </tr>
+          <tr>
+            <td><code>tags</code></td>
+            <td>list[str]</td>
+            <td>String labels for grouping / filtering traces</td>
+          </tr>
+          <tr>
+            <td><code>metadata</code></td>
+            <td>dict</td>
+            <td>Arbitrary key-value pairs passed to every callback</td>
+          </tr>
+          <tr>
+            <td><code>run_name</code></td>
+            <td>str</td>
+            <td>Human-readable name for this run in traces</td>
+          </tr>
+          <tr>
+            <td><code>max_concurrency</code></td>
+            <td>int</td>
+            <td>Max parallel calls in a <code>batch()</code> invocation</td>
+          </tr>
+        </table>
+
+        <!-- TASKS -->
+        <h2 id="task1" class="section-anchor">
+          📘 Task 1 — Basic Chain with ChatGroq
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Build a single prompt → LLM → parser chain and
+          invoke it with a topic.
+        </div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Install packages and load environment</h4>
+            <pre><code class="language-bash">pip install langchain langchain-groq python-dotenv</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>Create <code>prompt_template_chaining.py</code></h4>
+            <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+load_dotenv()
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert AI tutor."),
+    ("human", "Explain {topic} in simple terms."),
+])
+
+llm = ChatGroq(model="openai/gpt-oss-120b")
+chain = prompt | llm | StrOutputParser()
+
+response = chain.invoke({"topic": "machine learning"})
+print(response)</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>Run it</h4>
+            <pre><code class="language-bash">python prompt_template_chaining.py</code></pre>
+            <p>
+              You should see a clear explanation of machine learning printed to
+              the terminal.
+            </p>
+          </div>
+        </div>
+
+        <h2 id="task2" class="section-anchor">
+          📘 Task 2 — Multi-Chain with Loguru Logging
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Chain two LLM calls and instrument with a
+          callback handler and loguru file logging.
+        </div>
+        <pre><code class="language-python">from loguru import logger
+import time
+from langchain_core.callbacks import BaseCallbackHandler
+from langchain_core.runnables import RunnableConfig
+from langchain_core.prompts import ChatPromptTemplate, PromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+load_dotenv()
+
+# -- File logging setup --
+logger.add("chain.log", rotation="500 MB", retention="10 days", level="INFO")
+
+class LoguruHandler(BaseCallbackHandler):
+    def on_chain_start(self, serialized, inputs, **kwargs):
+        logger.info(f"🚀 Chain: {serialized['name']} | {inputs}")
+    def on_llm_end(self, output, **kwargs):
+        logger.success(f"✅ LLM done: {len(str(output))} chars")
+
+# -- Stage 1: expert explanation --
+prompt1 = ChatPromptTemplate.from_messages([
+    ("system", "You are an expert AI tutor."),
+    ("human", "Explain {topic} in simple terms."),
+])
+llm = ChatGroq(model="openai/gpt-oss-120b")
+chain1 = prompt1 | llm
+
+# -- Stage 2: beginner simplification --
+prompt2 = PromptTemplate.from_template(
+    "Simplify this explanation further for beginners:\n\n{simple_explanation}"
+)
+chain2 = chain1 | prompt2 | llm | StrOutputParser()
+
+config = RunnableConfig(callbacks=[LoguruHandler()], tags=["tutorial"])
+start = time.time()
+response = chain2.invoke({"topic": "machine learning"}, config=config)
+logger.info(f"⏱️  Done in {time.time()-start:.2f}s")
+print("Final:", response)</code></pre>
+
+        <h2 id="task3" class="section-anchor">
+          📘 Task 3 — Streaming Responses
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Stream tokens as they are generated instead of
+          waiting for the full response.
+        </div>
+        <pre><code class="language-python">from langchain_core.prompts import ChatPromptTemplate
+from langchain_groq import ChatGroq
+from langchain_core.output_parsers import StrOutputParser
+from dotenv import load_dotenv
+
+load_dotenv()
+
+prompt = ChatPromptTemplate.from_messages([
+    ("system", "You are a storyteller."),
+    ("human", "Tell me a short story about {subject}."),
+])
+llm = ChatGroq(model="openai/gpt-oss-120b", streaming=True)
+chain = prompt | llm | StrOutputParser()
+
+# .stream() yields tokens as they arrive
+for chunk in chain.stream({"subject": "a robot learning to paint"}):
+    print(chunk, end="", flush=True)
+print()  # newline at end</code></pre>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        LangChain Documentation ·
+        <a href="index.html" style="color: var(--primary)">← Back to Home</a>
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+      // Highlight active sidebar link
+      const links = document.querySelectorAll("aside a");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `aside a[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -75% 0px" },
+      );
+      document
+        .querySelectorAll(".section-anchor")
+        .forEach((el) => obs.observe(el));
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `flowchart LR
+  A["📝 PromptTemplate\n(formats user input)"] -->|"LangChain LCEL"| B["🤖 ChatGroq LLM\n(generates response)"]
+  B --> C["🔧 OutputParser\n(formats output)"]
+  style A fill:#1c2128,stroke:#58a6ff
+  style B fill:#1c2128,stroke:#3fb950
+  style C fill:#1c2128,stroke:#bc8cff`,
+      merChart_1: `flowchart LR
+  IN["topic=AI"] --> PT
+  PT["PromptTemplate\n.from_messages(...)"] -->|"ChatPromptValue"| LLM
+  LLM["ChatGroq\n(model='...')"] -->|"AIMessage"| OP
+  OP["StrOutputParser"] -->|"str"| OUT["AI is ..."]
+  style IN fill:#21262d,stroke:#30363d
+  style OUT fill:#21262d,stroke:#3fb950`,
+      merChart_2: `flowchart LR
+  IN["topic=ML"] --> P1
+  subgraph Chain1["Chain 1 - Expert explanation"]
+    P1["ChatPromptTemplate\n(expert)"] --> LLM1["ChatGroq"]
+  end
+  subgraph Chain2["Chain 2 - Simplification"]
+    LLM1 --> P2["PromptTemplate\n(simplify)"]
+    P2 --> LLM2["ChatGroq"]
+    LLM2 --> OP["StrOutputParser"]
+  end
+  OP --> OUT["Beginner-friendly\nexplanation"]
+  style Chain1 fill:#1c2128,stroke:#58a6ff
+  style Chain2 fill:#1c2128,stroke:#3fb950`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

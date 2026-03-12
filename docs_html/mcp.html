@@ -1,0 +1,1121 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MCP Server — AI Ecosystem Docs</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <style>
+      :root {
+        --bg: #0d1117;
+        --surface: #161b22;
+        --surface2: #21262d;
+        --border: #30363d;
+        --primary: #58a6ff;
+        --green: #3fb950;
+        --yellow: #d29922;
+        --red: #f85149;
+        --purple: #bc8cff;
+        --orange: #e3b341;
+        --text: #e6edf3;
+        --muted: #8b949e;
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: var(--bg);
+        color: var(--text);
+        font-family: "Segoe UI", system-ui, sans-serif;
+        line-height: 1.7;
+      }
+      nav {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        height: 56px;
+      }
+      nav .logo {
+        font-weight: 700;
+        font-size: 1.1rem;
+        color: var(--primary);
+        text-decoration: none;
+      }
+      nav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+      }
+      nav a:hover,
+      nav a.active {
+        color: var(--primary);
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+        flex-shrink: 1;
+        min-width: 0;
+      }
+      .nav-links::-webkit-scrollbar {
+        display: none;
+      }
+      .nav-toggle {
+        display: none;
+        background: none;
+        border: none;
+        color: var(--text);
+        font-size: 1.5rem;
+        cursor: pointer;
+        padding: 0 4px;
+        line-height: 56px;
+        flex-shrink: 0;
+        margin-left: auto;
+      }
+      .layout {
+        display: flex;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      aside {
+        width: 240px;
+        flex-shrink: 0;
+        position: sticky;
+        top: 72px;
+        align-self: flex-start;
+        max-height: calc(100vh - 80px);
+        overflow-y: auto;
+      }
+      aside ul {
+        list-style: none;
+      }
+      aside li a {
+        display: block;
+        padding: 0.4rem 0.8rem;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 0.87rem;
+        border-left: 2px solid transparent;
+        border-radius: 0 4px 4px 0;
+      }
+      aside li a:hover,
+      aside li a.active {
+        color: var(--primary);
+        border-left-color: var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+      }
+      aside .group-label {
+        font-size: 0.75rem;
+        font-weight: 700;
+        color: var(--muted);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        padding: 0.8rem 0.8rem 0.3rem;
+      }
+      main {
+        flex: 1;
+        min-width: 0;
+        padding-left: 3rem;
+      }
+      h1 {
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+      }
+      h2 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin: 2.5rem 0 0.8rem;
+        padding-top: 1rem;
+        border-top: 1px solid var(--border);
+      }
+      h3 {
+        font-size: 1.15rem;
+        font-weight: 700;
+        margin: 1.5rem 0 0.6rem;
+        color: var(--primary);
+      }
+      h4 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin: 1.2rem 0 0.4rem;
+        color: var(--orange);
+      }
+      p {
+        margin-bottom: 1rem;
+      }
+      .lead {
+        font-size: 1.1rem;
+        color: var(--muted);
+        margin-bottom: 1.5rem;
+      }
+      pre {
+        background: var(--surface2) !important;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+        overflow-x: auto;
+        font-size: 0.84rem;
+        margin: 1rem 0;
+      }
+      code:not(pre code) {
+        background: var(--surface2);
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-size: 0.85em;
+        color: var(--orange);
+      }
+      code.hljs {
+        background: transparent !important;
+      }
+      .callout {
+        border-left: 4px solid var(--primary);
+        background: rgba(88, 166, 255, 0.07);
+        padding: 1rem 1.2rem;
+        border-radius: 0 8px 8px 0;
+        margin: 1rem 0;
+      }
+      .callout.green {
+        border-left-color: var(--green);
+        background: rgba(63, 185, 80, 0.07);
+      }
+      .callout.yellow {
+        border-left-color: var(--yellow);
+        background: rgba(210, 153, 34, 0.07);
+      }
+      .callout strong {
+        display: block;
+        margin-bottom: 0.3rem;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.88rem;
+      }
+      th {
+        background: var(--surface2);
+        padding: 0.7rem 1rem;
+        text-align: left;
+        font-weight: 700;
+        border: 1px solid var(--border);
+      }
+      td {
+        padding: 0.6rem 1rem;
+        border: 1px solid var(--border);
+        vertical-align: top;
+      }
+      td code {
+        background: var(--surface2);
+        padding: 1px 5px;
+        border-radius: 3px;
+        font-size: 0.82em;
+      }
+      .diagram-wrap {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 1.5rem;
+        overflow-x: auto;
+        margin: 1rem 0;
+      }
+      .transport-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+      }
+      .transport-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 1.2rem;
+      }
+      .transport-card h4 {
+        margin: 0 0 0.5rem;
+        font-size: 1rem;
+      }
+      .transport-card p {
+        font-size: 0.88rem;
+        color: var(--muted);
+        margin: 0;
+      }
+      .section-anchor {
+        scroll-margin-top: 80px;
+      }
+      .step {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        align-items: flex-start;
+      }
+      .step-num {
+        min-width: 2rem;
+        height: 2rem;
+        background: var(--green);
+        color: #000;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 0.9rem;
+        flex-shrink: 0;
+        margin-top: 0.2rem;
+      }
+      footer {
+        background: var(--surface);
+        border-top: 1px solid var(--border);
+        padding: 1.5rem 2rem;
+        text-align: center;
+        color: var(--muted);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 900px) {
+        nav .logo {
+          font-size: 1rem;
+        }
+      }
+      @media (max-width: 768px) {
+        .layout {
+          flex-direction: column;
+        }
+        aside {
+          display: none;
+        }
+        main {
+          padding-left: 0;
+        }
+        nav {
+          position: relative;
+          height: auto;
+          min-height: 56px;
+          flex-wrap: wrap;
+          padding: 0 1rem;
+        }
+        .nav-toggle {
+          display: flex;
+          align-items: center;
+          line-height: normal;
+          height: 56px;
+        }
+        .nav-links {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--surface);
+          border-bottom: 1px solid var(--border);
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0;
+          padding: 0.5rem 0 1rem;
+          z-index: 99;
+          overflow-x: visible;
+        }
+        .nav-links.open {
+          display: flex;
+        }
+        .nav-links a {
+          padding: 0.6rem 1.5rem;
+          width: 100%;
+          font-size: 0.9rem;
+          white-space: normal;
+        }
+        h1 {
+          font-size: 1.8rem;
+        }
+      }
+      @media (max-width: 480px) {
+        .layout {
+          padding: 1rem;
+        }
+        main {
+          padding: 0;
+        }
+        pre {
+          font-size: 0.78rem;
+          padding: 0.8rem;
+        }
+        h1 {
+          font-size: 1.5rem;
+        }
+        h2 {
+          font-size: 1.2rem;
+        }
+        table {
+          display: block;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+
+      <a href="index.html" class="logo">⚡ AI Ecosystem Docs</a>
+      <button class="nav-toggle" aria-label="Toggle navigation">&#9776;</button>
+      <div class="nav-links">
+        <a href="langchain.html">LangChain</a>
+        <a href="langgraph.html">LangGraph</a>
+        <a href="mcp.html" class="active">MCP</a>
+        <a href="fastmcp.html">FastMCP</a>
+        <a href="rag.html">RAG</a>
+        <a href="rag_concept_docs.html">RAG Concepts</a>
+        <a href="rag_learning_path.html">RAG Path</a>
+        <a href="multi_agent.html">Multi-Agent</a>
+        <a href="fastApi.html">FastAPI</a>
+        <a href="pgAndPgVector.html">PgVector</a>
+      </div>
+    </nav>
+
+    <div class="layout">
+      <aside>
+        <div class="group-label">Concepts</div>
+        <ul>
+          <li><a href="#overview">Overview</a></li>
+          <li><a href="#protocol">The Protocol</a></li>
+          <li><a href="#primitives">Primitives</a></li>
+          <li><a href="#transport">Transports</a></li>
+        </ul>
+        <div class="group-label">Server</div>
+        <ul>
+          <li><a href="#server-setup">Server Setup</a></li>
+          <li><a href="#tools">Tools</a></li>
+          <li><a href="#resources">Resources</a></li>
+          <li><a href="#registry">Server Registry</a></li>
+        </ul>
+        <div class="group-label">Client</div>
+        <ul>
+          <li><a href="#client-setup">Client Setup</a></li>
+          <li><a href="#list-tools">List Tools</a></li>
+          <li><a href="#call-tools">Call Tools</a></li>
+          <li><a href="#groq-integration">Groq Integration</a></li>
+        </ul>
+        <div class="group-label">Tasks</div>
+        <ul>
+          <li><a href="#task1">Task 1 — Weather Server</a></li>
+          <li><a href="#task2">Task 2 — MCP Client</a></li>
+          <li><a href="#task3">Task 3 — Groq + MCP</a></li>
+        </ul>
+      </aside>
+
+      <main>
+        <h1>🔌 Model Context Protocol (MCP)</h1>
+        <p class="lead">
+          MCP is an open standard by Anthropic that defines how AI models
+          communicate with external tools and data sources. Think of it as a
+          "USB-C for AI" — one universal protocol that any model can use to talk
+          to any tool.
+        </p>
+
+        <div class="callout">
+          <strong>🔑 Key Insight</strong>
+          MCP separates the AI model from its tools. Instead of hardcoding tool
+          integrations inside each model, MCP lets you build standalone tool
+          servers that <em>any</em> MCP-compatible client can connect to.
+        </div>
+
+        <!-- Overview -->
+        <h2 id="overview" class="section-anchor">Overview</h2>
+        <div class="diagram-wrap">
+          <div id="merChart_0"></div>
+        </div>
+
+        <!-- Protocol -->
+        <h2 id="protocol" class="section-anchor">The MCP Protocol</h2>
+        <p>
+          MCP uses <strong>JSON-RPC 2.0</strong> as its message format. All
+          communication follows a request/response pattern with optional
+          notifications.
+        </p>
+
+        <table>
+          <tr>
+            <th>Message Type</th>
+            <th>Direction</th>
+            <th>Example</th>
+          </tr>
+          <tr>
+            <td>Request</td>
+            <td>Client → Server</td>
+            <td><code>{"method": "tools/call", "params": {...}}</code></td>
+          </tr>
+          <tr>
+            <td>Response</td>
+            <td>Server → Client</td>
+            <td><code>{"result": {"content": [...]}}</code></td>
+          </tr>
+          <tr>
+            <td>Notification</td>
+            <td>Either direction</td>
+            <td>
+              <code>{"method": "notifications/progress", "params": {...}}</code>
+            </td>
+          </tr>
+        </table>
+
+        <p>The protocol lifecycle:</p>
+
+        <div class="diagram-wrap">
+          <div id="merChart_1"></div>
+        </div>
+
+        <!-- Primitives -->
+        <h2 id="primitives" class="section-anchor">MCP Primitives</h2>
+        <p>
+          MCP servers expose three types of primitives that clients can discover
+          and use:
+        </p>
+
+        <table>
+          <tr>
+            <th>Primitive</th>
+            <th>Purpose</th>
+            <th>Example</th>
+          </tr>
+          <tr>
+            <td><strong>Tools</strong></td>
+            <td>Functions the LLM can call to take actions</td>
+            <td>
+              <code>get_weather(city)</code>, <code>search_web(query)</code>
+            </td>
+          </tr>
+          <tr>
+            <td><strong>Resources</strong></td>
+            <td>Data sources the LLM can read (files, APIs)</td>
+            <td><code>file://config.json</code>, <code>db://users</code></td>
+          </tr>
+          <tr>
+            <td><strong>Prompts</strong></td>
+            <td>Reusable prompt templates the LLM can request</td>
+            <td><code>summarize_code</code>, <code>explain_error</code></td>
+          </tr>
+        </table>
+
+        <!-- Transport -->
+        <h2 id="transport" class="section-anchor">Transport Types</h2>
+        <div class="transport-grid">
+          <div class="transport-card">
+            <h4>📡 stdio</h4>
+            <p>
+              Server runs as a child process. Client communicates via
+              stdin/stdout pipes. Great for local tools and development.
+            </p>
+            <pre
+              style="margin-top: 0.5rem; font-size: 0.8rem"
+            ><code class="language-python">StdioServerParameters(
+    command="python",
+    args=["mcp_servers.py"],
+    env=None,
+)</code></pre>
+          </div>
+          <div class="transport-card">
+            <h4>🌐 HTTP / SSE</h4>
+            <p>
+              Server runs as a standalone HTTP server. Client connects over the
+              network. Good for remote tools and production deployments.
+            </p>
+            <pre
+              style="margin-top: 0.5rem; font-size: 0.8rem"
+            ><code class="language-python">mcp.run(
+    transport="http",
+    port=8080
+)</code></pre>
+          </div>
+        </div>
+
+        <table>
+          <tr>
+            <th>Transport</th>
+            <th>Process Model</th>
+            <th>Best For</th>
+          </tr>
+          <tr>
+            <td><code>stdio</code></td>
+            <td>Child process, pipes</td>
+            <td>Local tools, scripts, development</td>
+          </tr>
+          <tr>
+            <td><code>http</code></td>
+            <td>Standalone HTTP server</td>
+            <td>Production, remote access, multiple clients</td>
+          </tr>
+          <tr>
+            <td><code>sse</code></td>
+            <td>HTTP + Server-Sent Events</td>
+            <td>Streaming results over HTTP</td>
+          </tr>
+        </table>
+
+        <!-- Server Setup -->
+        <h2 id="server-setup" class="section-anchor">Server Setup</h2>
+        <p>
+          An MCP server registers its tools and then runs. Using the lower-level
+          <code>mcp</code> library:
+        </p>
+
+        <pre><code class="language-python">from typing import Any
+import httpx
+from mcp.server.fastmcp import FastMCP  # FastMCP is part of the mcp package too
+from dotenv import load_dotenv
+from loguru import logger
+
+load_dotenv()
+
+# Create the server with a name
+mcp = FastMCP("weather")
+
+NWS_API_BASE = "https://api.weather.gov"
+USER_AGENT = "weather-app/1.0"
+
+async def make_nws_request(url: str) -> dict[str, Any] | None:
+    """Make a request to the NWS API."""
+    headers = {"User-Agent": USER_AGENT, "Accept": "application/geo+json"}
+    async with httpx.AsyncClient() as client:
+        try:
+            response = await client.get(url, headers=headers, timeout=30.0)
+            response.raise_for_status()
+            return response.json()
+        except Exception as e:
+            logger.error("NWS request failed for {}: {}", url, e)
+            return None</code></pre>
+
+        <!-- Tools -->
+        <h2 id="tools" class="section-anchor">Defining Tools on a Server</h2>
+        <p>
+          Decorate async functions with <code>@mcp.tool()</code>. The docstring
+          and type annotations generate the JSON schema that clients see.
+        </p>
+
+        <pre><code class="language-python">@mcp.tool()
+async def get_alerts(state: str) -> str:
+    """Get weather alerts for a US state.
+
+    Args:
+        state: Two-letter US state code (e.g. CA, NY)
+    """
+    url = f"{NWS_API_BASE}/alerts/active/area/{state}"
+    data = await make_nws_request(url)
+
+    if not data or "features" not in data:
+        return "Unable to fetch alerts or no alerts found."
+    if not data["features"]:
+        return "No active alerts for this state."
+
+    alerts = []
+    for feature in data["features"]:
+        props = feature["properties"]
+        alerts.append(
+            f"Event: {props.get('event', '?')}\n"
+            f"Area: {props.get('areaDesc', '?')}\n"
+            f"Severity: {props.get('severity', '?')}"
+        )
+    return "\n---\n".join(alerts)
+
+
+@mcp.tool()
+async def get_forecast(latitude: float, longitude: float) -> str:
+    """Get weather forecast for a location.
+
+    Args:
+        latitude: Latitude of the location
+        longitude: Longitude of the location
+    """
+    points_url = f"{NWS_API_BASE}/points/{latitude},{longitude}"
+    points_data = await make_nws_request(points_url)
+    if not points_data:
+        return "Unable to fetch forecast data."
+
+    forecast_url = points_data["properties"]["forecast"]
+    forecast_data = await make_nws_request(forecast_url)
+    if not forecast_data:
+        return "Unable to fetch detailed forecast."
+
+    periods = forecast_data["properties"]["periods"]
+    results = []
+    for period in periods[:5]:
+        results.append(
+            f"{period['name']}: {period['temperature']}°{period['temperatureUnit']}, "
+            f"{period['detailedForecast']}"
+        )
+    return "\n".join(results)
+
+
+def main():
+    mcp.run(transport="stdio")  # start the server
+
+if __name__ == "__main__":
+    main()</code></pre>
+
+        <h3>@mcp.tool() Parameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td>(none required)</td>
+            <td>—</td>
+            <td>
+              The decorator reads name/description/args from the function
+              automatically
+            </td>
+          </tr>
+          <tr>
+            <td><code>name</code></td>
+            <td>str</td>
+            <td>Override the tool name (default: function name)</td>
+          </tr>
+          <tr>
+            <td><code>description</code></td>
+            <td>str</td>
+            <td>Override the tool description (default: docstring)</td>
+          </tr>
+        </table>
+
+        <!-- Resources -->
+        <h2 id="resources" class="section-anchor">Resources</h2>
+        <p>
+          Resources are data sources exposed by the server. Unlike tools (which
+          perform actions), resources are read-only data the LLM can request
+          context from.
+        </p>
+
+        <pre><code class="language-python">from mcp.server.fastmcp import FastMCP, Context
+import json
+
+mcp = FastMCP("my-server")
+
+@mcp.resource("config://app")
+async def get_app_config() -> str:
+    """Returns the current application configuration."""
+    config = {"version": "1.0.0", "debug": False, "model": "gpt-oss-120b"}
+    return json.dumps(config, indent=2)
+
+@mcp.resource("file://{path}")
+async def read_file(path: str) -> str:
+    """Read a file from the server filesystem."""
+    with open(path) as f:
+        return f.read()</code></pre>
+
+        <!-- Registry -->
+        <h2 id="registry" class="section-anchor">Server Registry</h2>
+        <p>
+          The server registry pattern lets you define multiple MCP servers in
+          one place and reference them by name from any client.
+        </p>
+
+        <pre><code class="language-python">from mcp import StdioServerParameters
+import os
+
+# mcp_servers.py — the registry
+SERVERS: dict[str, StdioServerParameters] = {
+    "weather": StdioServerParameters(
+        command="python",
+        args=["mcp_servers.py"],  # path to the server script
+        env=None,                 # environment variables (None = inherit)
+    ),
+    "magic": StdioServerParameters(
+        command="npx",
+        args=["-y", "@21st-dev/magic@latest"],
+        env={**os.environ, "API_KEY": os.environ.get("MAGIC_API_KEY", "")},
+    ),
+}</code></pre>
+
+        <h3>StdioServerParameters</h3>
+        <table>
+          <tr>
+            <th>Parameter</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>command</code></td>
+            <td>str</td>
+            <td>
+              Executable to run (<code>"python"</code>, <code>"npx"</code>,
+              etc.)
+            </td>
+          </tr>
+          <tr>
+            <td><code>args</code></td>
+            <td>list[str]</td>
+            <td>Arguments to pass to the command</td>
+          </tr>
+          <tr>
+            <td><code>env</code></td>
+            <td>dict | None</td>
+            <td>
+              Environment variables. <code>None</code> = inherit from parent
+              process
+            </td>
+          </tr>
+          <tr>
+            <td><code>cwd</code></td>
+            <td>str | None</td>
+            <td>Working directory for the server process</td>
+          </tr>
+        </table>
+
+        <!-- Client Setup -->
+        <h2 id="client-setup" class="section-anchor">Client Setup</h2>
+        <p>
+          The MCP client connects to a server, initialises the session, and can
+          then list and call tools.
+        </p>
+
+        <pre><code class="language-python">import asyncio
+from contextlib import AsyncExitStack
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+class MCPClient:
+    def __init__(self):
+        self.session = None
+        self.exit_stack = AsyncExitStack()
+
+    async def connect(self, server_params: StdioServerParameters):
+        # Start the server process and get a stdio transport
+        stdio_transport = await self.exit_stack.enter_async_context(
+            stdio_client(server_params)
+        )
+        stdio, write = stdio_transport
+
+        # Create and initialise the session
+        self.session = await self.exit_stack.enter_async_context(
+            ClientSession(stdio, write)
+        )
+        await self.session.initialize()
+        print("Connected!")</code></pre>
+
+        <!-- List Tools -->
+        <h2 id="list-tools" class="section-anchor">Listing Tools</h2>
+        <pre><code class="language-python">    async def list_available_tools(self):
+        response = await self.session.list_tools()
+        for tool in response.tools:
+            print(f"Tool: {tool.name}")
+            print(f"  Description: {tool.description}")
+            print(f"  Schema: {tool.inputSchema}")
+</code></pre>
+
+        <table>
+          <tr>
+            <th>Tool Field</th>
+            <th>Type</th>
+            <th>Description</th>
+          </tr>
+          <tr>
+            <td><code>tool.name</code></td>
+            <td>str</td>
+            <td>The tool's identifier used to call it</td>
+          </tr>
+          <tr>
+            <td><code>tool.description</code></td>
+            <td>str</td>
+            <td>What the tool does (from docstring)</td>
+          </tr>
+          <tr>
+            <td><code>tool.inputSchema</code></td>
+            <td>dict</td>
+            <td>JSON Schema describing expected arguments</td>
+          </tr>
+        </table>
+
+        <!-- Call Tools -->
+        <h2 id="call-tools" class="section-anchor">Calling Tools</h2>
+        <pre><code class="language-python">    async def call_tool(self, tool_name: str, arguments: dict):
+        result = await self.session.call_tool(tool_name, arguments)
+        # result.content is a list of TextContent / ImageContent
+        for item in result.content:
+            print(item.text)
+        return result</code></pre>
+
+        <!-- Groq Integration -->
+        <h2 id="groq-integration" class="section-anchor">
+          Full Groq + MCP Integration
+        </h2>
+        <p>
+          The complete pattern: convert MCP tools to OpenAI function format,
+          pass them to Groq, process tool calls in a loop, and return the final
+          answer.
+        </p>
+
+        <pre><code class="language-python">from groq import Groq
+import json
+
+async def process_query(self, query: str) -> str:
+    """Send a query to Groq, using MCP tools for execution."""
+    messages = [{"role": "user", "content": query}]
+
+    # 1. Get tools from MCP server
+    tool_response = await self.session.list_tools()
+    available_tools = [
+        {
+            "type": "function",
+            "function": {
+                "name": t.name,
+                "description": t.description,
+                "parameters": dict(t.inputSchema),  # JSON Schema
+            },
+        }
+        for t in tool_response.tools
+    ]
+
+    # 2. Send to Groq with tools available
+    response = self.groq.chat.completions.create(
+        model="openai/gpt-oss-120b",
+        max_tokens=1000,
+        messages=messages,
+        tools=available_tools,
+        tool_choice="auto",         # let LLM decide whether to use tools
+        parallel_tool_calls=False,  # call one tool at a time
+    )
+
+    # 3. Loop: process tool calls until LLM is done
+    final_text = []
+    while True:
+        choice = response.choices[0]
+        message = choice.message
+
+        if message.content:
+            final_text.append(message.content)
+
+        if not message.tool_calls:
+            break  # no more tool calls → done
+
+        # 4. Execute each tool call via MCP
+        messages.append({
+            "role": "assistant",
+            "content": message.content or "",
+            "tool_calls": [
+                {"id": tc.id, "type": "function",
+                 "function": {"name": tc.function.name, "arguments": tc.function.arguments}}
+                for tc in message.tool_calls
+            ],
+        })
+
+        for tc in message.tool_calls:
+            args = json.loads(tc.function.arguments)
+            result = await self.session.call_tool(tc.function.name, args)
+            tool_text = "\n".join(c.text for c in result.content if hasattr(c, "text"))
+
+            messages.append({
+                "role": "tool",
+                "tool_call_id": tc.id,
+                "content": tool_text,
+            })
+
+        # 5. Send updated history back to Groq
+        response = self.groq.chat.completions.create(
+            model="openai/gpt-oss-120b",
+            max_tokens=1000,
+            messages=messages,
+            tools=available_tools,
+            tool_choice="auto",
+        )
+
+    return "\n".join(final_text)</code></pre>
+
+        <!-- Task 1 -->
+        <h2 id="task1" class="section-anchor">
+          📗 Task 1 — Build the Weather MCP Server
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Create a working MCP server with two weather
+          tools using the NWS API.
+        </div>
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>Install dependencies</h4>
+            <pre><code class="language-bash">pip install mcp httpx loguru python-dotenv</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>
+              Create <code>mcp_servers.py</code> with the two tools above and
+              run it
+            </h4>
+            <pre><code class="language-bash">python mcp_servers.py
+# The server starts and listens on stdio</code></pre>
+          </div>
+        </div>
+
+        <h2 id="task2" class="section-anchor">
+          📗 Task 2 — Connect an MCP Client
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Write a client that connects to the weather
+          server, lists tools, and calls <code>get_alerts</code>.
+        </div>
+        <pre><code class="language-python">import asyncio
+from contextlib import AsyncExitStack
+from mcp import ClientSession, StdioServerParameters
+from mcp.client.stdio import stdio_client
+
+server_params = StdioServerParameters(command="python", args=["mcp_servers.py"])
+
+async def main():
+    async with AsyncExitStack() as stack:
+        # Connect
+        stdio, write = await stack.enter_async_context(stdio_client(server_params))
+        session = await stack.enter_async_context(ClientSession(stdio, write))
+        await session.initialize()
+
+        # List tools
+        tools = (await session.list_tools()).tools
+        print("Available tools:", [t.name for t in tools])
+
+        # Call get_alerts for California
+        result = await session.call_tool("get_alerts", {"state": "CA"})
+        for item in result.content:
+            print(item.text)
+
+asyncio.run(main())</code></pre>
+
+        <h2 id="task3" class="section-anchor">
+          📗 Task 3 — Groq Decides Which Tool to Call
+        </h2>
+        <div class="callout green">
+          <strong>Goal:</strong> Combine Groq + MCP so the LLM automatically
+          picks the right weather tool.
+        </div>
+        <pre><code class="language-bash"># Run the full MCP client which connects to the server
+# and lets Groq use the weather tools automatically
+python mcp_clients.py weather
+
+# Then type: "Are there any weather alerts in Texas?"
+# Groq will automatically call get_alerts(state="TX") via MCP</code></pre>
+      </main>
+    </div>
+
+    <footer>
+      <p>
+        MCP Documentation ·
+        <a href="index.html" style="color: var(--primary)">← Back to Home</a>
+      </p>
+    </footer>
+
+    <script>
+      mermaid.initialize({
+        startOnLoad: false,
+        theme: "dark",
+        themeVariables: {
+          primaryColor: "#58a6ff",
+          primaryTextColor: "#e6edf3",
+          primaryBorderColor: "#30363d",
+          lineColor: "#8b949e",
+          secondaryColor: "#21262d",
+          tertiaryColor: "#161b22",
+        },
+      });
+      hljs.highlightAll();
+      const links = document.querySelectorAll("aside a");
+      const obs = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              links.forEach((l) => l.classList.remove("active"));
+              const a = document.querySelector(
+                `aside a[href="#${e.target.id}"]`,
+              );
+              if (a) a.classList.add("active");
+            }
+          });
+        },
+        { rootMargin: "-20% 0px -75% 0px" },
+      );
+      document
+        .querySelectorAll(".section-anchor")
+        .forEach((el) => obs.observe(el));
+    </script>
+    <script>
+      (function () {
+        var _diagrams = {
+      merChart_0: `flowchart LR
+  subgraph Client["🖥️ MCP Client (your app)"]
+    LLM["Groq LLM"]
+    CS["ClientSession"]
+  end
+  subgraph Server["🔧 MCP Server"]
+    T1["get_alerts()"]
+    T2["get_forecast()"]
+  end
+  Client <-->|"JSON-RPC over stdio/HTTP"| Server
+  LLM -->|"1. list_tools()"| CS
+  CS -->|"2. calls on wire"| Server
+  Server -->|"3. tool result"| CS
+  CS -->|"4. result to LLM"| LLM
+  style Client fill:#1c2128,stroke:#58a6ff
+  style Server fill:#1c2128,stroke:#3fb950`,
+      merChart_1: `sequenceDiagram
+  participant C as MCP Client
+  participant S as MCP Server
+  C->>S: initialize (capabilities)
+  S-->>C: initialize result (server capabilities)
+  C->>S: initialized (notification)
+  Note over C,S: Connection established
+  C->>S: tools/list
+  S-->>C: list of available tools
+  C->>S: tools/call name=get_forecast
+  S-->>C: tool result content
+  C->>S: close / disconnect`,
+      
+        };
+        function renderAll() {
+          Object.keys(_diagrams).forEach(function (id) {
+            var el = document.getElementById(id);
+            if (!el) return;
+            mermaid.render("svg_" + id, _diagrams[id]).then(function (result) {
+              el.innerHTML = result.svg;
+            }).catch(function (err) {
+              console.error("Mermaid [" + id + "]:", err);
+            });
+          });
+        }
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", renderAll);
+        } else {
+          renderAll();
+        }
+      })();
+    </script>
+    <script>
+      (function () {
+        var t = document.querySelector(".nav-toggle");
+        var l = document.querySelector(".nav-links");
+        if (t && l) {
+          t.addEventListener("click", function () {
+            l.classList.toggle("open");
+          });
+          document.addEventListener("click", function (e) {
+            if (!e.target.closest("nav")) l.classList.remove("open");
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>
