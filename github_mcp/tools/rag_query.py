@@ -33,7 +33,9 @@ from loguru import logger
 
 # ── RAG config ────────────────────────────────────────────────────────────────
 CHROMA_DIR = os.environ.get("RAG_CHROMA_DIR", "./chroma_store")
-POSTGRES_URL = os.environ.get("POSTGRES_URL", "")
+POSTGRES_URL = os.environ.get(
+    "POSTGRES_URL", "postgresql://postgres:postgres@localhost:5434/ai_db"
+)
 # RAG_VECTOR_DB controls which store the tools query at runtime:
 #   chroma    → ChromaDB only
 #   pgvector  → PGVector only         (default)
@@ -313,16 +315,51 @@ def _build_ask_chain():
 
 
 def _get_all_docs() -> list:
-    """Fetch ALL documents from ChromaDB (not just top-k)."""
+    """Fetch ALL documents from the vector store (Chroma or PGVector)."""
     vs = _get_vectorstore()
-    result = vs._collection.get(include=["documents", "metadatas"])
 
     class _Doc:
         def __init__(self, page_content, metadata):
             self.page_content = page_content
             self.metadata = metadata
 
-    return [_Doc(c, m or {}) for c, m in zip(result["documents"], result["metadatas"])]
+    # Handle Chroma: use _collection.get()
+    if hasattr(vs, "_collection") and hasattr(vs._collection, "get"):
+        result = vs._collection.get(include=["documents", "metadatas"])
+        return [
+            _Doc(c, m or {}) for c, m in zip(result["documents"], result["metadatas"])
+        ]
+
+    # Handle PGVector: query with a very large k to get all docs
+    # (this is a workaround since PGVector doesn't have a public get_all() method)
+    try:
+        # Use a query that should match all docs (empty string returns high-scoring results)
+        # We'll do multiple searches with different queries to try to get all docs
+        all_docs = []
+        seen_content = set()
+
+        # Try multiple search strategies
+        search_queries = ["", " ", ".", "a", "def ", "import ", "class ", "def "]
+        for query in search_queries:
+            try:
+                # Request a large number of results (PGVector should return all if available)
+                docs = vs.similarity_search(query, k=10000)
+                for doc in docs:
+                    content_key = doc.page_content[:100]
+                    if content_key not in seen_content:
+                        seen_content.add(content_key)
+                        all_docs.append(_Doc(doc.page_content, doc.metadata or {}))
+            except:
+                continue
+
+            # If we got some docs, stop searching
+            if all_docs:
+                break
+
+        return all_docs
+    except Exception as e:
+        logger.error(f"RAG | Failed to fetch all docs: {e}")
+        return []
 
 
 def _build_file_index() -> dict:

@@ -52,6 +52,9 @@ uv run python ingest.py
 
 # Start the MCP server
 uv run python server.py --port 8090
+
+# Inspect the server (optional, in a new terminal)
+npx @modelcontextprotocol/inspector
 ```
 
 The server starts on `http://localhost:8090/sse`.
@@ -137,7 +140,7 @@ RAG_VECTOR_DB=pgvector        # chroma | pgvector | both  (default: pgvector)
 RAG_SKIP_LOCAL_DOCS=true      # true = only index the target GitHub repo, not local files
 
 # ── PGVector (required when RAG_VECTOR_DB=pgvector or both) ─
-POSTGRES_URL=postgresql://postgres:postgres@localhost:5432/rag_db
+POSTGRES_URL=postgresql://postgres:postgres@localhost:5434/ai_db
 
 # ── ChromaDB (required when RAG_VECTOR_DB=chroma or both) ───
 RAG_CHROMA_DIR=./chroma_store
@@ -200,7 +203,7 @@ GITHUB_REPO=The_New_York_Times
 PROJECT_ID=2
 GROQ_API_KEY=gsk_...
 RAG_VECTOR_DB=pgvector
-POSTGRES_URL=postgresql://postgres:postgres@localhost:5432/rag_db
+POSTGRES_URL=postgresql://postgres:postgres@localhost:5434/ai_db
 RAG_SKIP_LOCAL_DOCS=true
 ```
 
@@ -208,18 +211,18 @@ RAG_SKIP_LOCAL_DOCS=true
 
 ```bash
 docker run -d \
-  --name pgvector \
+  --name pgvector-rag \
   -e POSTGRES_USER=postgres \
   -e POSTGRES_PASSWORD=postgres \
-  -e POSTGRES_DB=rag_db \
-  -p 5432:5432 \
+  -e POSTGRES_DB=ai_db \
+  -p 5434:5432 \
   pgvector/pgvector:pg16
 ```
 
 Verify it is running:
 
 ```bash
-docker ps | grep pgvector
+docker ps | grep pgvector-rag
 ```
 
 > **ChromaDB alternative:** Set `RAG_VECTOR_DB=chroma` and skip this step entirely.
@@ -227,7 +230,7 @@ docker ps | grep pgvector
 ### Step 4 — Index the repository (run once)
 
 ```bash
-python ingest.py
+uv run python ingest.py
 ```
 
 This fetches every file from `GITHUB_OWNER/GITHUB_REPO`, splits text into 500-char chunks, embeds them with `sentence-transformers/all-MiniLM-L6-v2`, and loads them into PGVector.
@@ -253,30 +256,40 @@ INFO  Images found (8): ['logo.png', 'banner.jpg', ...]
 Re-index after repo changes:
 
 ```bash
-python ingest.py --reingest         # wipe store, then re-index
-python ingest.py --db chroma        # ChromaDB only
-python ingest.py --db pgvector      # PGVector only
-python ingest.py --db both          # both stores
-python ingest.py --docs-only        # local docs only (fast, no GitHub API call)
+uv run python ingest.py --reingest         # wipe store, then re-index
+uv run python ingest.py --db chroma        # ChromaDB only
+uv run python ingest.py --db pgvector      # PGVector only
+uv run python ingest.py --db both          # both stores
+uv run python ingest.py --docs-only        # local docs only (fast, no GitHub API call)
 ```
 
 ### Step 5 — (Optional) Test the RAG chain
 
 ```bash
 # Run 3 built-in test questions
-python rag_query.py
+uv run python rag_query.py
 
 # Ask a custom question
-python rag_query.py "Tell me about this project"
+uv run python rag_query.py "Tell me about this project"
 ```
 
 ### Step 6 — Start the MCP server
 
 ```bash
-python server.py --port 8090
+uv run python server.py --port 8090
 ```
 
-The server listens at **http://localhost:8090/sse** and exposes all 12 tools over the MCP / SSE protocol.
+The server listens at **<http://localhost:8090/sse>** and exposes all 12 tools over the MCP / SSE protocol.
+
+### Step 7 — (Optional) Inspect the MCP server
+
+In a new terminal, use the MCP Inspector to test the tools interactively:
+
+```bash
+npx @modelcontextprotocol/inspector
+```
+
+Then select the server running on port 8090 and interact with the tools in a browser-based UI.
 
 ### Switching vector stores without re-indexing
 
@@ -725,7 +738,7 @@ def register_your_tool(mcp: FastMCP) -> None:
         return {"result": "success"}
 ```
 
-2. Register in `github_mcp/tools/__init__.py`:
+1. Register in `github_mcp/tools/__init__.py`:
 
 ```python
 from .your_tool import register_your_tool
@@ -735,7 +748,7 @@ def register_all_tools(mcp):
     register_your_tool(mcp)
 ```
 
-3. Done — the tool is immediately available over SSE.
+1. Done — the tool is immediately available over SSE.
 
 ---
 
