@@ -44,6 +44,11 @@ LLM_MODEL = "openai/gpt-oss-120b"
 RETRIEVER_K = 5
 COLLECTION = "github_mcp_docs"
 
+# Log vector DB configuration at module load time
+logger.info(
+    f"RAG | Configuration loaded: RAG_VECTOR_DB={VECTOR_DB}, POSTGRES_URL={'set' if POSTGRES_URL else 'not set'}, CHROMA_DIR={CHROMA_DIR}"
+)
+
 # Target repo (from .env) — used to ground the RAG prompt correctly
 _GITHUB_OWNER = os.environ.get("GITHUB_OWNER", "")
 _GITHUB_REPO = os.environ.get("GITHUB_REPO", "")
@@ -179,15 +184,26 @@ def _get_pgvector():
 
 def _get_vectorstore():
     """Return the primary vectorstore based on RAG_VECTOR_DB setting."""
+    logger.info(f"RAG | Vector DB config: RAG_VECTOR_DB={VECTOR_DB}")
+
     if VECTOR_DB == "pgvector":
+        logger.info("RAG | Attempting to load PGVector...")
         pg = _get_pgvector()
         if pg is None:
+            logger.error("RAG | PGVector failed to initialize")
             raise RuntimeError(
                 "RAG_VECTOR_DB=pgvector but PGVector is unavailable. "
                 "Check POSTGRES_URL and that the Docker container is running."
             )
+        logger.info(
+            f"RAG | Using PGVector store (connected to {POSTGRES_URL.split('@')[-1]})"
+        )
         return pg
-    return _get_chroma()
+
+    logger.info("RAG | Attempting to load ChromaDB...")
+    chroma = _get_chroma()
+    logger.info(f"RAG | Using ChromaDB store from '{CHROMA_DIR}'")
+    return chroma
 
 
 def _combined_search(query: str, k: int) -> list:
@@ -213,20 +229,23 @@ def _combined_search(query: str, k: int) -> list:
 
 
 def _get_retriever():
-    """
-    Return retriever based on RAG_VECTOR_DB env var:
+    """Return retriever based on RAG_VECTOR_DB env var.
 
+    Logs which vector database is being used:
       RAG_VECTOR_DB=chroma    → ChromaDB only
       RAG_VECTOR_DB=pgvector  → PGVector only         (default)
       RAG_VECTOR_DB=both      → combined search (ChromaDB + PGVector, deduplicated)
 
     Switch at any time by changing RAG_VECTOR_DB in .env and restarting the server.
     """
+    logger.info(f"RAG | Initializing retriever with RAG_VECTOR_DB={VECTOR_DB}")
     ret_kwargs = {"search_type": "similarity", "search_kwargs": {"k": RETRIEVER_K}}
 
     if VECTOR_DB == "pgvector":
+        logger.info("RAG | Initializing PGVector retriever...")
         pg_vs = _get_pgvector()
         if pg_vs is None:
+            logger.error("RAG | PGVector initialization failed")
             raise RuntimeError(
                 "RAG_VECTOR_DB=pgvector but PGVector is unavailable. "
                 "Check POSTGRES_URL and that Docker container is running."
@@ -255,10 +274,11 @@ def _get_retriever():
             ) -> list[Document]:
                 return self.vs.similarity_search(query, k=self.k)
 
-        logger.info("RAG | retriever: PGVector ✅")
+        logger.info("RAG | ✅ ACTIVE DB: PGVector")
         return _PGVectorSyncRetriever(vs=pg_vs, k=RETRIEVER_K)
 
     if VECTOR_DB == "both":
+        logger.info("RAG | Initializing combined retriever (ChromaDB + PGVector)...")
         pg_vs = _get_pgvector()
         if pg_vs is not None:
             from langchain_core.retrievers import BaseRetriever
@@ -274,16 +294,17 @@ def _get_retriever():
                 ) -> list[Document]:
                     return _combined_search(query, self.k)
 
-            logger.info("RAG | retriever: Combined (ChromaDB + PGVector) ✅")
+            logger.info("RAG | ✅ ACTIVE DB: Combined (ChromaDB + PGVector)")
             return _CombinedRetriever(k=RETRIEVER_K)
         else:
             logger.warning(
-                "RAG | RAG_VECTOR_DB=both but PGVector unavailable, using ChromaDB only"
+                "RAG | PGVector unavailable in 'both' mode, falling back to ChromaDB only"
             )
+            logger.info("RAG | ✅ ACTIVE DB: ChromaDB (fallback)")
             return _get_chroma().as_retriever(**ret_kwargs)
 
     # Default: chroma
-    logger.info("RAG | retriever: ChromaDB ✅")
+    logger.info("RAG | ✅ ACTIVE DB: ChromaDB")
     return _get_chroma().as_retriever(**ret_kwargs)
 
 
@@ -313,16 +334,54 @@ def _build_ask_chain():
 
 
 def _get_all_docs() -> list:
-    """Fetch ALL documents from ChromaDB (not just top-k)."""
+    """Fetch ALL documents from the vector store (Chroma or PGVector)."""
     vs = _get_vectorstore()
-    result = vs._collection.get(include=["documents", "metadatas"])
 
     class _Doc:
         def __init__(self, page_content, metadata):
             self.page_content = page_content
             self.metadata = metadata
 
-    return [_Doc(c, m or {}) for c, m in zip(result["documents"], result["metadatas"])]
+    # Handle Chroma: use _collection.get()
+    if hasattr(vs, "_collection") and hasattr(vs._collection, "get"):
+        result = vs._collection.get(include=["documents", "metadatas"])
+        return [
+            _Doc(c, m or {}) for c, m in zip(result["documents"], result["metadatas"])
+        ]
+
+    # Handle PGVector: query with a very large k to get all docs
+    # (this is a workaround since PGVector doesn't have a public get_all() method)
+    logger.info("RAG | Fetching all docs from PGVector (this may take a moment)...")
+    try:
+        # Try multiple search strategies to maximize retrieval
+        all_docs = []
+        seen_content = set()
+
+        # Use multiple queries to try to retrieve all documents
+        search_queries = ["", " ", ".", "a", "def ", "import ", "class ", "return "]
+        for query in search_queries:
+            try:
+                # Request a large number of results (PGVector should return what's available)
+                docs = vs.similarity_search(query, k=10000)
+                for doc in docs:
+                    content_key = doc.page_content[:100]
+                    if content_key not in seen_content:
+                        seen_content.add(content_key)
+                        all_docs.append(_Doc(doc.page_content, doc.metadata or {}))
+            except Exception:
+                continue
+
+            # If we got some docs, stop searching
+            if all_docs:
+                logger.info(f"RAG | Retrieved {len(all_docs)} documents from PGVector")
+                break
+
+        if not all_docs:
+            logger.warning("RAG | No documents found in vector store")
+        return all_docs
+    except Exception as e:
+        logger.error(f"RAG | Failed to fetch all docs: {e}")
+        return []
 
 
 def _build_file_index() -> dict:
@@ -399,6 +458,7 @@ def register_ask_codebase_tool(mcp) -> None:
             model:    LLM model used.
             sources:  Deduplicated list of retrieved source filenames.
         """
+        logger.info(f"ask_codebase | Using {VECTOR_DB.upper()} vector DB 🔍")
         logger.info(f"ask_codebase | question={question!r}")
 
         if not question or not question.strip():
@@ -458,6 +518,7 @@ def register_explore_codebase_tool(mcp) -> None:
             images:        All image files found (name + folder + url).
             query:         The original query echoed back.
         """
+        logger.info(f"explore_codebase | Using {VECTOR_DB.upper()} vector DB 🔍")
         logger.info(f"explore_codebase | query={query!r}")
 
         if not query or not query.strip():

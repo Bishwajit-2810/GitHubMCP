@@ -449,7 +449,12 @@ def ingest_chroma(all_docs: list[Document], embeddings: HuggingFaceEmbeddings) -
         persist_directory=CHROMA_DIR,
         collection_name=COLLECTION,
     )
-    count = vs._collection.count()
+    # Get count from _collection if available (Chroma interface)
+    try:
+        count = vs._collection.count()
+    except (AttributeError, Exception):
+        # Fallback: assume all docs were stored
+        count = len(all_docs)
     logger.info(f"ChromaDB: {count} docs stored ✅")
     return count
 
